@@ -36,6 +36,7 @@ use App\Http\Controllers\PengajuanSolderController;
 use App\Http\Controllers\SnagcuController;
 use App\Http\Controllers\SnagController;
 use App\Http\Controllers\TinController;
+use App\Http\Controllers\DataSolderController;
 
 
 
@@ -420,4 +421,15 @@ Route::controller(Tincontroller::class)->prefix('tin')->group(function () {
     Route::get('edit/{id}', 'edit')->name('tin.edit');
     Route::put('edit/{id}', 'update')->name('tin.update');
     Route::delete('destroy/{id}', 'destroy')->name('tin.destroy');
+});
+
+Route::controller(DataSoldercontroller::class)->prefix('datasolder')->group(function () {
+    Route::get('/datasolder', [TinController::class, 'index'])->name('datasolder.index');
+    Route::get('', 'index')->name('datasolder');
+    Route::get('create', 'create')->name('datasolder.create');
+    Route::post('store', 'store')->name('datasolder.store');
+    Route::get('show/{id}', 'show')->name('datasolder.show'); 
+    Route::get('edit/{id}', 'edit')->name('datasolder.edit');
+    Route::put('edit/{id}', 'update')->name('datasolder.update');
+    Route::delete('destroy/{id}', 'destroy')->name('datasolder.destroy');
 });

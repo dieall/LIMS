@@ -210,15 +210,9 @@
                     </ul>
                 </div>
             </li>
+            <li class="sidebar-header">Data Pengajuan</li>
 
-            <li class="sidebar-header">Tambah Data Solder</li>
 
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="{{ route('categorysolder') }}">
-                    <i class="align-middle" data-feather="smile"></i>
-                    <span class="align-middle">Data Category Solder</span>
-                </a>
-            </li>
             
             <li class="sidebar-item">
                 <a class="sidebar-link" href="{{ route('pengajuansolder') }}">
@@ -226,26 +220,19 @@
                     <span class="align-middle">Pengajuan Solder</span>
                 </a>
             </li>
-
             <li class="sidebar-item">
-                <a class="sidebar-link" data-bs-toggle="collapse" href="#dataSncuDropdown" role="button" aria-expanded="false" aria-controls="dataSncuDropdown">
-                    <i class="align-middle" data-feather="file-plus"></i><!-- Ikon box untuk Data Tinstab -->
-                    <span class="align-middle">Data Sn/Cu Series</span>
-                    <i class="align-middle float-end" data-feather="chevron-down"></i>
+                <a class="sidebar-link" href="{{ route('transaksi') }}">
+                    <i class="align-middle" data-feather="info"></i>
+                    <span class="align-middle">Pengajuan Sampel</span>
                 </a>
-                <div class="collapse" id="dataSncuDropdown">
-                    <ul class="sidebar-dropdown list-unstyled">
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="{{ route('sncu.create') }}">
-                                <i class="align-middle" data-feather="plus"></i> 
-                                Tambah Sncu
-                            </a>
-                        </li>
-
-
-                    </ul>
-                </div>
             </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ route('datasolder') }}">
+                    <i class="align-middle" data-feather="info"></i>
+                    <span class="align-middle">Pengajuan Coba Solder</span>
+                </a>
+            </li>
+
 
 
             
@@ -268,6 +255,13 @@
 
 
             <li class="sidebar-item">
+                <a class="sidebar-link" href="{{ route('categorysolder') }}">
+                    <i class="align-middle" data-feather="smile"></i>
+                    <span class="align-middle">Data Category Solder</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
                 <a class="sidebar-link" href="{{ route('category') }}">
                     <i class="align-middle" data-feather="list"></i>
                     <span class="align-middle">Data Category</span>
@@ -287,12 +281,7 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="{{ route('transaksi') }}">
-                    <i class="align-middle" data-feather="info"></i>
-                    <span class="align-middle">Pengajuan Sampel</span>
-                </a>
-            </li>
+
 
             <li class="sidebar-item">
     <a class="sidebar-link" data-bs-toggle="collapse" href="#dataSolderDropdown" role="button" aria-expanded="false" aria-controls="dataSolderDropdown">
