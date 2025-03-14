@@ -42,18 +42,12 @@ class TrialController extends Controller
         return view('trial.show', compact('trial'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         $trial = Trial::findOrFail($id);
         return view('trial.edit', compact('trial'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([

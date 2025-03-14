@@ -50,14 +50,17 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         return view('user.edit', compact('user'));
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
+                        
+ 
     public function update(Request $request, $id)
     {
-       
+        $user = User::findOrFail($id);
+  
+        $user->update($request->all());
+  
+        return redirect()->route('user')->with('success', 'Users updated successfully');
     }
+
 
    
     public function destroy(string $id)

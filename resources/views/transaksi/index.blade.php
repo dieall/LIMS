@@ -58,7 +58,6 @@
                         <th>Tipe Sampel</th>
                         <th>Batch</th>
                         <th>Deskripsi</th>
-                        <th>Jam Pengajuan</th>
                         <th>Nama</th>
                         <th>Action</th>
                     </tr>
@@ -68,11 +67,11 @@
                         @foreach($transaksi as $rs)
                             <tr>
                                 <td class="align-middle">{{ ($transaksi->currentPage() - 1) * $transaksi->perPage() + $loop->iteration }}</td>
-                                <td class="align-middle text-category">{{ $rs->category->nama_kategori }}</td>
+                                <td>{{ $rs->category->nama_kategori ?? 'Tidak ada kategori' }}</td> <!-- Menampilkan nama kategori -->
                                 <td class="align-middle text-tipe-sampel">{{ $rs->tipe_sampel }}</td>
                                 <td class="align-middle">{{ $rs->batch }}</td>
                                 <td class="align-middle">{{ $rs->deskripsi }}</td>
-                                <td class="align-middle">{{ $rs->jam_masuk }}</td>
+
                                 <td class="align-middle">{{ $rs->nama }}</td>
                                 <td class="align-middle">
                                     <div class="btn-group">
@@ -84,13 +83,13 @@
                                             <li><a href="{{ route('transaksi.print2', $rs->id) }}" class="dropdown-item"><i class="fas fa-print"></i> Print MT-7xx</a></li>
                                             <li>
 
-                                            <button type="button" class="dropdown-item btn-detail" data-id="{{ $rs->id }}" data-tgl="{{ $rs->tgl }}" data-category="{{ $rs->category->nama_kategori }}" data-tipe-sampel="{{ $rs->tipe_sampel }}" data-batch="{{ $rs->batch }}" data-deskripsi="{{ $rs->deskripsi }}" data-nama="{{ $rs->nama }}" data-audit_trail="{{ $rs->audit_trail }}" data-bs-toggle="modal" data-bs-target="#floatingdetail">
+                                            <button type="button" class="dropdown-item btn-detail" data-id="{{ $rs->id }}" data-tgl="{{ $rs->tgl }}" data-category="{{ $rs->id_category }}" data-tipe-sampel="{{ $rs->tipe_sampel }}" data-batch="{{ $rs->batch }}" data-deskripsi="{{ $rs->deskripsi }}" data-nama="{{ $rs->nama }}" data-audit_trail="{{ $rs->audit_trail }}" data-bs-toggle="modal" data-bs-target="#floatingdetail">
                                                         <i class="fas fa-plus-circle"></i> Detail
                                                     </button>
 
                                             </li>
                                             <li>
-                                                <button type="button" class="dropdown-item btn-edit" data-id="{{ $rs->id }}" data-tgl="{{ $rs->tgl }}" data-category="{{ $rs->category->nama_kategori }}" data-tipe-sampel="{{ $rs->tipe_sampel }}" data-batch="{{ $rs->batch }}" data-deskripsi="{{ $rs->deskripsi }}" data-nama="{{ $rs->nama }}" data-audit_trail="{{ $rs->audit_trail }}" data-bs-toggle="modal" data-bs-target="#floatingFormModal">
+                                                <button type="button" class="dropdown-item btn-edit" data-id="{{ $rs->id }}" data-tgl="{{ $rs->tgl }}" data-category="{{ $rs->id_category }}" data-tipe-sampel="{{ $rs->tipe_sampel }}" data-batch="{{ $rs->batch }}" data-deskripsi="{{ $rs->deskripsi }}" data-nama="{{ $rs->nama }}" data-audit_trail="{{ $rs->audit_trail }}" data-bs-toggle="modal" data-bs-target="#floatingFormModal">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </button>
                                             </li>

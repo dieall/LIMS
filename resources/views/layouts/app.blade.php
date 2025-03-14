@@ -10,13 +10,13 @@
 	<meta name="keywords" content="adminkit, bootstrap, bootstrap 5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
 	<link rel="preconnect" href="https://fonts.gstatic.com">
-	<link rel="shortcut icon" href="{{ asset('admin_assets/img/icons/icon-48x48.png') }}" />
+	<link rel="shortcut icon" href="{{ asset('admin_assets\img\photos\icontitle.png') }}" />
 
 	<!-- Optional: Replace canonical URL if this is a deployed site -->
 	<link rel="canonical" href="https://your-site-url.com/" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-	<title>@yield('title', 'PT Timah Industri')</title>
+	<title>PT TIMAH INDUSTRI</title>
 
 	<!-- Custom CSS -->
 	<link href="{{ asset('admin_assets/css/app.css') }}" rel="stylesheet">

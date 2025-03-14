@@ -89,6 +89,7 @@ class DmtController extends Controller
             'spec' => 'nullable|string',
             'dimet' => 'nullable|string',
             'moisture' => 'nullable|string',
+            'status' => 'nullable|string',
 
 
         ]);
@@ -108,6 +109,7 @@ class DmtController extends Controller
             'spec' => $validatedData['spec'],
             'dimet' => $validatedData['dimet'],
             'moisture' => $validatedData['moisture'],
+            'status' => $validatedData['status'],
 
         ]);
     

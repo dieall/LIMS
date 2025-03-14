@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="img/icons/icon-48x48.png" />
     <link rel="canonical" href="https://demo-basic.adminkit.io/pages-sign-up.html" />
 
-    <title>Sign Up | AdminKit Demo</title>
+    <title>Sign Up | PT Timah Industri</title>
 
     <link href="{{ asset('admin_assets/css/app.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
 						<div class="card">
     <div class="card-body">
         <div class="text-center mb-4">
-            <img src="{{ asset('admin_assets/img/photos/timah.png') }}" class="img-fluid" style="max-width: 250px; height: auto;" alt="Timah">
+            <img src="{{ asset('admin_assets/img/photos/login.png') }}" class="img-fluid" style="max-width: 250px; height: auto;" alt="Timah">
         </div>
         <div class="m-sm-4">
 		<form action="{{ route('register.save') }}" method="POST" class="user">

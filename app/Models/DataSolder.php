@@ -36,9 +36,13 @@ class DataSolder extends Model
         'ai',
         'pe',
         'ga',
-        'mp',
 
     ];
 
-    
+    public function pengajuansolder()
+    {
+        return $this->belongsTo(PengajuanSolder::class, 'tipe_solder','tipe_solder');
+    }
+
 }
+

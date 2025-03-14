@@ -31,8 +31,10 @@ class TransaksiController extends Controller
     public function create() 
     {
         // Mengambil semua kategori
+
         $category = Category::all(); 
-// Ambil semua data dari tabel tc191
+        
+        // Ambil semua data dari tabel tc191
     
         return view('transaksi.create', compact( 'category'));
     }

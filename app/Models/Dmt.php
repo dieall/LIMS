@@ -35,6 +35,7 @@ class Dmt extends Model
         'spec',
         'dimet',
         'moisture',
+        'status',
 
     ];
 

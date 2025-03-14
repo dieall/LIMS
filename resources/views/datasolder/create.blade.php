@@ -13,6 +13,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        
         <h6 class="m-0 font-weight-bold">Tambah Data Sn/Ag Series</h6>
     </div>
 
@@ -26,10 +27,10 @@
                     <label for="nama_kategori" class="form-label">Nama Kategori</label>
                     <select name="nama_kategori" class="form-control select2" id="nama_kategori" required>
                         <option disabled selected value="">Pilih Kategori</option>
-                        <option value="1">Sn/Cu Series</option>
-                        <option value="2">Sn/Ag/Cu Series</option>
-                        <option value="3">Sn/Ag Series</option>
-                        <option value="4">Tin-Lead Solder Bar</option>
+                        <option value="Sn/Cu Series">Sn/Cu Series</option>
+                        <option value="Sn/Ag/Cu Series">Sn/Ag/Cu Series</option>
+                        <option value="Sn/Ag Series">Sn/Ag Series</option>
+                        <option value="Tin-Lead Solder Bar">Tin-Lead Solder Bar</option>
 
                     </select>
                 </div>
@@ -110,10 +111,7 @@
                         <label for="ge" class="form-label">Ga</label>
                         <input type="text" step="any" name="ga" class="form-control" id="ga" placeholder="Ga">
                     </div>
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <label for="ge" class="form-label">MP</label>
-                        <input type="text" step="any" name="mp" class="form-control" id="mp" placeholder="Mp">
-                    </div>
+
 
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary">Tambah Data</button>
@@ -129,10 +127,10 @@
         document.getElementById('tgl').value = today;
 
         const tipeSampelData = {
-            '1': ['D9930c', 'D9930c (A)', 'D9930c (W)', 'MB D9930c', 'NAP100'],
-            '2': ['SAC0307', 'SAC0307 (A)', 'E9650 (2,9% Ag)', 'E9650 (3% Ag)', 'E9650 (A) (2,9% Ag)', 'E9650 (A) (3% Ag)'],
-            '3': ['0307CX', '0507CX', '9650CX (2.9% Ag)', '9650CX (3% Ag)', '9650CX (B) (2,9% Ag)'],
-            '4': ['Sn63/37', 'Sn63/37 (A)', 'Sn60/40', 'Sn60/40 (A)', 'Sn60/40 (B)', 'Sn55/45'],
+            'Sn/Cu Series': ['D9930c', 'D9930c (A)', 'D9930c (W)', 'MB D9930c', 'NAP100'],
+            'Sn/Ag/Cu Series': ['SAC0307', 'SAC0307 (A)', 'E9650 (2,9% Ag)', 'E9650 (3% Ag)', 'E9650 (A) (2,9% Ag)', 'E9650 (A) (3% Ag)'],
+            'Sn/Ag Series': ['0307CX', '0507CX', '9650CX (2.9% Ag)', '9650CX (3% Ag)', '9650CX (B) (2,9% Ag)'],
+            'Tin-Lead Solder Bar': ['Sn63/37', 'Sn63/37 (A)', 'Sn60/40', 'Sn60/40 (A)', 'Sn60/40 (B)', 'Sn55/45'],
         };
 
         document.getElementById('nama_kategori').addEventListener('change', function() {

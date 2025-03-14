@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Import;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use App\Models\PengajuanSolder;
+use App\Models\PengajuanChemical;
+use App\Models\PengajuanRawmat;
+use Carbon\Carbon;
 
 class ImportController extends Controller
 {
@@ -15,52 +16,141 @@ class ImportController extends Controller
         return view('import.index');
     }
 
-    public function create()
-    {
-        //
-    }
-
     /**
-     * Store a newly created resource in storage.
+     * Export Pengajuan Solder to Excel.
      */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function exportPengajuanSolder(Request $request)
     {
-        //
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        
+        // Filter data berdasarkan tanggal
+        $query = PengajuanSolder::query();
+        if ($startDate && $endDate) {
+            $query->whereBetween('tgl', [$startDate, $endDate]);
+        }
+        
+        $data = $query->select([
+            'id', 'nama', 'tgl', 'tipe_solder', 'batch', 'audit_trail', 'jam_masuk', 'created_at', 'updated_at',
+            'id_category', 'sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'fe', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga', 'status',
+            'previous_status', 'previous_jam_masuk'
+        ])->get();
+        
+        $dateToday = Carbon::now()->format('Y-m-d'); // Format tanggal saat ini
+        
+        return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+    
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+    
+            public function collection()
+            {
+                return $this->data;
+            }
+    
+            public function headings(): array
+            {
+                return [
+                    'ID', 'Nama', 'Tanggal', 'Tipe Solder', 'Batch', 'Audit Trail', 'Jam Masuk', 'Created At', 'Updated At',
+                    'ID Category', 'SN', 'AG', 'CU', 'PB', 'SB', 'ZN', 'FE', 'AS', 'NI', 'BI', 'CD', 'AI', 'PE', 'GA', 'Status',
+                    'Previous Status', 'Previous Jam Masuk'
+                ];
+            }
+        }, 'Data_Solder_' . $dateToday . '.xlsx');
     }
-
+    
+    
     /**
-     * Update the specified resource in storage.
+     * Export Pengajuan Chemical to Excel with date filtering.
      */
-    public function update(Request $request, string $id)
+    public function exportPengajuanChemical(Request $request)
     {
-        //
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        
+        $query = PengajuanChemical::query();
+        if ($startDate && $endDate) {
+            $query->whereBetween('tgl', [$startDate, $endDate]);
+        }
+        
+        $data = $query->select([
+            'id', 'nama_chemical', 'nama', 'tgl', 'jam_masuk', 'batch', 'desc', 'status', 'clarity', 'transmission', 'ape',
+            'dimet', 'trime', 'tin', 'solid', 'ri', 'sg', 'acid', 'sulfur', 'water', 'mono', 'yellow', 'eh', 'visco', 'pt',
+            'moisture', 'cloride', 'spec', 'densi', 'created_at', 'updated_at', 'orang'
+        ])->get();
+        
+        $dateToday = Carbon::now()->format('Y-m-d'); // Format tanggal saat ini
+        
+        return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+    
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+    
+            public function collection()
+            {
+                return $this->data;
+            }
+    
+            public function headings(): array
+            {
+                return [
+                    'ID', 'Nama Chemical', 'Nama', 'Tanggal', 'Jam Masuk', 'Batch', 'Deskripsi', 'Status', 'Clarity', 'Transmission',
+                    'APE', 'Dimet', 'Trime', 'Tin', 'Solid', 'RI', 'SG', 'Acid', 'Sulfur', 'Water', 'Mono', 'Yellow', 'EH', 'Visco',
+                    'PT', 'Moisture', 'cloride', 'Spec', 'Densi', 'Created At', 'Updated At', 'Orang'
+                ];
+            }
+        }, 'Data_Chemical_' . $dateToday . '.xlsx');
     }
+    
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+ 
+
+
+    public function exportPengajuanRawmat(Request $request)
     {
-        //
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        
+        $query = PengajuanRawmat::query();
+        if ($startDate && $endDate) {
+            $query->whereBetween('tgl', [$startDate, $endDate]);
+        }
+        
+        $data = $query->select([
+            'id', 'nama', 'supplier', 'spesifikasi', 'satuan', 'coa', 'result', 'tgl', 'created_at', 'updated_at'
+        ])->get();
+        
+        $dateToday = Carbon::now()->format('Y-m-d'); // Format tanggal saat ini
+        
+        return Excel::download(new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+    
+            public function __construct($data)
+            {
+                $this->data = $data;
+            }
+    
+            public function collection()
+            {
+                return $this->data;
+            }
+    
+            public function headings(): array
+            {
+                return [
+                    'ID', 'Nama', 'Supplier', 'Spesifikasi', 'Satuan', 'COA', 'Result', 'Tanggal', 'Created At', 'Updated At'
+                ];
+            }
+        }, 'Data_Rawmat_' . $dateToday . '.xlsx');
     }
-
-    /**
-     * Export data to Excel.
-     */
+    
+    
 }

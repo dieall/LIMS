@@ -86,7 +86,8 @@
                 <select name="level" class="form-control" id="level" required>
                     <option value="" disabled selected>Pilih Role</option>
                     <option value="Admin">Admin</option>
-                    <option value="Operator">Operator</option>
+                    <option value="Operator Quality Control">Operator QC</option>
+                    <option value="Operator Laboratorium">Operator Lab</option>
                     <option value="Foreman">Foreman</option>
                     <option value="Supervisor">Supervisor</option>
                     <option value="Manager">Manager</option>

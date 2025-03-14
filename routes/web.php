@@ -20,9 +20,14 @@ use App\Http\Controllers\SolderController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+
+
+//Chemical
 use App\Http\Controllers\TinstabController;
 use App\Http\Controllers\TinchemController;
 use App\Http\Controllers\DmtController;
+use App\Http\Controllers\PengajuanChemicalController;
+use App\Http\Controllers\DataChemicalController;
 
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\DashboardController;
@@ -39,8 +44,11 @@ use App\Http\Controllers\TinController;
 use App\Http\Controllers\DataSolderController;
 
 
+//Rawmat
 
-
+use App\Http\Controllers\RtinchemicalController;
+use App\Http\Controllers\DataRawmatController;
+use App\Http\Controllers\PengajuanRawmatController;
 
 
 
@@ -266,6 +274,7 @@ Route::controller(CategoryController::class)->prefix('category')->group(function
 
 
 Route::controller(UserController::class)->prefix('user')->group(function () {
+    Route::get('/user', [DataChemicalController::class, 'index'])->name('user.index');
     Route::get('', 'index')->name('user');
     Route::get('create', 'create')->name('user.create');
     Route::post('store', 'store')->name('user.store');
@@ -302,6 +311,7 @@ Route::controller(TinstabController::class)->prefix('tinstab')->group(function (
 
 
 Route::controller(DmtController::class)->prefix('dmt')->group(function () {
+    Route::get('/dmt', [DmtController::class, 'index'])->name('dmt.index');
     Route::get('', 'index')->name('dmt');
     Route::get('create', 'create')->name('dmt.create');
     Route::get('create1', 'create1')->name('dmt.create1');
@@ -341,8 +351,11 @@ Route::controller(TinchemController::class)->prefix('tinchem')->group(function (
 Route::controller(ImportController::class)->prefix('import')->group(function () {
     Route::get('', 'index')->name('import');
     Route::get('/export-data', [ImportController::class, 'export'])->name('export.data');
-    Route::get('/transaksi/export', [TransaksiController::class, 'export'])->name('transaksi.export');
-
+    Route::get('/export', [ImportController::class, 'export']);
+    Route::get('/export', [ImportController::class, 'export'])->name('export');
+    Route::get('/export/pengajuan-solder', [ImportController::class, 'exportPengajuanSolder'])->name('export.pengajuan-solder');
+    Route::get('/export/pengajuan-chemical', [ImportController::class, 'exportPengajuanChemical'])->name('export.pengajuan-chemical');
+    Route::get('/export/pengajuan-rawmat', [ImportController::class, 'exportPengajuanRawmat'])->name('export.pengajuan-rawmat');
 
 
 });
@@ -385,9 +398,23 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::get('edit/{id}', 'edit')->name('pengajuansolder.edit');
     Route::put('edit/{id}', 'update')->name('pengajuansolder.update');
     Route::delete('destroy/{id}', 'destroy')->name('pengajuansolder.destroy');
-    Route::get('/get-sncu/{categoryId}', [SncuController::class, 'getSncuData']);
-    Route::get('/get-sncu/{categoryId}', [SnagcuController::class, 'getSnagcuData']);
-    
+    Route::get('/get-tipe-solder/{tipe_solder}', [DataSolderController::class, 'getTipeSolderDetail']);
+    Route::get('/pengajuan-solder/{id}/print-pdf', [PengajuanSolderController::class, 'printPDF'])->name('pengajuansolder.printPDF');   
+    Route::get('/pengajuansolder/export-excel', [PengajuanSolderController::class, 'exportToExcel'])->name('pengajuansolder.export-excel');
+
+    //coa
+    Route::get('lokal/{id}', 'lokal')->name('pengajuansolder.lokal');
+    Route::get('expor/{id}', 'expor')->name('pengajuansolder.expor');
+    Route::get('/get-pengajuan-data/{id}', [PengajuanSolderController::class, 'getPengajuanData']);
+
+
+
+    Route::post('/pengajuansolder/proses-analisa/{id}', [PengajuanSolderController::class, 'prosesAnalisa'])->name('pengajuansolder.proses-analisa');
+    Route::post('/pengajuan-solder/analisa-selesai/{id}', [PengajuanSolderController::class, 'analisaSelesai'])->name('pengajuansolder.analisaSelesai');
+    Route::post('/pengajuansolder/review-hasil/{id}', [PengajuanSolderController::class, 'reviewHasil'])->name('pengajuansolder.reviewHasil');
+    Route::post('/pengajuansolder/tolak/{id}', [PengajuanSolderController::class, 'tolakReviewHasil'])->name('pengajuansolder.tolak');
+    Route::post('/pengajuan-solder/approve/{id}', [PengajuanSolderController::class, 'approve'])->name('pengajuansolder.approve');
+
 });
 
 Route::controller(SnagcuController::class)->prefix('snagcu')->group(function () {
@@ -432,4 +459,100 @@ Route::controller(DataSoldercontroller::class)->prefix('datasolder')->group(func
     Route::get('edit/{id}', 'edit')->name('datasolder.edit');
     Route::put('edit/{id}', 'update')->name('datasolder.update');
     Route::delete('destroy/{id}', 'destroy')->name('datasolder.destroy');
+    
+});
+
+
+// Rawmat
+
+Route::controller(RtinchemicalController::class)->prefix('rtinchemical')->group(function () {
+    Route::get('', 'index')->name('rtinchemical');
+    Route::get('create', 'create')->name('rtinchemical.create');
+    Route::post('store', 'store')->name('rtinchemical.store');
+    Route::get('show/{id}', 'show')->name('rtinchemical.show');
+    Route::get('edit/{id}', 'edit')->name('rtinchemical.edit');
+    Route::put('edit/{id}', 'update')->name('rtinchemical.update');
+    Route::delete('destroy/{id}', 'destroy')->name('rtinchemical.destroy');
+
+});
+
+Route::controller(DataRawmatController::class)->prefix('datarawmat')->group(function () {
+    Route::get('', 'index')->name('datarawmat');
+    Route::get('create', 'create')->name('datarawmat.create');
+    Route::post('store', 'store')->name('datarawmat.store');
+    Route::get('show/{id_rawmat}', 'show')->name('datarawmat.show');
+    Route::get('edit/{id_rawmat}', 'edit')->name('datarawmat.edit');
+    Route::put('edit/{id_rawmat}', 'update')->name('datarawmat.update');
+    Route::delete('destroy/{id_rawmat}', 'destroy')->name('datarawmat.destroy');
+
+
+
+});
+
+
+Route::controller(PengajuanRawmatController::class)->prefix('pengajuanrawmat')->group(function () {
+    Route::get('/pengajuanrawmat', [PengajuanRawmatController::class, 'index'])->name('pengajuanrawmat.index');
+    Route::get('', 'index')->name('pengajuanrawmat');
+    Route::get('create', 'create')->name('pengajuanrawmat.create');
+    Route::post('store', 'store')->name('pengajuanrawmat.store');
+    Route::get('show/{id}', 'show')->name('pengajuanrawmat.show');
+    Route::get('edit/{id}', 'edit')->name('pengajuanrawmat.edit');
+    Route::put('edit/{id}', 'update')->name('pengajuanrawmat.update');
+    Route::delete('destroy/{id}', 'destroy')->name('pengajuanrawmat.destroy');
+
+
+
+});
+
+
+// Chemical
+Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical')->group(function () {
+    Route::get('/pengajuanchemical', [PengajuanChemicalController::class, 'index'])->name('pengajuanchemical.index');
+    Route::get('', 'index')->name('pengajuanchemical');
+    Route::get('create', 'create')->name('pengajuanchemical.create');
+    Route::post('store', 'store')->name('pengajuanchemical.store');
+    Route::get('show/{id}', 'show')->name('pengajuanchemical.show');
+    Route::get('edit/{id}', 'edit')->name('pengajuanchemical.edit');
+    Route::put('edit/{id}', 'update')->name('pengajuanchemical.update');
+    Route::delete('destroy/{id}', 'destroy')->name('pengajuanchemical.destroy');
+    Route::get('/pengajuanchemical/export-excel', [PengajuanChemicalController::class, 'exportToExcel'])->name('pengajuanchemical.export-excel');
+    //coa
+    Route::get('lokal/{id}', 'lokal')->name('pengajuanchemical.lokal');
+    Route::get('expor/{id}', 'expor')->name('pengajuanchemical.expor');
+    Route::get('/pengajuanchemical/printlokal/{id}', [PengajuanChemicalController::class, 'printlokal'])->name('pengajuanchemical.printlokal');
+
+
+
+   
+    Route::get('/get-names/{kategori}', [PengajuanChemicalController::class, 'getNamesByCategory']);
+    Route::post('/pengajuanchemical/proses-analisa/{id}', [PengajuanChemicalController::class, 'prosesAnalisa'])->name('pengajuanchemical.proses-analisa');
+    Route::post('/pengajuan-chemical/analisa-selesai/{id}', [PengajuanChemicalController::class, 'analisaSelesai'])->name('pengajuanchemical.analisaSelesai');
+    Route::post('/pengajuanchemical/review-hasil/{id}', [PengajuanChemicalController::class, 'reviewHasil'])->name('pengajuanchemical.reviewHasil');
+    Route::post('/pengajuanchemical/tolak/{id}', [PengajuanChemicalController::class, 'tolakReviewHasil'])->name('pengajuanchemical.tolak');
+    Route::post('/pengajuan-chemical/approve/{id}', [PengajuanChemicalController::class, 'approve'])->name('pengajuanchemical.approve');
+
+
+
+
+
+
+
+});
+
+Route::controller(DataChemicalController::class)->prefix('datachemical')->group(function () {
+    Route::get('/datachemical', [DataChemicalController::class, 'index'])->name('datachemical.index');
+    Route::get('', 'index')->name('datachemical');
+    Route::get('create', 'create')->name('datachemical.create');
+    Route::post('store', 'store')->name('datachemical.store');
+    Route::get('show/{id}', 'show')->name('datachemical.show');
+    Route::get('edit/{id}', 'edit')->name('datachemical.edit');
+    Route::put('edit/{id}', 'update')->name('datachemical.update');
+
+
+
+    Route::delete('destroy/{id}', 'destroy')->name('datachemical.destroy');
+
+
+
+
 });

@@ -105,7 +105,7 @@
             <div class="mb-3">
                 <input type="hidden" name="dimet" class="form-control" id="dimet" value="">
             </div>
-
+            <input type="hidden" name="status" id="status" value="Pengajuan">
            
             <!-- Tabel DMT 98 -->
             <h5>Tabel DMT 98</h5>
@@ -149,6 +149,7 @@
                    <td>2.0 % max</td>
                         <td><input type="text" name="moisture" class="form-control"></td>
                     </tr>
+
                 </tbody>
             </table>
 
@@ -164,6 +165,7 @@ document.getElementById('select_transaksi').addEventListener('change', function(
     if (selectedOption.value) {
         // Tampilkan detail dan input Kode BQR
         document.getElementById('transaksi-details').style.display = 'block';
+        
         document.getElementById('kode-bqr-container').style.display = 'block';
 
         // Ambil nilai dari option yang dipilih
@@ -193,6 +195,8 @@ document.getElementById('select_transaksi').addEventListener('change', function(
 </script>
 
 <script>
+
+    
     // Mengisi input tanggal dengan tanggal hari ini
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date();
@@ -207,5 +211,10 @@ document.getElementById('select_transaksi').addEventListener('change', function(
         document.getElementById('tgl').value = formattedDate;
     });
 </script>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the status field value
+        document.getElementById('status').value = "Pengajuan";
+    });
+</script>
 @endsection

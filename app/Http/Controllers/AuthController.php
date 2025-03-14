@@ -38,10 +38,10 @@ class AuthController extends Controller
             'alamat' => $request->alamat, // Menyertakan alamat
             'departement' => $request->departement, // Menyertakan departement
             'jabatan' => $request->jabatan, // Menyertakan jabatan
-            'level' => 'Guest' // Pastikan ini sesuai dengan kebutuhan
+            'level' => 'Internal Costumer' // Pastikan ini sesuai dengan kebutuhan
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please log in.'); // Menambahkan pesan sukses
+        return redirect()->route('login')->with('success', 'Registrasi Telah Berhasil !!!, Silahkan Login'); // Menambahkan pesan sukses
     }
 
     public function login()
@@ -60,7 +60,7 @@ class AuthController extends Controller
         // Coba untuk login
         if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed')
+                'email' => trans('Email atau password yang Anda masukkan salah.')
             ]);
         }
 

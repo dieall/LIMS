@@ -49,6 +49,7 @@
                         <th>Tipe Sampel</th>
                         <th>Jam Pengajuan</th>
                         <th>Nama</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -61,8 +62,23 @@
                                 <td class="align-middle">{{ $rs->tgl }}</td>
                                 <td class="align-middle">{{ $rs->category->nama_kategori ?? 'Kategori Tidak Ada' }}</td>
                                 <td class="align-middle">{{ $rs->transaksi->tipe_sampel ?? 'Tipe Sampel Tidak Ada' }}</td>
-                                <td class="align-middle">{{ $rs->transaksi->jam_masuk ?? 'Tipe Sampel Tidak Ada' }}</td>
+                                <td class="align-middle">{{ $rs->created_at ? $rs->created_at->format('H:i:s') : 'Tipe Sampel Tidak Ada' }}</td>
                                 <td class="align-middle">{{ $rs->transaksi->nama ?? 'Nama Tidak Ada' }}</td>
+                                <td class="align-middle text-center">
+                                @if ($rs->status == 'Pengajuan')
+                                        <span class="badge bg-primary text-white">{{ $rs->status }}</span>
+                                    @elseif ($rs->status == 'Proses Analisa')
+                                        <span class="badge bg-info text-dark">{{ $rs->status }}</span>
+                                    @elseif ($rs->status == 'Selesai Analisa')
+                                        <span class="badge bg-secondary text-white">{{ $rs->status }}</span>
+                                    @elseif ($rs->status == 'Review Hasil')
+                                        <span class="badge bg-warning text-dark">{{ $rs->status }}</span>
+                                    @elseif ($rs->status == 'Approve')
+                                        <span class="badge bg-success text-white">{{ $rs->status }}</span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ $rs->status }}</span>
+                                @endif
+                                </td>
                                 <td class="align-middle">
                                 <div class="btn-group">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

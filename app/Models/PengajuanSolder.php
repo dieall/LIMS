@@ -9,7 +9,11 @@ class PengajuanSolder extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbs_pengajuan'; 
+    protected $table = 'tbs_pengajuan'; // Nama tabel
+    protected $primaryKey = 'id'; // Primary key
+
+        // Mengaktifkan timestamps untuk otomatis menangani created_at dan updated_at
+        public $timestamps = true;
 
     protected $fillable = [
         'nama',
@@ -20,6 +24,22 @@ class PengajuanSolder extends Model
         'audit_trail',
         'jam_masuk',
         'id_category',
+        'sn',
+        'ag',
+        'cu',
+        'pb',
+        'sb',
+        'zn',
+        'fe',
+        'as',
+        'ni',
+        'bi',
+        'cd',
+        'ai',
+        'pe',
+        'ga',
+        'status',
+
 
 
     ];
@@ -45,6 +65,16 @@ class PengajuanSolder extends Model
     public function tin()
     {
         return $this->belongsTo(Tin::class, 'id', 'id');
+    }
+
+    public function datasolder()
+    {
+        return $this->belongsTo(DataSolder::class, 'tipe_solder', 'tipe_solder');
+    }
+    
+    public function statusHistory()
+    {
+        return $this->hasMany(StatusHistory::class, 'pengajuan_solder_id');
     }
     
 }
