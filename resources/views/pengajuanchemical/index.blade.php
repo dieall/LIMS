@@ -101,7 +101,8 @@
             <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', array_merge(request()->all(), ['page_size' => 10])) }}">10</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', array_merge(request()->all(), ['page_size' => 20])) }}">20</a></li>
-                <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', array_merge(request()->all(), ['page_size' => 30])) }}">30</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', array_merge(request()->all(), ['page_size' => 50])) }}">50</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', array_merge(request()->all(), ['page_size' => 100])) }}">100</a></li>
             </ul>
         </div>
 
@@ -172,7 +173,7 @@
             
             <!-- Tombol Print -->
             <li>
-                <a href="" class="dropdown-item">
+                <a href="{{ route('pengajuanchemical.print', $rs->id) }}" class="dropdown-item">
                     <i class="fas fa-print"></i> Print
                 </a>
             </li>
@@ -183,7 +184,17 @@
                     <i class="fas fa-edit"></i> Edit
                 </a>
             </li>
-            
+            @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC')                                 
+                            <li>
+                        <form action="{{ route('pengajuanchemical.pengajuan', $rs->id) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-file-alt"></i> Pengajuan
+                            </button>
+                        </form>
+                    </li>
+                        
+                        @endif
             <!-- Tombol Proses Analisa (Operator Lab atau Admin) -->
             @if (Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Admin')
                 <li>
@@ -233,6 +244,8 @@
             @endif
             
             <!-- Tombol Delete (Semua Role) -->
+             
+            @if (Auth::user()->level === 'Admin') 
             <li>
                 <form action="{{ route('pengajuanchemical.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">
                     @csrf
@@ -242,8 +255,11 @@
                     </button>
                 </form>
             </li>
+            @endif
         </ul>
     </div>
+
+    @if (Auth::user()->level === 'Admin') 
     <div class="btn-group">
         <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-cogs"></i> Cetak CoA
@@ -252,26 +268,20 @@
             <!-- Tombol Detail -->
             <li>
                 <a href="{{ route('pengajuanchemical.lokal', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-info-circle"></i> Lokal
+                <i class="fas fa-map-marker-alt"></i> Lokal
                 </a>
             </li>
             
             <!-- Tombol Print -->
             <li>
             <a href="{{ route('pengajuanchemical.expor', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-print"></i> Ekspor
+            <i class="fas fa-paper-plane"></i> Ekspor
             </li>
-            
-       
-            
-   
-          
-            
-
         </ul>
     </div>
-</td>
+    @endif
 
+</td>
                             </tr>
                         @endforeach
                     @else

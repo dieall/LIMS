@@ -58,67 +58,73 @@ class PengajuanSolderController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validasi input
-        $validatedData = $request->validate([
-            'nama' => 'nullable|string',
-            'tgl' => 'nullable|date',
-            'tipe_solder' => 'nullable|string',
-            'batch' => 'nullable|string',
-            'audit_trail' => 'nullable|string',
-            'jam_masuk' => 'nullable|string',
-            'id_category' => 'nullable|exists:category_solder,id_category',
-            'sn' => 'nullable|string',
-            'ag' => 'nullable|numeric',
-            'cu' => 'nullable|numeric',
-            'pb' => 'nullable|numeric',
-            'sb' => 'nullable|numeric',
-            'zn' => 'nullable|numeric',
-            'fe' => 'nullable|numeric',
-            'as' => 'nullable|numeric',
-            'ni' => 'nullable|numeric',
-            'bi' => 'nullable|numeric',
-            'cd' => 'nullable|numeric',
-            'ai' => 'nullable|numeric',
-            'pe' => 'nullable|numeric',
-            'ga' => 'nullable|numeric',
-            'status' => 'nullable|string',
-        ]);
-    
-        // Menambahkan previous_status dengan nilai default
-        $pengajuansolder = new PengajuanSolder([
-            'nama' => $validatedData['nama'] ?? null,
-            'tgl' => $validatedData['tgl'] ?? null,
-            'tipe_solder' => $validatedData['tipe_solder'] ?? null,
-            'batch' => $validatedData['batch'] ?? null,
-            'audit_trail' => $validatedData['audit_trail'] ?? null,
-            'jam_masuk' => $validatedData['jam_masuk'] ?? null,
-            'id_category' => $validatedData['id_category'] ?? null,
-            'sn' => $validatedData['sn'] ?? null,
-            'ag' => $validatedData['ag'] ?? null,
-            'cu' => $validatedData['cu'] ?? null,
-            'pb' => $validatedData['pb'] ?? null,
-            'sb' => $validatedData['sb'] ?? null,
-            'zn' => $validatedData['zn'] ?? null,
-            'fe' => $validatedData['fe'] ?? null,
-            'as' => $validatedData['as'] ?? null,
-            'ni' => $validatedData['ni'] ?? null,
-            'bi' => $validatedData['bi'] ?? null,
-            'cd' => $validatedData['cd'] ?? null,
-            'ai' => $validatedData['ai'] ?? null,
-            'pe' => $validatedData['pe'] ?? null,
-            'ga' => $validatedData['ga'] ?? null,
-            'status' => $validatedData['status'] ?? null,
-            'previous_status' => '-', // Nilai default
-        ]);
-        
-        // Menyimpan data PengajuanSolder
-        $pengajuansolder->save();
-        
-        // Redirect setelah berhasil menyimpan
-        return redirect()->route('pengajuansolder.index')->with('success', 'Data Pengajuan Solder berhasil disimpan.');
-    }
-    
+{
+    // Validasi input
+    $validatedData = $request->validate([
+        'nama' => 'nullable|string',
+        'tgl' => 'nullable|date',
+        'tipe_solder' => 'nullable|string',
+        'batch' => 'nullable|string',
+        'audit_trail' => 'nullable|string',
+        'jam_masuk' => 'nullable|string',
+        'id_category' => 'nullable|exists:category_solder,id_category',
+        'sn' => 'nullable|string',
+        'ag' => 'nullable|numeric',
+        'cu' => 'nullable|numeric',
+        'pb' => 'nullable|string',
+        'sb' => 'nullable|numeric',
+        'zn' => 'nullable|numeric',
+        'fe' => 'nullable|numeric',
+        'as' => 'nullable|numeric',
+        'ni' => 'nullable|numeric',
+        'bi' => 'nullable|numeric', 
+        'cd' => 'nullable|numeric',
+        'ai' => 'nullable|numeric',
+        'pe' => 'nullable|numeric',
+        'ga' => 'nullable|numeric',
+        'status' => 'nullable|string',
+    ]);
+
+    // Menambahkan previous_status dengan nilai default
+    $pengajuansolder = new PengajuanSolder([
+        'nama' => $validatedData['nama'] ?? null,
+        'tgl' => $validatedData['tgl'] ?? null,
+        'tipe_solder' => $validatedData['tipe_solder'] ?? null,
+        'batch' => $validatedData['batch'] ?? null,
+        'audit_trail' => $validatedData['audit_trail'] ?? null,
+        'jam_masuk' => $validatedData['jam_masuk'] ?? null,
+        'id_category' => $validatedData['id_category'] ?? null,
+        'sn' => $validatedData['sn'] ?? null,
+        'ag' => $validatedData['ag'] ?? null,
+        'cu' => $validatedData['cu'] ?? null,
+        'pb' => $validatedData['pb'] ?? null,
+        'sb' => $validatedData['sb'] ?? null,
+        'zn' => $validatedData['zn'] ?? null,
+        'fe' => $validatedData['fe'] ?? null,
+        'as' => $validatedData['as'] ?? null,
+        'ni' => $validatedData['ni'] ?? null,
+        'bi' => $validatedData['bi'] ?? null,
+        'cd' => $validatedData['cd'] ?? null,
+        'ai' => $validatedData['ai'] ?? null,
+        'pe' => $validatedData['pe'] ?? null,
+        'ga' => $validatedData['ga'] ?? null,
+        'status' => $validatedData['status'] ?? null,
+        'previous_status' => 'Pengajuan', // Nilai default
+    ]);
+
+    $pengajuansolder->save();
+
+    // Simpan status "Pengajuan" ke StatusHistory
+    StatusHistory::create([
+        'pengajuan_solder_id' => $pengajuansolder->id, // Menggunakan ID yang baru disimpan
+        'status' => 'Pengajuan',
+        'updated_at' => Carbon::now(),
+        'user_id' => auth()->user()->id,
+    ]);
+
+    return redirect()->route('pengajuansolder.index')->with('success', 'Data Pengajuan Solder berhasil disimpan.');
+}
+
     
     
     
@@ -134,6 +140,9 @@ class PengajuanSolderController extends Controller
         $tbs_snag = Snag::all();
         $tbs_tin = Tin::all();
         $datasolder = DataSolder::all();
+
+        $lastStatusHistory = $pengajuanSolder->statusHistory()->latest()->first();
+        $lastStatusUser = $lastStatusHistory ? $lastStatusHistory->user->name : 'Tidak Diketahui';
     
         return view('pengajuansolder.show', compact(
             'pengajuansolder', 
@@ -143,7 +152,8 @@ class PengajuanSolderController extends Controller
             'tbs_snag', 
             'tbs_tin',
             'datasolder',
-            'pengajuanSolder'
+            'pengajuanSolder',
+            'lastStatusUser'
         ));
         
     }
@@ -208,80 +218,170 @@ class PengajuanSolderController extends Controller
         ]);
     }
 
-public function prosesAnalisa($id)
-{
-    $data = PengajuanSolder::findOrFail($id);
-
-    // Cek apakah status ini sudah pernah disimpan di status_histories
-    $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
-        ->where('status', $data->status)
-        ->first();
-
-    if (!$existingHistory) {
-        // Simpan status sebelumnya ke status_histories
-        StatusHistory::create([
-            'pengajuan_solder_id' => $data->id,
-            'status' => $data->status,
-            'changed_at' => $data->jam_masuk ? Carbon::parse($data->jam_masuk) : Carbon::now(), // Ambil jam_masuk jika ada, atau gunakan waktu sekarang
-        ]);
+    public function pengajuan($id)
+    {
+        $data = PengajuanSolder::findOrFail($id);
+    
+        // Cek apakah status Pengajuan sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Pengajuan')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Pengajuan ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Pengajuan',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
+        }
+    
+        // Ubah status menjadi "Pengajuan"
+        $data->status = 'Pengajuan';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Pengajuan');
     }
-
-    // Ubah status menjadi "Proses Analisa"
-    $data->status = 'Proses Analisa';
-    $data->jam_masuk = Carbon::now(); // Waktu baru untuk status baru
-    $data->save();
-
-    return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Proses Analisa');
-}
     
+    public function prosesAnalisa($id)
+    {
+        $data = PengajuanSolder::findOrFail($id);
     
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Proses Analisa')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Proses Analisa ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Proses Analisa',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
+        }
+    
+        // Ubah status menjadi "Proses Analisa"
+        $data->status = 'Proses Analisa';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Proses Analisa');
+    }
     
     public function analisaSelesai($id)
     {
         $data = PengajuanSolder::findOrFail($id);
     
-        if ($data->status != 'Proses Analisa') {
-            return redirect()->back()->with('error', 'Status harus dalam Proses Analisa sebelum melanjutkan ke Analisa Selesai');
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Analisa Selesai')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Analisa Selesai ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Analisa Selesai',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
         }
     
-        StatusHistory::create([
-            'pengajuan_solder_id' => $data->id,
-            'pengajuan_chemical_id' => null,
-            'status' => $data->status,
-            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-        ]);
-    
+        // Ubah status menjadi "Analisa Selesai"
         $data->status = 'Analisa Selesai';
         $data->jam_masuk = Carbon::now();
         $data->save();
     
-        return redirect()->route('pengajuansolder.show', $data->id);
+        return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Analisa Selesai');
     }
     
-
     public function reviewHasil($id)
     {
         $data = PengajuanSolder::findOrFail($id);
     
-        if ($data->status != 'Analisa Selesai') {
-            return redirect()->back()->with('error', 'Status harus dalam Analisa Selesai sebelum melanjutkan ke Review Hasil');
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Review Hasil')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Review Hasil ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Review Hasil',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
         }
     
-        StatusHistory::create([
-            'pengajuan_solder_id' => $data->id,
-            'pengajuan_chemical_id' => null,
-            'status' => $data->status,
-            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-        ]);
-    
+        // Ubah status menjadi "Review Hasil"
         $data->status = 'Review Hasil';
         $data->jam_masuk = Carbon::now();
         $data->save();
     
-        return redirect()->route('pengajuansolder.show', $data->id);
+        return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Review Hasil');
     }
     
-
     public function tolakReviewHasil($id, Request $request)
     {
         $data = PengajuanSolder::findOrFail($id);
@@ -293,70 +393,91 @@ public function prosesAnalisa($id)
     
         // Validasi input alasan penolakan
         $request->validate([
-            'rejection_reason' => 'required|string|max:255', // Pastikan alasan penolakan diisi
+            'rejection_reason' => 'required|string|max:255',
         ]);
     
         // Simpan status sebelumnya di status_histories
+        $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->orderBy('changed_at', 'desc')
+            ->first();
+    
+        $interval = '-';
+        if ($previousHistory) {
+            $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+            $currentChangedAt = Carbon::now();
+            $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+        }
+    
         StatusHistory::create([
             'pengajuan_solder_id' => $data->id,
-            'pengajuan_chemical_id' => null, // Default null jika tidak ada pengajuan chemical
             'status' => $data->status,
-            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'), // Catat waktu sekarang
-            'rejection_reason' => $request->rejection_reason, // Alasan penolakan
+            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
+            'rejection_reason' => $request->rejection_reason,
+            'user_id' => $data->user_id ?? auth()->user()->id,
+            'user_name' => ucwords(auth()->user()->name),
+            'interval' => $interval,
         ]);
     
         // Ubah status menjadi "Proses Analisa"
         $data->status = 'Proses Analisa';
-        $data->jam_masuk = Carbon::now(); // Perbarui waktu untuk status baru
+        $data->jam_masuk = Carbon::now();
         $data->save();
     
         return redirect()->route('pengajuansolder.show', $data->id)
             ->with('success', 'Pengajuan Solder ditolak dan status diubah menjadi Proses Analisa.');
     }
     
-
-
     public function approve($id)
     {
         $data = PengajuanSolder::findOrFail($id);
-
-        if ($data->status != 'Review Hasil') {
-            return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan Approve');
+    
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Approve')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Approve ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Approve',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
         }
-
-        StatusHistory::create([
-            'pengajuan_solder_id' => $data->id,
-            'pengajuan_chemical_id' => null,
-            'status' => $data->status,
-            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-        ]);
-
+    
+        // Ubah status PengajuanSolder menjadi "Approve"
         $data->status = 'Approve';
         $data->jam_masuk = Carbon::now();
         $data->save();
-
-        return redirect()->route('pengajuansolder.show', $data->id);
+    
+        return redirect()->route('pengajuansolder.show', $data->id)
+            ->with('success', 'Status berhasil diubah menjadi Approve');
     }
-
-
-
-
-
-public function printpdf(string $id)
-{
-    // Ambil data pengajuan solder berdasarkan ID
-    $pengajuansolder = PengajuanSolder::findOrFail($id);
-
-    // Ambil status history terkait pengajuan solder (jika ada)
-    $statusHistory = $pengajuansolder->statusHistory;  // Misalnya relasi 'statusHistory' di model
-
-    // Mengonversi view ke dalam bentuk PDF, mengirimkan data pengajuan solder dan status history
-    $pdf = PDF::loadView('pengajuansolder.print', compact('pengajuansolder', 'statusHistory'))
-              ->setPaper('a4', 'landscape'); // Set ukuran kertas dan orientasi landscape
-
-    // Mengirimkan PDF ke browser
-    return $pdf->stream('pengajuan_solder_' . $id . '.pdf');
-}
+    
+    
+public function print($id)
+    {
+        // Ambil data pengajuan solder berdasarkan ID
+        $pengajuansolder = PengajuanSolder::findOrFail($id);
+    
+    
+        return view('pengajuansolder.print', compact('pengajuansolder'));
+    }
 
 
 public function exportToExcel()
@@ -458,8 +579,8 @@ public function expor($id)
     // Ambil data pengajuan solder berdasarkan ID
     $pengajuansolder = PengajuanSolder::findOrFail($id);
 
-    // Ambil semua data pengajuan solder untuk dropdown
-    $allPengajuanSolder = PengajuanSolder::all();
+    // Ambil semua data pengajuan solder dengan tipe_solder yang sama
+    $allPengajuanSolder = PengajuanSolder::where('tipe_solder', $pengajuansolder->tipe_solder)->get();
 
     // Jika ada permintaan AJAX untuk mendapatkan detail pengajuan solder berdasarkan ID
     if (request()->ajax() && request()->has('pengajuan_id')) {
@@ -470,7 +591,6 @@ public function expor($id)
     // Render halaman dengan data
     return view('pengajuansolder.expor', compact('pengajuansolder', 'allPengajuanSolder'));
 }
-
     
 
 

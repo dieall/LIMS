@@ -3,32 +3,84 @@
 @section('title', 'Dashboard - Laravel Admin Panel With Login and Registration')
   
 @section('contents')
+
+<style>
+/* Modal background */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+/* Konten Modal */
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 1200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Tombol Close */
+.close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 25px;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Table style inside modal */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f2f2f2;
+}
+
+/* Modal Title */
+#modalTitle {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+
+
 <div class="row">
     <!-- First Column -->
-    <div class="col-sm-3">
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col mt-0">
-                        <h5 class="card-title">Jumlah Pegawai</h5>
-                    </div>
-                    <div class="col-auto">
-                        <div class="stat text-primary">
-                            <i class="align-middle" data-feather="users"></i>
-                        </div>
-                    </div>
-                </div>
-                <h1 class="mt-1 mb-3" id="jumlahPegawai">Memuat...</h1>
-                <div class="mb-0">
-                    <span class="text-muted">Jumlah pegawai saat ini</span>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Second Column -->
-    <div class="col-sm-3">
-    <div class="card mb-3">
+    <div class="col-sm-4">
+    <div class="card mb-4">
         <div class="card-body">
             <!-- Judul dan Ikon -->
             <div class="row">
@@ -61,8 +113,8 @@
 
 
 
-   <div class="col-sm-3">
-    <div class="card mb-3">
+   <div class="col-sm-4">
+    <div class="card mb-4">
         <div class="card-body">
             <!-- Judul dan Ikon -->
             <div class="row">
@@ -87,8 +139,8 @@
         </div>
     </div>
 </div>
-<div class="col-sm-3">
-    <div class="card mb-3">
+<div class="col-sm-4">
+    <div class="card mb-4">
         <div class="card-body">
             <!-- Judul dan Ikon -->
             <div class="row">
@@ -143,21 +195,21 @@
 
 
 
-						<div class="col-12 col-lg-6">
-                            <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Grafik Data Approve Keseluruhan</h5>
-                                        <h6 class="card-subtitle text-muted">Jumlah Pengajuan per Bulan untuk Tahun</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart">
-                                            <canvas id="monthly-bar-chart"></canvas>
-                                        </div>
-                                    </div>
-                            </div>
-					    </div>
-                            <!-- Tabel Data Pengajuan Solder -->
-                            <div class="col-12 col-lg-6">
+	<div class="col-12 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Grafik Data Approve Keseluruhan</h5>
+                <h6 class="card-subtitle text-muted">Jumlah Pengajuan per Bulan untuk Tahun</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart">
+                    <canvas id="monthly-bar-chart"></canvas>
+                </div>
+            </div>
+        </div>
+	 </div>
+    <!-- Tabel Data Pengajuan Solder -->
+    <div class="col-12 col-lg-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title">Data Pengajuan Solder - Hari Ini</h5>
@@ -269,7 +321,181 @@
             </div>
         </div>
     </div>
+    
+    
+    <div class="col-sm-6">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Data Operator Laboratorium - Solder</h5>
+        </div>
+        <div class="card-body">
+            <!-- Filter Bulan -->
+            <form method="GET" action="{{ url()->current() }}">
+                <div class="form-group">
+                    <label for="month">Pilih Bulan:</label>
+                    <select name="month" id="month" class="form-control" onchange="this.form.submit()">
+                        <option value="">-- Semua Bulan --</option>
+                        <option value="1" {{ request('month') == 1 ? 'selected' : '' }}>Januari</option>
+                        <option value="2" {{ request('month') == 2 ? 'selected' : '' }}>Februari</option>
+                        <option value="3" {{ request('month') == 3 ? 'selected' : '' }}>Maret</option>
+                        <option value="4" {{ request('month') == 4 ? 'selected' : '' }}>April</option>
+                        <option value="5" {{ request('month') == 5 ? 'selected' : '' }}>Mei</option>
+                        <option value="6" {{ request('month') == 6 ? 'selected' : '' }}>Juni</option>
+                        <option value="7" {{ request('month') == 7 ? 'selected' : '' }}>Juli</option>
+                        <option value="8" {{ request('month') == 8 ? 'selected' : '' }}>Agustus</option>
+                        <option value="9" {{ request('month') == 9 ? 'selected' : '' }}>September</option>
+                        <option value="10" {{ request('month') == 10 ? 'selected' : '' }}>Oktober</option>
+                        <option value="11" {{ request('month') == 11 ? 'selected' : '' }}>November</option>
+                        <option value="12" {{ request('month') == 12 ? 'selected' : '' }}>Desember</option>
+                    </select>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Nama</th>
+                            <th>Interval</th>
+                            <th>Jumlah Sampel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($groupedHistoriesSolder as $userName => $histories)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td>{{ $userName }}</td>
+                                <td>{{ $histories->first()->totalInterval ?? 'N/A' }}</td> <!-- Menampilkan total interval -->
+                                <td>{{ $histories->first()->totalSampel ?? 0 }}</td> <!-- Menampilkan total jumlah sampel -->
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-sm-6">
+    <div class="card">
+        <div class="card-header">
+        <h5 class="card-title">Data Operator Laboratorium - Chemical</h5>
+        </div>
+        <div class="card-body">
+            <!-- Filter Bulan -->
+            <form method="GET" action="{{ url()->current() }}">
+                <div class="form-group">
+                    <label for="month">Pilih Bulan:</label>
+                    <select name="month" id="month" class="form-control" onchange="this.form.submit()">
+                        <option value="">-- Semua Bulan --</option>
+                        <option value="1" {{ request('month') == 1 ? 'selected' : '' }}>Januari</option>
+                        <option value="2" {{ request('month') == 2 ? 'selected' : '' }}>Februari</option>
+                        <option value="3" {{ request('month') == 3 ? 'selected' : '' }}>Maret</option>
+                        <option value="4" {{ request('month') == 4 ? 'selected' : '' }}>April</option>
+                        <option value="5" {{ request('month') == 5 ? 'selected' : '' }}>Mei</option>
+                        <option value="6" {{ request('month') == 6 ? 'selected' : '' }}>Juni</option>
+                        <option value="7" {{ request('month') == 7 ? 'selected' : '' }}>Juli</option>
+                        <option value="8" {{ request('month') == 8 ? 'selected' : '' }}>Agustus</option>
+                        <option value="9" {{ request('month') == 9 ? 'selected' : '' }}>September</option>
+                        <option value="10" {{ request('month') == 10 ? 'selected' : '' }}>Oktober</option>
+                        <option value="11" {{ request('month') == 11 ? 'selected' : '' }}>November</option>
+                        <option value="12" {{ request('month') == 12 ? 'selected' : '' }}>Desember</option>
+                    </select>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Nama</th>
+                            <th>Interval</th>
+                            <th>Jumlah Sampel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($groupedHistoriesChemical as $userName => $histories)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td>{{ $userName }}</td>
+                                <td>{{ $histories->first()->totalInterval ?? 'N/A' }}</td> <!-- Menampilkan total interval -->
+                                <td>{{ $histories->first()->totalSampel ?? 0 }}</td> <!-- Menampilkan total jumlah sampel -->
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-12 col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Data Laboratorium Yang Telah Melakukan Analisa Selesai</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Nama</th>
+                            <th>Interval</th>
+                            <th>Jumlah Sampel</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($groupedHistories as $userName => $histories)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td>{{ $userName }}</td>
+                                <td>{{ $histories->first()->totalInterval ?? 'N/A' }}</td> <!-- Menampilkan total interval -->
+                                <td>{{ $histories->first()->totalSampel ?? 0 }}</td> <!-- Menampilkan total jumlah sampel -->
+                                </td>
+
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Ambil canvas
@@ -472,19 +698,6 @@
 </script>
 
 <!-- Fetch Pegawai Count -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    fetch('/api/pegawai/count')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('jumlahPegawai').innerText = data.jumlahPegawai;
-        })
-        .catch(error => {
-            console.error('Error fetching jumlah pegawai:', error);
-            document.getElementById('jumlahPegawai').innerText = 'Data tidak tersedia';
-        });
-});
-</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -606,4 +819,53 @@ document.addEventListener("DOMContentLoaded", function() {
         options: { maintainAspectRatio: false }
     });
 });
+</script>
+<script>
+// Fungsi untuk membuka modal
+function openModal() {
+    document.getElementById('statusHistoryModal').style.display = 'block';  // Tampilkan modal
+}
+
+// Fungsi untuk menutup modal
+function closeModal() {
+    document.getElementById('statusHistoryModal').style.display = 'none';  // Sembunyikan modal
+}
+
+// Fungsi untuk mengambil data dan menampilkan detail di modal
+function viewDetail(solder_id) {
+    fetch(/getStatusHistory?solder_id=${solder_id})
+        .then(response => response.json())
+        .then(data => {
+            let historyList = "";
+            // Menggabungkan semua status terkait pengajuan solder dalam satu modal
+            data.forEach(item => {
+                historyList += `
+                    <div class="status-entry">
+                        <div class="status-detail">
+                            <strong>Status:</strong> ${item.status || 'Unknown'}
+                        </div>
+                        <div class="status-detail">
+                            <strong>Waktu Perubahan:</strong> ${item.changed_at || 'Unknown'}
+                        </div>
+                        <div class="status-detail">
+                            <strong>Nama Pengguna:</strong> ${item.user ? item.user.name : 'Unknown'}
+                        </div>
+                        <div class="status-detail">
+                            <strong>Interval Waktu:</strong> ${item.interval || 'Unknown'}
+                        </div>
+                        <div class="status-detail">
+                            <strong>Nama Pengaju:</strong> ${item.pengajuan_solder ? item.pengajuan_solder.nama : 'Unknown'}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('historyDetails').innerHTML = historyList;
+            openModal();  // Menampilkan modal
+        })
+        .catch(error => {
+            console.error('Error fetching status history:', error);
+        });
+}
+
+
 </script>

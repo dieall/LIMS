@@ -63,6 +63,11 @@
                             </tr>
                         @endif
 
+                        <tr>
+                                <th>Yang Mengajukan</th>
+                                <td>{{ $datachemical->orang }}</td>
+                            </tr>
+
                     </table>
                 </div>
 
@@ -87,64 +92,64 @@
                 <tr><th>Transmission</th><td>{{ $datachemical->transmission }}</td></tr>
             @endif
             @if($datachemical->ape)
-                <tr><th>Ape</th><td>{{ $datachemical->ape }}</td></tr>
+                <tr><th>Appearance</th><td>{{ $datachemical->ape }}</td></tr>
             @endif
             @if($datachemical->dimet)
-                <tr><th>Dimet</th><td>{{ $datachemical->dimet }}</td></tr>
+                <tr><th>Dimethyltin Dichloride</th><td>{{ $datachemical->dimet }}</td></tr>
             @endif
             @if($datachemical->trime)
-                <tr><th>Trime</th><td>{{ $datachemical->trime }}</td></tr>
+                <tr><th>Trimethyltin Monochloride</th><td>{{ $datachemical->trime }}</td></tr>
             @endif
             @if($datachemical->tin)
-                <tr><th>Tin</th><td>{{ $datachemical->tin }}</td></tr>
+                <tr><th>Tin Content</th><td>{{ $datachemical->tin }}</td></tr>
             @endif
             @if($datachemical->solid)
-                <tr><th>Solid</th><td>{{ $datachemical->solid }}</td></tr>
+                <tr><th>Solid Content</th><td>{{ $datachemical->solid }}</td></tr>
             @endif
             @if($datachemical->ri)
-                <tr><th>RI</th><td>{{ $datachemical->ri }}</td></tr>
+                <tr><th>RI @ 25°C</th><td>{{ $datachemical->ri }}</td></tr>
             @endif
             @if($datachemical->sg)
-                <tr><th>SG</th><td>{{ $datachemical->sg }}</td></tr>
+                <tr><th>SG @ 25°C</th><td>{{ $datachemical->sg }}</td></tr>
             @endif
             @if($datachemical->acid)
-                <tr><th>Acid</th><td>{{ $datachemical->acid }}</td></tr>
+                <tr><th>Acid Value</th><td>{{ $datachemical->acid }}</td></tr>
             @endif
             @if($datachemical->sulfur)
                 <tr><th>Sulfur</th><td>{{ $datachemical->sulfur }}</td></tr>
             @endif
             @if($datachemical->water)
-                <tr><th>Water</th><td>{{ $datachemical->water }}</td></tr>
+                <tr><th>Water Content</th><td>{{ $datachemical->water }}</td></tr>
             @endif
             @if($datachemical->mono)
-                <tr><th>Mono</th><td>{{ $datachemical->mono }}</td></tr>
+                <tr><th>Monomethyltin</th><td>{{ $datachemical->mono }}</td></tr>
             @endif
             @if($datachemical->yellow)
-                <tr><th>Yellow</th><td>{{ $datachemical->yellow }}</td></tr>
+                <tr><th>Yellowish Index</th><td>{{ $datachemical->yellow }}</td></tr>
             @endif
             @if($datachemical->eh)
-                <tr><th>Eh</th><td>{{ $datachemical->eh }}</td></tr>
+                <tr><th>2-EH</th><td>{{ $datachemical->eh }}</td></tr>
             @endif
             @if($datachemical->visco)
                 <tr><th>Visco</th><td>{{ $datachemical->visco }}</td></tr>
             @endif
             @if($datachemical->pt)
-                <tr><th>PT</th><td>{{ $datachemical->pt }}</td></tr>
+                <tr><th>Pt-Co</th><td>{{ $datachemical->pt }}</td></tr>
             @endif
             @if($datachemical->moisture)
-                <tr><th>Moisture</th><td>{{ $datachemical->moisture }}</td></tr>
+                <tr><th>Moisture Content</th><td>{{ $datachemical->moisture }}</td></tr>
             @endif
             @if($datachemical->cloride)
                 <tr><th>Cloride</th><td>{{ $datachemical->cloride }}</td></tr>
             @endif
             @if($datachemical->spec)
-                <tr><th>Spec</th><td>{{ $datachemical->spec }}</td></tr>
+                <tr><th>Specific Gravity (25°C)</th><td>{{ $datachemical->spec }}</td></tr>
             @endif
             @if($datachemical->cla)
                 <tr><th>Cla</th><td>{{ $datachemical->cla }}</td></tr>
             @endif
             @if($datachemical->densi)
-                <tr><th>Densi</th><td>{{ $datachemical->densi }}</td></tr>
+                <tr><th>Density</th><td>{{ $datachemical->densi }}</td></tr>
             @endif
         </table>
     @else

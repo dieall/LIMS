@@ -29,4 +29,8 @@ class PengajuanRawmat extends Model
         {
             return $this->belongsTo(DataRawmat::class, 'id_rawmat', 'id_rawmat');
         }
+        public function user()
+        {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
 }

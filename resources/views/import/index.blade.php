@@ -7,7 +7,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Data Sampel Solder</li>
+            <li class="breadcrumb-item active" aria-current="page">Export Data</li>
         </ol>
         <hr>
     </nav>

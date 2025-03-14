@@ -31,9 +31,10 @@
                     Filter Data
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                    <li><a class="dropdown-item" href="{{ route('datachemical.index', ['filter' => 'all']) }}">Semua Data</a></li>
-                    <li><a class="dropdown-item" href="{{ route('datachemical.index', ['filter' => 'today']) }}">Data Hari Ini</a></li>
-                </ul>
+    <li><a class="dropdown-item" href="{{ route('datachemical.index', ['filter' => 'all']) }}">Semua Data</a></li>
+    <li><a class="dropdown-item" href="{{ route('datachemical.index', ['filter' => 'today']) }}">Data Hari Ini</a></li>
+</ul>
+
             </div>
 
             <!-- Dropdown for Page Size -->
@@ -44,7 +45,8 @@
                 <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
                     <li><a class="dropdown-item" href="{{ route('datachemical.index', array_merge(request()->all(), ['page_size' => 10])) }}">10</a></li>
                     <li><a class="dropdown-item" href="{{ route('datachemical.index', array_merge(request()->all(), ['page_size' => 20])) }}">20</a></li>
-                    <li><a class="dropdown-item" href="{{ route('datachemical.index', array_merge(request()->all(), ['page_size' => 30])) }}">30</a></li>
+                    <li><a class="dropdown-item" href="{{ route('datachemical.index', array_merge(request()->all(), ['page_size' => 50])) }}">50</a></li>
+                    <li><a class="dropdown-item" href="{{ route('datachemical.index', array_merge(request()->all(), ['page_size' => 100])) }}">100</a></li>
                 </ul>
             </div>
 

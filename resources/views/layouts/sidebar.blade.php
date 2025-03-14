@@ -5,9 +5,9 @@
     <div class="sidebar-content js-simplebar">
         <!-- Sidebar Brand -->
         <a class="sidebar-brand" href="{{ route('dashboard') }}">
-            <span class="align-middle">PT Timah Industri</span>
-        </a>   
-     
+    <img src="{{ asset('admin_assets/img/photos/lege.png') }}" style="max-width: 210px; height: auto; max-height: auto;">
+</a>
+
         <!-- Sidebar Navigation -->
         <ul class="sidebar-nav">
             <!-- Pages Section -->
@@ -72,13 +72,21 @@
                 <i class="fas fa-users align-middle"></i>
                 <span class="align-middle">Data Pegawai</span>
             </a>
-        </li>
+        </li>       
         <li class="sidebar-item">
             <a class="sidebar-link" href="{{ route('import') }}">
                 <i class="fas fa-file-export align-middle"></i>
                 <span class="align-middle">Export Data</span>
             </a>
         </li>
+
+        <li class="sidebar-item">
+            <a class="sidebar-link" href="{{ route('datainterval') }}">
+                <i class="fas fa-tasks align-middle"></i>
+                <span class="align-middle">Data Interval</span>
+            </a>
+        </li>
+
     @endif
 @endif
 

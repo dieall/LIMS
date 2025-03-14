@@ -5,7 +5,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold">Edit | Pengajuan Solder</h6>
+        <h6 class="m-0 font-weight-bold">Edit Data Pengajuan Solder | {{ $pengajuansolder->tipe_solder }}</h6>
     </div>
 
     <div class="card-body">
@@ -50,8 +50,7 @@
                             {{ $pengajuansolder->status == 'Approve' ? 'bg-success text-white' : '' }}" 
                         id="batch" 
                         value="{{ $pengajuansolder->status }}" 
-                        readonly
-                    >
+                        readonly>
                 </div>
 
 

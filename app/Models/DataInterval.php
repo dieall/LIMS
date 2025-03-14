@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StatusHistory extends Model
+class DataInterval extends Model
 {
     use HasFactory;
 
     protected $table = 'status_histories'; 
+    
     protected $fillable = [
         'pengajuan_solder_id',
         'pengajuan_chemical_id',

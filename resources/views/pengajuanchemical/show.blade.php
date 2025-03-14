@@ -14,7 +14,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold">Detail Data | Pengajuan Solder</h6>
+        <h6 class="m-0 font-weight-bold">Detail Data Pengajuan Chemical | {{ $pengajuanchemical->nama }}</h6>
     </div>
 
     <div class="card-body">
@@ -56,19 +56,34 @@
             <th>Jam Masuk</th>
             <th>Status</th>
             <th>Alasan Penolakan</th>
+            <th>Interval Waktu</th>
+            <th>Nama</th>
         
         </tr>
     </thead>
     <tbody>
-        @php $no = 1; @endphp
+    @php
+        $no = 1;
+        $previousDate = null;
+    @endphp
+    @foreach($pengajuanchemical->statusHistory as $history)
+        @php
+            $currentDate = \Carbon\Carbon::parse($history->changed_at);
+            $interval = '-';
 
-        <!-- Data Riwayat Status -->
-        @foreach($pengajuanchemical->statusHistory as $history)
+            if ($previousDate) {
+                $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit'; // Membulatkan interval ke angka bulat
+            }
+
+            $previousDate = $currentDate;
+        @endphp
             <tr>
                 <td>{{ $no++ }}</td>
                 <td>{{ \Carbon\Carbon::parse($history->changed_at)->format('Y-m-d H:i:s') }}</td>
                 <td>{{ $history->status }}</td>
                 <td>{{ $history->rejection_reason ?? '-' }}</td>
+                <td>{{ $interval }}</td>
+                <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
                
             </tr>
         @endforeach
@@ -104,8 +119,8 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Field</th>
-                    <th>Value</th>
+                    <th>Unsur Kimia</th>
+                    <th>Results</th>
                 </tr>
             </thead>
             <tbody>

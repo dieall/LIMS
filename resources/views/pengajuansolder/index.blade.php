@@ -92,7 +92,8 @@
             <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', array_merge(request()->all(), ['page_size' => 10])) }}">10</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', array_merge(request()->all(), ['page_size' => 20])) }}">20</a></li>
-                <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', array_merge(request()->all(), ['page_size' => 30])) }}">30</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', array_merge(request()->all(), ['page_size' => 50])) }}">50</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', array_merge(request()->all(), ['page_size' => 100])) }}">100</a></li>
             </ul>
         </div>
 
@@ -123,7 +124,7 @@
                     <th>Category</th>
                     <th>Tipe Sampel</th>
                     <th>Batch</th>
-                    <th>Jam Pengajuan</th>
+                    <th>Riwayat Proses</th>
                     <th>Nama</th>
                     <th class="text-center">Status</th>
                     <th class="text-center">Action</th>
@@ -168,7 +169,7 @@
                                             </li>
                                             <!-- Tombol Print -->
                                             <li>
-                                                <a href="{{ route('pengajuansolder.printPDF', $rs->id) }}" class="dropdown-item">
+                                                <a href="{{ route('pengajuansolder.print', $rs->id) }}" class="dropdown-item">
                                                     <i class="fas fa-print"></i> Print
                                                 </a>
                                             </li>
@@ -178,95 +179,102 @@
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
                                             </li>
-                                  
-                                           <!-- Proses Analisa -->
-@if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
-    <li>
-        <form action="{{ route('pengajuansolder.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="dropdown-item">
-                <i class="fas fa-cogs"></i> Proses Analisa
+                            @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC')                                 
+                            <li>
+                        <form action="{{ route('pengajuansolder.pengajuan', $rs->id) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-file-alt"></i> Pengajuan
+                            </button>
+                        </form>
+                    </li>
+                        
+                        @endif
+                                                            <!-- Proses Analisa -->
+                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
+                        <li>
+                            <form action="{{ route('pengajuansolder.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-cogs"></i> Proses Analisa
+                                </button>
+                            </form>
+                        </li>
+                    @endif
+
+                    <!-- Analisa Selesai -->
+                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
+                        <li>
+                            <form action="{{ route('pengajuansolder.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-check-circle"></i> Analisa Selesai
+                                </button>
+                            </form>
+                        </li>
+                    @endif
+
+                    <!-- Review Hasil -->
+                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Foreman')
+                        <li>
+                            <form action="{{ route('pengajuansolder.reviewHasil', $rs->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-eye"></i> Review Hasil
+                                </button>
+                            </form>
+                        </li>
+                    @endif
+
+                    <!-- Approve -->
+                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Supervisor')
+                        <li>
+                            <form action="{{ route('pengajuansolder.approve', $rs->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-thumbs-up"></i> Approve
+                                </button>
+                            </form>
+                        </li>
+                    @endif
+
+                    <!-- Tombol Delete -->
+                     
+                    @if (Auth::user()->level === 'Admin') 
+                    <li>
+                        <form action="{{ route('pengajuansolder.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </li>
+                    @endif
+                    
+                </ul>
+            </div>
+
+        @if (Auth::user()->level === 'Admin')
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cogs"></i> Cetak CoA
             </button>
-        </form>
-    </li>
-@endif
-
-<!-- Analisa Selesai -->
-@if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
-    <li>
-        <form action="{{ route('pengajuansolder.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="dropdown-item">
-                <i class="fas fa-check-circle"></i> Analisa Selesai
-            </button>
-        </form>
-    </li>
-@endif
-
-<!-- Review Hasil -->
-@if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Foreman')
-    <li>
-        <form action="{{ route('pengajuansolder.reviewHasil', $rs->id) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="dropdown-item">
-                <i class="fas fa-eye"></i> Review Hasil
-            </button>
-        </form>
-    </li>
-@endif
-
-<!-- Approve -->
-@if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Supervisor')
-    <li>
-        <form action="{{ route('pengajuansolder.approve', $rs->id) }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" class="dropdown-item">
-                <i class="fas fa-thumbs-up"></i> Approve
-            </button>
-        </form>
-    </li>
-@endif
-
-<!-- Tombol Delete -->
-<li>
-    <form action="{{ route('pengajuansolder.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="dropdown-item text-danger">
-            <i class="fas fa-trash"></i> Delete
-        </button>
-    </form>
-</li>
-
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group">
-        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-cogs"></i> Cetak CoA
-        </button>
-        <ul class="dropdown-menu">
-            <!-- Tombol Detail -->
-            <li>
-                <a href="{{ route('pengajuansolder.lokal', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-info-circle"></i> Lokal
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('pengajuansolder.expor', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-info-circle"></i> Ekspor
-                </a>
-            </li>
-            
- 
-            
-       
-            
-   
-          
-            
-
-        </ul>
-    </div>
+            <ul class="dropdown-menu">
+                <!-- Tombol Detail -->
+                <li>
+                    <a href="{{ route('pengajuansolder.lokal', $rs->id) }}" class="dropdown-item">
+                        <i class="fas fa-map-marker-alt"></i> Lokal
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengajuansolder.expor', $rs->id) }}" class="dropdown-item">
+                        <i class="fas fa-paper-plane"></i> Ekspor
+                    </a>
+                </li>
+            </ul>
+        </div>
+        @endif
                                 </td>
                         </tr>
                     @endforeach

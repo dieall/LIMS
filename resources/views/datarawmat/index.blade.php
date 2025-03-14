@@ -22,15 +22,7 @@
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold">Data Rawmat</h6>
         <div class="d-flex gap-3 align-items-center">
-            <!-- Dropdown Filter -->
-            <div style="width: 250px;">
-                <label for="rawmatFilter" class="sr-only">Filter by Category</label>
-                <select class="form-select form-select-sm" id="rawmatFilter" onchange="filterData()">
-                    <option value="all" {{ request('filter') === 'all' ? 'selected' : '' }}>Show All</option>
-                    <option value="Supplier A" {{ request('filter') === 'Supplier A' ? 'selected' : '' }}>Supplier A</option>
-                    <option value="Supplier B" {{ request('filter') === 'Supplier B' ? 'selected' : '' }}>Supplier B</option>
-                </select>
-            </div>
+
             <!-- Button Tambah -->
             <a href="{{ route('datarawmat.create') }}" class="btn btn-success btn-sm">
                 <i class="fas fa-plus"></i> Tambah

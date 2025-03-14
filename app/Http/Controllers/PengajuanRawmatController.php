@@ -129,8 +129,17 @@ class PengajuanRawmatController extends Controller
     }
 
     public function details()
-{
-    return $this->hasMany(RawmatDetail::class, 'pengajuan_rawmat_id'); // Ganti sesuai nama model dan foreign key Anda
-}
+    {
+        return $this->hasMany(RawmatDetail::class, 'pengajuan_rawmat_id'); // Ganti sesuai nama model dan foreign key Anda
+    }
+
+    public function print($id)
+    {
+        // Ambil data pengajuan solder berdasarkan ID
+        $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
+    
+    
+        return view('pengajuanrawmat.print', compact('pengajuanrawmat'));
+    }
 
 }

@@ -174,7 +174,7 @@
     <tr>
         <td>Pb</td>
         <td>-</td>
-        <td><input type="number" step="any" name="pb" class="form-control element" id="pb" placeholder="Pb"></td>
+        <td><input type="text" step="any" name="pb" class="form-control element" id="pb" placeholder="Pb"></td>
         <td class="status">--</td>
     </tr>
     <tr>
@@ -240,7 +240,7 @@
     
     <tr>
         <td hidden>
-            <input type="hidden" name="status" id="status" value="Pengajuan">
+            <input type="hidden" name="status" id="status" value="">
         </td>
     </tr>
 </tbody>
@@ -430,19 +430,7 @@ function updateNotification(isPassed, statusCell) {
         input.addEventListener('input', calculateBalance); // Hitung ulang setiap kali ada perubahan
     });
 
-    // Fungsi untuk mengatur status
-    function setStatus(newStatus) {
-        const statusInput = document.getElementById('status');
-        statusInput.value = newStatus;
 
-        // Log untuk debugging (opsional)
-        console.log("Status updated to:", newStatus);
-    }
-
-    // Set status default (Pengajuan)
-    document.addEventListener('DOMContentLoaded', () => {
-        setStatus("Pengajuan"); // Default status
-    });
 
     // Anda dapat memanggil `setStatus` dengan nilai status lainnya sesuai logika aplikasi Anda
     // Misal:

@@ -153,6 +153,11 @@
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a href="{{ route('pengajuanrawmat.show', $rs->id) }}" class="dropdown-item"><i class="fas fa-info-circle"></i> Detail</a></li>
+                                            <li>
+                                                <a href="{{ route('pengajuanrawmat.print', $rs->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-print"></i> Print
+                                                </a>
+                                            </li>
                                             <li><a href="{{ route('pengajuanrawmat.edit', $rs->id) }}" class="dropdown-item"><i class="fas fa-edit"></i> Edit</a></li>
                                             <li>
                                                 <form action="{{ route('pengajuanrawmat.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">

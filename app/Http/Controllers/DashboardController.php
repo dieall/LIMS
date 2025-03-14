@@ -10,13 +10,30 @@ use App\Models\Tinchem;
 use App\Models\PengajuanSolder;
 use App\Models\PengajuanChemical;
 use App\Models\PengajuanRawmat;
+use App\Models\StatusHistory;
 use DB;
 use Carbon\Carbon; // Tambahkan Carbon untuk manipulasi tanggal
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+
+
+
+    $pengajuansolder = StatusHistory::whereNotNull('pengajuan_solder_id')
+        ->whereDate('changed_at', Carbon::today())
+        ->orderBy('changed_at', 'desc')
+        ->with('user') // Pastikan ada relasi ke tabel users
+        ->get();
+
+    $pengajuanchemical = StatusHistory::whereNotNull('pengajuan_chemical_id')
+        ->whereDate('changed_at', Carbon::today())
+        ->orderBy('changed_at', 'desc')
+        ->with('user') // Pastikan ada relasi ke tabel users
+        ->get();
+
+
     // Hitung jumlah data yang sudah di-approve hari ini
         $jumlahApprovedHariIni = PengajuanSolder::where('status', 'Approve')
         ->whereDate('created_at', Carbon::today()) // Filter hanya untuk hari ini
@@ -81,7 +98,7 @@ class DashboardController extends Controller
         // Count the number of users (pegawai)
         $jumlahPegawai = User::count();
     
-        // Query data bulanan dari `tbs_pengajuan`
+        // Query data bulanan dari tbs_pengajuan
         $currentYear = date('Y'); // Tahun berjalan
 
         // Data dari tbs_pengajuan
@@ -124,13 +141,6 @@ class DashboardController extends Controller
             return $tbcData[$month] ?? 0;
             }, range(1, 12));
 
-
-
-
-
-
-
-
             // Ambil data PengajuanSolder berdasarkan bulan
         $pengajuanSolder = PengajuanSolder::selectRaw('MONTH(created_at) as month, COUNT(*) as total')
         ->whereYear('created_at', $currentYear)
@@ -171,7 +181,255 @@ class DashboardController extends Controller
         $pengajuanChemical = PengajuanChemical::whereDate('created_at', $today)
             ->whereIn('status', ['Pengajuan', 'Proses Analisa', 'Analisa Selesai', 'Review Hasil'])
             ->get();
+        // Ambil semua data StatusHistory dengan eager loading untuk relasi 'user', 'pengajuanSolder', dan 'pengajuanChemical'
+        $histories = StatusHistory::orderBy('changed_at', 'desc')
+        ->with('user', 'pengajuanSolder', 'pengajuanChemical') // Memastikan relasi dengan pengajuanSolder dan pengajuanChemical
+        ->get();  // Ambil data status history
     
+    // Kelompokkan berdasarkan nama pengguna
+    $groupedHistories = $histories->filter(function($history) {
+        return $history->user->level === 'Operator Lab'; // Pastikan role adalah "Operator Lab"
+    })->groupBy(function($history) {
+        return $history->user->name; // Kelompokkan berdasarkan nama pengguna
+    });
+    
+    // Memasukkan data dari pengajuanSolder dan pengajuanChemical
+    $histories->map(function($history) use ($histories) {
+        // Menambahkan interval waktu antara status yang relevan
+        if ($history->status === 'Proses Analisa') {
+            $startTime = Carbon::parse($history->changed_at);
+            
+            $endTime = $histories->first(function($historyItem) use ($history) {
+                return $historyItem->status === 'Analisa Selesai' 
+                    && $historyItem->user->id === $history->user->id;
+            });
+            
+            if ($endTime) {
+                $endTime = Carbon::parse($endTime->changed_at); // Waktu selesai
+                $interval = $startTime->diffInMinutes($endTime); // Hitung selisih waktu dalam menit
+                $history->interval = $interval; // Simpan interval ke dalam objek history
+            } else {
+                $history->interval = 'N/A'; // Jika tidak ada status "Analisa Selesai"
+            }
+        }
+    
+        // Menambahkan data dari pengajuanSolder
+        if ($history->pengajuanSolder) {
+            $pengajuanSolder = $history->pengajuanSolder;
+            $history->batch = $pengajuanSolder ? $pengajuanSolder->batch : 'N/A';
+            $history->tipe_solder = $pengajuanSolder ? $pengajuanSolder->tipe_solder : 'N/A';
+        }
+    
+        // Menambahkan data dari pengajuanChemical
+        if ($history->pengajuanChemical) {
+            $pengajuanChemical = $history->pengajuanChemical;
+            $history->id = $pengajuanChemical ? $pengajuanChemical->id : 'N/A';
+        }
+    
+        return $history;
+    });
+    
+    // Menghitung total interval dan sampel untuk setiap user
+    $groupedHistories->transform(function($histories) {
+        $totalInterval = 0;
+        $totalSampel = 0;
+        
+        $histories = $histories->sortBy('changed_at');  // Urutkan berdasarkan waktu
+    
+        $histories->each(function($history) use (&$totalInterval, &$totalSampel, $histories) {
+            // Hanya hitung interval antara "Proses Analisa" dan "Analisa Selesai"
+            if ($history->status === 'Proses Analisa') {
+                $analisaSelesai = $histories->firstWhere(function($historyItem) use ($history) {
+                    return $historyItem->status === 'Analisa Selesai' 
+                        && Carbon::parse($historyItem->changed_at)->gt(Carbon::parse($history->changed_at)); // Pastikan Analisa Selesai setelah Proses Analisa
+                });
+    
+                if ($analisaSelesai) {
+                    $startTime = Carbon::parse($history->changed_at);
+                    $endTime = Carbon::parse($analisaSelesai->changed_at);
+                    $diffInMinutes = $startTime->diffInMinutes($endTime);
+                    $totalInterval += $diffInMinutes;
+    
+                    $history->interval = $diffInMinutes . ' menit'; // Menyimpan interval
+                }
+            }
+    
+            // Menghitung jumlah sampel hanya dari status "Analisa Selesai"
+            if ($history->status === 'Analisa Selesai') {
+                $totalSampel++; // Tambah satu sampel untuk setiap "Analisa Selesai"
+            }
+        });
+    
+        // Mengonversi total interval menjadi format jam dan menit
+        $totalHours = floor($totalInterval / 60); 
+        $totalMinutes = $totalInterval % 60;      
+    
+        // Menyimpan total interval dalam format jam dan menit
+        $histories->each(function($history) use ($totalHours, $totalMinutes, $totalSampel) {
+            $history->totalInterval = $totalHours . ' Jam ' . $totalMinutes . ' Menit'; 
+            $history->totalSampel = $totalSampel;
+        });
+    
+        return $histories;
+    });
+
+
+   // Ambil data untuk pengajuanSolder dengan status Proses Analisa dan Analisa Selesai
+    $historiesSolder = StatusHistory::whereNotNull('pengajuan_solder_id')
+        ->whereIn('status', ['Proses Analisa', 'Analisa Selesai'])
+        ->when($request->has('month'), function ($query) use ($request) {
+            // Filter berdasarkan bulan yang dipilih
+            $month = $request->input('month');
+            return $query->whereMonth('changed_at', $month);  // Menyaring berdasarkan bulan
+        })
+        ->orderBy('changed_at', 'asc')
+        ->with('user', 'pengajuanSolder') // Pastikan relasi dengan pengajuanSolder
+        ->get();
+
+    // Kelompokkan berdasarkan nama pengguna (user) untuk pengajuanSolder
+    $groupedHistoriesSolder = $historiesSolder->filter(function ($history) {
+        return $history->user->level === 'Operator Lab' && $history->pengajuanSolder;
+    })->groupBy(function ($history) {
+        return $history->user->name; // Kelompokkan berdasarkan nama pengguna
+    });
+
+    // Menghitung interval dan total sampel untuk setiap pengguna (hanya untuk pengajuanSolder)
+    $groupedHistoriesSolder->transform(function ($histories) use ($request) {
+        $totalInterval = 0;
+        $totalSampel = 0;
+        $month = $request->input('month'); // Ambil bulan yang dipilih
+
+        $histories = $histories->sortBy('changed_at');  // Urutkan berdasarkan waktu
+
+        $histories->each(function ($history) use (&$totalInterval, &$totalSampel, $histories, $month) {
+            // Filter berdasarkan bulan yang dipilih
+            if (Carbon::parse($history->changed_at)->month == $month) {
+                // Hanya hitung interval antara "Proses Analisa" dan "Analisa Selesai"
+                if ($history->status === 'Proses Analisa') {
+                    $analisaSelesai = $histories->firstWhere(function ($historyItem) use ($history) {
+                        return $historyItem->status === 'Analisa Selesai' 
+                            && Carbon::parse($historyItem->changed_at)->gt(Carbon::parse($history->changed_at)); // Pastikan Analisa Selesai setelah Proses Analisa
+                    });
+
+                    if ($analisaSelesai) {
+                        $startTime = Carbon::parse($history->changed_at);
+                        $endTime = Carbon::parse($analisaSelesai->changed_at);
+                        $diffInMinutes = $startTime->diffInMinutes($endTime);
+                        $totalInterval += $diffInMinutes;
+
+                        $history->interval = $diffInMinutes . ' menit'; // Menyimpan interval
+                    }
+                }
+
+                // Menghitung jumlah sampel hanya dari status "Analisa Selesai"
+                if ($history->status === 'Analisa Selesai') {
+                    $totalSampel++; // Tambah satu sampel untuk setiap "Analisa Selesai"
+                }
+            }
+        });
+
+        // Mengonversi total interval menjadi format jam dan menit
+        $totalHours = floor($totalInterval / 60); 
+        $totalMinutes = $totalInterval % 60;      
+
+        // Menyimpan total interval dalam format jam dan menit
+        $histories->each(function ($history) use ($totalHours, $totalMinutes, $totalSampel) {
+            $history->totalInterval = $totalHours . ' Jam ' . $totalMinutes . ' Menit';
+            $history->totalSampel = $totalSampel;
+        });
+
+        return $histories;
+    });
+
+
+
+
+    // Ambil data untuk pengajuanChemical dengan status Proses Analisa dan Analisa Selesai
+    $historiesChemical = StatusHistory::whereNotNull('pengajuan_chemical_id')
+        ->whereIn('status', ['Proses Analisa', 'Analisa Selesai'])
+        ->when($request->has('month'), function ($query) use ($request) {
+            // Filter berdasarkan bulan yang dipilih
+            $month = $request->input('month');
+            return $query->whereMonth('changed_at', $month);  // Menyaring berdasarkan bulan
+        })
+        ->orderBy('changed_at', 'asc')
+        ->with('user', 'pengajuanChemical') // Pastikan relasi dengan pengajuanChemical
+        ->get();
+
+    // Kelompokkan berdasarkan nama pengguna (user) untuk pengajuanChemical
+    $groupedHistoriesChemical = $historiesChemical->filter(function ($history) {
+        return $history->user->level === 'Operator Lab' && $history->pengajuanChemical;
+    })->groupBy(function ($history) {
+        return $history->user->name; // Kelompokkan berdasarkan nama pengguna
+    });
+
+    // Menghitung interval dan total sampel untuk setiap pengguna (hanya untuk pengajuanChemical)
+    $groupedHistoriesChemical->transform(function ($histories) use ($request) {
+        $totalInterval = 0;
+        $totalSampel = 0;
+        $month = $request->input('month'); // Ambil bulan yang dipilih
+
+        $histories = $histories->sortBy('changed_at');  // Urutkan berdasarkan waktu
+
+        $histories->each(function ($history) use (&$totalInterval, &$totalSampel, $histories, $month) {
+            // Filter berdasarkan bulan yang dipilih
+            if (Carbon::parse($history->changed_at)->month == $month) {
+                // Hanya hitung interval antara "Proses Analisa" dan "Analisa Selesai"
+                if ($history->status === 'Proses Analisa') {
+                    $analisaSelesai = $histories->firstWhere(function ($historyItem) use ($history) {
+                        return $historyItem->status === 'Analisa Selesai' 
+                            && Carbon::parse($historyItem->changed_at)->gt(Carbon::parse($history->changed_at)); // Pastikan Analisa Selesai setelah Proses Analisa
+                    });
+
+                    if ($analisaSelesai) {
+                        $startTime = Carbon::parse($history->changed_at);
+                        $endTime = Carbon::parse($analisaSelesai->changed_at);
+                        $diffInMinutes = $startTime->diffInMinutes($endTime);
+                        $totalInterval += $diffInMinutes;
+
+                        $history->interval = $diffInMinutes . ' menit'; // Menyimpan interval
+                    }
+                }
+
+                // Menghitung jumlah sampel hanya dari status "Analisa Selesai"
+                if ($history->status === 'Analisa Selesai') {
+                    $totalSampel++; // Tambah satu sampel untuk setiap "Analisa Selesai"
+                }
+            }
+        });
+
+        // Mengonversi total interval menjadi format jam dan menit
+        $totalHours = floor($totalInterval / 60); 
+        $totalMinutes = $totalInterval % 60;      
+
+        // Menyimpan total interval dalam format jam dan menit
+        $histories->each(function ($history) use ($totalHours, $totalMinutes, $totalSampel) {
+            $history->totalInterval = $totalHours . ' Jam ' . $totalMinutes . ' Menit';
+            $history->totalSampel = $totalSampel;
+        });
+
+        return $histories;
+    });
+
+        
+
+     $pengajuanSolderHistories = StatusHistory::whereNotNull('pengajuan_solder_id')
+                ->whereDate('changed_at', Carbon::today())
+                ->orderBy('changed_at', 'desc')
+                ->with('user', 'pengajuanSolder') // Relasi dengan pengajuanSolder
+                ->get();
+
+        
+        
+        
+
+
+// Data sudah dikelompokkan berdasarkan nama pengguna
+
+        // Ambil pengajuan solder untuk menampilkan tipe_solder dan batch
+        $pengajuanSolderDetails = PengajuanSolder::all(); // Ambil semua pengajuan solder yang relevan
+     
+            
 
         // Return the view with the necessary data
         return view('dashboard', compact(
@@ -187,55 +445,30 @@ class DashboardController extends Controller
             'totalMonthlyData',
             'pengajuanSolder',
             'pengajuanChemical',
-            'tbsMonthlyData', 'tbrMonthlyData', 'tbcMonthlyData'
-            
+            'tbsMonthlyData', 
+            'tbrMonthlyData', 
+            'tbcMonthlyData', 
+            'histories',
+            'groupedHistories',
+            'pengajuanSolderDetails',
+            'groupedHistoriesSolder',
+            'groupedHistoriesChemical'// Mengirimkan groupedHistories ke view
         ));
+        
     }
     
+    public function showUserHistory($userName)
+{
+    // Ambil semua data history untuk pengguna berdasarkan nama
+    $userHistories = StatusHistory::whereHas('user', function($query) use ($userName) {
+        $query->where('name', $userName); // Filter berdasarkan nama pengguna
+    })
+    ->orderBy('changed_at', 'desc') // Urutkan berdasarkan waktu perubahan
+    ->with('user', 'pengajuanSolder', 'pengajuanChemical') // Pastikan relasi dengan user dan pengajuan
+    ->get();
+
+    return view('dashboard', compact('userHistories', 'userName'));
+}
 
  
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

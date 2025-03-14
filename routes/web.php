@@ -1,25 +1,27 @@
 <?php
-
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MeclController;
 use App\Http\Controllers\LogamtimahController;
-use App\Http\Controllers\EhtgController;
-use App\Http\Controllers\Nh3Controller;
+
+
 use App\Http\Controllers\LogamtimbalController;
 use App\Http\Controllers\SolarController;
 use App\Http\Controllers\LineController;
 use App\Http\Controllers\MixingController;
-use App\Http\Controllers\TrialController;
-use App\Http\Controllers\RiController;
-use App\Http\Controllers\ReController;
-use App\Http\Controllers\FiltrasiController;
+
+
+
+
 use App\Http\Controllers\SirController;
 use App\Http\Controllers\FinishController;
 use App\Http\Controllers\SolderController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DataIntervalController;
+use App\Exports\DataIntervalExport;
 
 
 //Chemical
@@ -49,18 +51,7 @@ use App\Http\Controllers\DataSolderController;
 use App\Http\Controllers\RtinchemicalController;
 use App\Http\Controllers\DataRawmatController;
 use App\Http\Controllers\PengajuanRawmatController;
-
-
-
-
-
-
-
-
-
-
-
-
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     return view('index');
@@ -83,7 +74,13 @@ Route::middleware('auth')->group(function () {
  
 });
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/user-history/{userName}', [DashboardController::class, 'showUserHistory'])->name('user.history');
+Route::get('/user-history1/{userName1}', [DashboardController::class, 'showUserHistory1'])->name('user.history1');
 
+
+// Route untuk menampilkan status history berdasarkan solder_id
+Route::get('/getStatusHistory', [DashboardController::class, 'getStatusHistory']);
+Route::get('/export-data-interval/{user_id}', [DataIntervalController::class, 'export'])->name('export.data.interval');
 
 Route::controller(MeclController::class)->prefix('mecl')->group(function () {
     Route::get('', 'index')->name('mecl');
@@ -103,27 +100,6 @@ Route::controller(LogamtimahController::class)->prefix('logamtimah')->group(func
     Route::get('edit/{id}', 'edit')->name('logamtimah.edit');
     Route::put('edit/{id}', 'update')->name('logamtimah.update');
     Route::delete('destroy/{id}', 'destroy')->name('logamtimah.destroy');
-});
-
-
-Route::controller(EhtgController::class)->prefix('ehtg')->group(function () {
-    Route::get('', 'index')->name('ehtg');
-    Route::get('create', 'create')->name('ehtg.create');
-    Route::post('store', 'store')->name('ehtg.store');
-    Route::get('show/{id}', 'show')->name('ehtg.show');
-    Route::get('edit/{id}', 'edit')->name('ehtg.edit');
-    Route::put('edit/{id}', 'update')->name('ehtg.update');
-    Route::delete('destroy/{id}', 'destroy')->name('ehtg.destroy');
-});
-
-Route::controller(Nh3Controller::class)->prefix('nh3')->group(function () {
-    Route::get('', 'index')->name('nh3');
-    Route::get('create', 'create')->name('nh3.create');
-    Route::post('store', 'store')->name('nh3.store');
-    Route::get('show/{id}', 'show')->name('nh3.show');
-    Route::get('edit/{id}', 'edit')->name('nh3.edit');
-    Route::put('edit/{id}', 'update')->name('nh3.update');
-    Route::delete('destroy/{id}', 'destroy')->name('nh3.destroy');
 });
 
 Route::controller(LogamtimbalController::class)->prefix('logamtimbal')->group(function () {
@@ -164,56 +140,6 @@ Route::controller(MixingController::class)->prefix('mixing')->group(function () 
     Route::get('edit/{id}', 'edit')->name('mixing.edit');
     Route::put('edit/{id}', 'update')->name('mixing.update');
     Route::delete('destroy/{id}', 'destroy')->name('mixing.destroy');
-});
-
-Route::controller(TrialController::class)->prefix('trial')->group(function () {
-    Route::get('', 'index')->name('trial');
-    Route::get('create', 'create')->name('trial.create');
-    Route::post('store', 'store')->name('trial.store');
-    Route::get('show/{id}', 'show')->name('trial.show');
-    Route::get('edit/{id}', 'edit')->name('trial.edit');
-    Route::put('edit/{id}', 'update')->name('trial.update');
-    Route::delete('destroy/{id}', 'destroy')->name('trial.destroy');
-});
-
-Route::controller(RiController::class)->prefix('ri')->group(function () {
-    Route::get('', 'index')->name('ri');
-    Route::get('create', 'create')->name('ri.create');
-    Route::post('store', 'store')->name('ri.store');
-    Route::get('show/{id}', 'show')->name('ri.show');
-    Route::get('edit/{id}', 'edit')->name('ri.edit');
-    Route::put('edit/{id}', 'update')->name('ri.update');
-    Route::delete('destroy/{id}', 'destroy')->name('ri.destroy');
-});
-
-Route::controller(ReController::class)->prefix('re')->group(function () {
-    Route::get('', 'index')->name('re');
-    Route::get('create', 'create')->name('re.create');
-    Route::post('store', 'store')->name('re.store');
-    Route::get('show/{id}', 'show')->name('re.show');
-    Route::get('edit/{id}', 'edit')->name('re.edit');
-    Route::put('edit/{id}', 'update')->name('re.update');
-    Route::delete('destroy/{id}', 'destroy')->name('re.destroy');
-});
-
-Route::controller(FiltrasiController::class)->prefix('filtrasi')->group(function () {
-    Route::get('', 'index')->name('filtrasi');
-    Route::get('create', 'create')->name('filtrasi.create');
-    Route::post('store', 'store')->name('filtrasi.store');
-    Route::get('show/{id}', 'show')->name('filtrasi.show');
-    Route::get('edit/{id}', 'edit')->name('filtrasi.edit');
-    Route::put('edit/{id}', 'update')->name('filtrasi.update');
-    Route::delete('destroy/{id}', 'destroy')->name('filtrasi.destroy');
-});
-
-Route::controller(SirController::class)->prefix('sir')->group(function () {
-    Route::get('', 'index')->name('sir');
-    Route::get('create', 'create')->name('sir.create');
-    Route::post('store', 'store')->name('sir.store');
-    Route::get('show/{id}', 'show')->name('sir.show');
-    Route::get('edit/{id}', 'edit')->name('sir.edit');
-    Route::put('edit/{id}', 'update')->name('sir.update');
-    Route::delete('destroy/{id}', 'destroy')->name('sir.destroy');
 });
 
 Route::controller(FinishController::class)->prefix('finish')->group(function () {
@@ -399,7 +325,7 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::put('edit/{id}', 'update')->name('pengajuansolder.update');
     Route::delete('destroy/{id}', 'destroy')->name('pengajuansolder.destroy');
     Route::get('/get-tipe-solder/{tipe_solder}', [DataSolderController::class, 'getTipeSolderDetail']);
-    Route::get('/pengajuan-solder/{id}/print-pdf', [PengajuanSolderController::class, 'printPDF'])->name('pengajuansolder.printPDF');   
+    Route::get('/pengajuan-solder/{id}/print', [PengajuanSolderController::class, 'print'])->name('pengajuansolder.print');   
     Route::get('/pengajuansolder/export-excel', [PengajuanSolderController::class, 'exportToExcel'])->name('pengajuansolder.export-excel');
 
     //coa
@@ -408,7 +334,7 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::get('/get-pengajuan-data/{id}', [PengajuanSolderController::class, 'getPengajuanData']);
 
 
-
+    Route::post('/pengajuansolder/pengajuan/{id}', [PengajuanSolderController::class, 'pengajuan'])->name('pengajuansolder.pengajuan');
     Route::post('/pengajuansolder/proses-analisa/{id}', [PengajuanSolderController::class, 'prosesAnalisa'])->name('pengajuansolder.proses-analisa');
     Route::post('/pengajuan-solder/analisa-selesai/{id}', [PengajuanSolderController::class, 'analisaSelesai'])->name('pengajuansolder.analisaSelesai');
     Route::post('/pengajuansolder/review-hasil/{id}', [PengajuanSolderController::class, 'reviewHasil'])->name('pengajuansolder.reviewHasil');
@@ -462,9 +388,7 @@ Route::controller(DataSoldercontroller::class)->prefix('datasolder')->group(func
     
 });
 
-
 // Rawmat
-
 Route::controller(RtinchemicalController::class)->prefix('rtinchemical')->group(function () {
     Route::get('', 'index')->name('rtinchemical');
     Route::get('create', 'create')->name('rtinchemical.create');
@@ -500,6 +424,8 @@ Route::controller(PengajuanRawmatController::class)->prefix('pengajuanrawmat')->
     Route::put('edit/{id}', 'update')->name('pengajuanrawmat.update');
     Route::delete('destroy/{id}', 'destroy')->name('pengajuanrawmat.destroy');
 
+    Route::get('/pengajuanrawmat/{id}/print', [PengajuanRawmatController::class, 'print'])->name('pengajuanrawmat.print');  
+
 
 
 });
@@ -516,6 +442,7 @@ Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical
     Route::put('edit/{id}', 'update')->name('pengajuanchemical.update');
     Route::delete('destroy/{id}', 'destroy')->name('pengajuanchemical.destroy');
     Route::get('/pengajuanchemical/export-excel', [PengajuanChemicalController::class, 'exportToExcel'])->name('pengajuanchemical.export-excel');
+    Route::get('print/{id}', 'print')->name('pengajuanchemical.print');
     //coa
     Route::get('lokal/{id}', 'lokal')->name('pengajuanchemical.lokal');
     Route::get('expor/{id}', 'expor')->name('pengajuanchemical.expor');
@@ -525,6 +452,7 @@ Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical
 
    
     Route::get('/get-names/{kategori}', [PengajuanChemicalController::class, 'getNamesByCategory']);
+    Route::post('/pengajuanchemical/pengajuan/{id}', [PengajuanChemicalController::class, 'pengajuan'])->name('pengajuanchemical.pengajuan');
     Route::post('/pengajuanchemical/proses-analisa/{id}', [PengajuanChemicalController::class, 'prosesAnalisa'])->name('pengajuanchemical.proses-analisa');
     Route::post('/pengajuan-chemical/analisa-selesai/{id}', [PengajuanChemicalController::class, 'analisaSelesai'])->name('pengajuanchemical.analisaSelesai');
     Route::post('/pengajuanchemical/review-hasil/{id}', [PengajuanChemicalController::class, 'reviewHasil'])->name('pengajuanchemical.reviewHasil');
@@ -547,12 +475,18 @@ Route::controller(DataChemicalController::class)->prefix('datachemical')->group(
     Route::get('show/{id}', 'show')->name('datachemical.show');
     Route::get('edit/{id}', 'edit')->name('datachemical.edit');
     Route::put('edit/{id}', 'update')->name('datachemical.update');
-
-
-
     Route::delete('destroy/{id}', 'destroy')->name('datachemical.destroy');
 
 
+});
 
+Route::controller(DataIntervalController::class)->prefix('datainterval')->group(function () {
+    Route::get('', 'index')->name('datainterval');
+    Route::get('create', 'create')->name('datainterval.create');
+    Route::post('store', 'store')->name('datainterval.store');
+    Route::get('show/{user_id}', 'show')->name('datainterval.show');
+    Route::get('edit/{id}', 'edit')->name('datainterval.edit');
+    Route::put('edit/{id}', 'update')->name('datainterval.update');
+    Route::delete('destroy/{id}', 'destroy')->name('datainterval.destroy');
 
 });

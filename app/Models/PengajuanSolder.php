@@ -12,13 +12,11 @@ class PengajuanSolder extends Model
     protected $table = 'tbs_pengajuan'; // Nama tabel
     protected $primaryKey = 'id'; // Primary key
 
-        // Mengaktifkan timestamps untuk otomatis menangani created_at dan updated_at
-        public $timestamps = true;
+    public $timestamps = true;
 
     protected $fillable = [
         'nama',
         'tgl',
-        'nama',
         'tipe_solder',
         'batch',
         'audit_trail',
@@ -39,42 +37,53 @@ class PengajuanSolder extends Model
         'pe',
         'ga',
         'status',
-
-
-
     ];
 
-    public function categorysolder()
+    // Relasi ke StatusHistory
+    public function statusHistory()
     {
-        return $this->belongsTo(CategorySolder::class, 'id_category', 'id_category');
+        return $this->hasMany(StatusHistory::class, 'pengajuan_solder_id');
     }
 
+    // Relasi untuk mendapatkan nama pengguna yang terakhir melakukan perubahan status
+    public function lastStatusUser()
+    {
+            return $this->hasOneThrough(User::class, StatusHistory::class, 'pengajuan_solder_id', 'id', 'id', 'user_id');
+    }
+
+    // Relasi ke model CategorySolder
+    public function categorySolder()
+    {
+        return $this->belongsTo(CategorySolder::class, 'id_category');
+    }
+
+    // Relasi ke model Sncu
     public function sncu()
     {
         return $this->belongsTo(Sncu::class, 'id', 'id');
     }
+
+    // Relasi ke model Snagcu
     public function snagcu()
     {
         return $this->belongsTo(Snagcu::class, 'id', 'id');
     }
+
+    // Relasi ke model Snag
     public function snag()
     {
         return $this->belongsTo(Snag::class, 'id', 'id');
     }
-    
+
+    // Relasi ke model Tin
     public function tin()
     {
         return $this->belongsTo(Tin::class, 'id', 'id');
     }
 
-    public function datasolder()
+    // Relasi ke model DataSolder
+    public function dataSolder()
     {
         return $this->belongsTo(DataSolder::class, 'tipe_solder', 'tipe_solder');
     }
-    
-    public function statusHistory()
-    {
-        return $this->hasMany(StatusHistory::class, 'pengajuan_solder_id');
-    }
-    
 }

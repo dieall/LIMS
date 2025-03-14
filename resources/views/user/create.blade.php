@@ -79,7 +79,14 @@
 				<span class="invalid-feedback">{{ $message }}</span>
 				@enderror
 			</div>
-
+            <div class="mb-3">
+                <label for="departement" class="form-label">Departement</label>
+                <input type="text" name="departement" class="form-control" id="alamat" placeholder="Masukkan Departement" required>
+            </div>
+            <div class="mb-3">
+                <label for="departement" class="form-label">Jabatan</label>
+                <input type="text" name="jabatan" class="form-control" id="alamat" placeholder="Masukkan Departement" required>
+            </div>
             <!-- Role -->
             <div class="mb-3">
                 <label for="level" class="form-label">Role</label>

@@ -22,9 +22,9 @@
         <div class="row">
             <div class="col">
                 <table class="data-table" id="dynamic-table">
-                    <tr>
-                        <th>Nomor CoA</th>
-                        <td><input type="text" class="form-control" name="nomor_coa"></td>
+                    <tr class="coa-row">
+                        <th>CoA Number</th>
+                        <td><input type="text" class="form-control" name="nomor_coa" class="coa-row"></td>
                     </tr>
                     <tr>
                         <th>Brand</th>
@@ -35,13 +35,18 @@
                         <td><input type="text" class="form-control" name="nama" value="{{ $pengajuanchemical->batch }}"></td>
                     </tr>
                     <tr>
-                        <th>Date Of Inspection</th>
-                        <td><input type="date" class="form-control" name="date_of_inspection" required></td>
-                    </tr>
-                    <tr>
-                        <th>Date Of Release</th>
-                        <td><input type="date" class="form-control" name="date_of_release" required></td>
-                    </tr>
+                <th>Date Of Inspection</th>
+                <td>
+                    <input type="text" class="form-control" name="date_of_inspection" value="{{ \Carbon\Carbon::parse($pengajuanchemical->tgl)->format('d F Y') }}" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <th>Date Of Release</th>
+                <td>
+                    <input type="text" id="date_of_release" class="form-control" name="date_of_release" required>
+                </td>
+            </tr>
                     <tr>
                         <th>PO Number</th>
                         <td><input type="text" class="form-control" name="po_number" required></td>
@@ -57,19 +62,18 @@
            
             </div>
         </div>
-        <br>
-  
+        <div style="padding-top: 5px;"></div> <!-- Menambahkan jarak di atas elemen lain -->
         <textarea name="w3review" class="form-control">
         The undersigned hereby certifies the following data to be true specification of the obtained results of tests and assays.
         </textarea>
-     <br>
+        <div style="padding-top: 5px;"></div> <!-- Menambahkan jarak di atas elemen lain -->
         <table style="width: 70%; border-collapse: collapse; border: 1px solid black;">
     <thead>
         <tr style="background-color: #f2f2f2; border: 1px solid black;">
-            <th style="padding: 8px; text-align: center; border: 1px solid black;">Test</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid black;">Specification</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid black;">Result</th>
-            <th style="padding: 8px; text-align: center; border: 1px solid black;">Action</th> <!-- Kolom Action -->
+            <th style="padding: 4px; text-align: center; border: 1px solid black;">Tests</th>
+            <th style="padding: 4px; text-align: center; border: 1px solid black;">Specification</th>
+            <th style="padding: 4px; text-align: center; border: 1px solid black;">Results</th>
+            <th style="padding: 4px; text-align: center; border: 1px solid black;">Action</th> <!-- Kolom Action -->
         </tr>
     </thead>
     <tbody>
@@ -105,10 +109,10 @@
             @foreach ($fields as $field => $label)
                 @if (!empty($pengajuanchemical->dataChemical->$field))
                     <tr style="border: 1px solid black;">
-                        <td style="padding: 8px; text-align: left; border: 1px solid black;">{{ $label }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->dataChemical->$field }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->$field ?? '-' }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">
+                        <td style="padding: 3px; padding-top: 3px; text-align: left; border: 1px solid black;">{{ $label }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->dataChemical->$field }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->$field ?? '-' }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">
                             <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">X</button>
                         </td> <!-- Tombol Hapus -->
                     </tr>
@@ -197,24 +201,20 @@ function printData() {
     });
 
     const customPrintContent = `
-   
     <br>
     <br>
-    <br>
-    <br>
-   
         <div style="text-align: center; margin-top: 20px;">
-           <h2 style="margin: 0; font-size: 40px; font-weight: bold; font-family: 'Times New Roman', Times, serif;">
+           <h2 style="margin: 0; font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif;">
                 Certificate of Analysis
             </h2>
-            <p style="margin: 5px 0;">No. ${nomorCoaValue}</p>
+            <p style="margin-bottom: 8px;">No. ${nomorCoaValue}</p>
         </div>
         ${clonePrintArea.innerHTML}
- <div style="text-align: right; position: relative; margin-top: 100px;">
-    <p style="margin: 0; font-weight: bold;">SELFIRA ARUM ANDADARI</p>
-    <div style="border-top: 2px solid black; width: 187px; margin: 10px 0 0 auto; position: relative;"></div>
-    <p style="margin: 5px 0 0 auto; font-weight: bold; text-align: right; width: 250px;">Laboratory Spv</p>
-</div>
+        <div style="padding-top: 30px;"></div>
+        <div style="text-align: right; position: relative; margin-top: 70px;">
+            <u style="margin: 2; font-weight: bold; font-size: 11px;">SELFIRA ARUM ANDADARI</u>
+            <p style="margin: 0px;  font-size: 11px; text-align: right; width: 660px; ">Laboratory Spv</p>
+        </div>
     `;
 
     const originalContents = document.body.innerHTML;
@@ -223,10 +223,24 @@ function printData() {
         <style>
             @media print {
                 @page { margin: 0; }
-                body { margin: 1cm; font-family: 'Times New Roman', sans-serif; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid black; padding: 4px; font-size: 10px; }
+                body { margin: 2cm; font-family: 'Times New Roman', sans-serif; color:black; }
+                table { width: 100%; border-collapse: collapse; color:black; }
+                th, td { border: 1px solid black; padding: 4px; font-size: 10px; color:black; }
                 
+
+
+                /* Menyembunyikan input dengan name "nomor_coa" */
+                .coa-row {
+                    display: none !important;
+                }
+                input[name="nomor_coa"] {
+                    display: none !important;
+                }
+
+                /* Memastikan seluruh teks berwarna hitam */
+                body {
+                    color: black !important;
+                }
             }
         </style>
         ${customPrintContent}
@@ -239,7 +253,28 @@ function printData() {
 </script>
 
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the current date
+        const today = new Date();
 
+        // Create a list of months for formatting
+        const months = [
+            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Get the day, month, and year
+        const day = today.getDate();
+        const month = months[today.getMonth()];
+        const year = today.getFullYear();
+
+        // Format the date as "d F Y" (e.g., "4 February 2025")
+        const formattedDate = `${day} ${month} ${year}`;
+
+        // Set the formatted date as the value of the input field
+        document.getElementById('date_of_release').value = formattedDate;
+    });
+</script>
 <style>
     
     table.data-table {

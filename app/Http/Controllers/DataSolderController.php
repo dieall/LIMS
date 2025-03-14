@@ -12,7 +12,7 @@ class DataSolderController extends Controller
     {
         // Ambil filter dari permintaan (default 'all')
         $filter = $request->get('filter', 'all');
-        $pageSize = $request->get('page_size', 10); // Default page size 10
+        $pageSize = $request->get('page_size', 50); // Default page size 10
     
         // Query dasar untuk DataSolder
         $query = DataSolder::query();

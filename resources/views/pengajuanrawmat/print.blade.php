@@ -5,7 +5,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Cetak Print Sampeling</li>
+            <li class="breadcrumb-item active" aria-current="page">Cetak CoA Lokal</li>
         </ol>
         <hr>
     </nav>
@@ -20,7 +20,7 @@
                 <table class="coa-table">
                     <tr>
                         <th>ID Sample</th>
-                        <td><input type="text" class="form-control" name="nama" value="{{ $pengajuansolder->batch }}"></td>
+                        <td><input type="text" class="form-control" name="nama" value=""></td>
                     </tr>
                     <tr>
                         <th>Date of Sampling</th>
@@ -32,23 +32,23 @@
                     </tr>
                     <tr>
                         <th>Date of Analysis</th>
-                        <td><input type="text" class="form-control" name="nama" value="{{ \Carbon\Carbon::parse($pengajuansolder->tgl)->format('d F Y') }}"></td>
+                        <td><input type="text" class="form-control" name="nama" value="{{ \Carbon\Carbon::parse($pengajuanrawmat->tgl)->format('d F Y') }}"></td>
                     </tr>
                     <tr>
                         <th>Type Product</th>
-                        <td><input type="text"  class="form-control" name="nama" value="{{ $pengajuansolder->tipe_solder}}"></td>
+                        <td><input type="text"  class="form-control" name="nama" value="{{ $pengajuanrawmat->nama }}"></td>
                     </tr>
                     <tr>
                         <th>Description</th>
                         <td><input type="text"  class="form-control" name="nama" value=""></td>
                     </tr>
-                </table>     
+
+                </table>
+                
             </div>
         </div>
-
-        
         <div class="mt-3">
-            <a href="{{ route('pengajuansolder.index') }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ route('pengajuanrawmat.index') }}" class="btn btn-secondary">Kembali</a>
             <a href="javascript:void(0)" class="btn btn-success" onclick="printData()">Print</a>
         </div>
     </div>
@@ -123,11 +123,11 @@ function printData() {
         }
 
         .coa-table th, .coa-table td {
+
             padding: 6.5px;
             border: 1px solid black;
             font-size: 9px; /* Ukuran font lebih kecil untuk mencegah pemotongan */
         }
-
         /* Menyembunyikan tombol Print dan Kembali saat mencetak */
         .mt-3 {
             display: none;

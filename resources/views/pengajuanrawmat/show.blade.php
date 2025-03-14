@@ -21,13 +21,13 @@
             <table class="table table-bordered table-striped">
                 <thead class="bg-light">
                     <tr>
-                        <th style="width: 20%;">Nama</th>
-                        <th style="width: 20%;">Supplier</th>
-                        <th style="width: 15%;">Spesifikasi</th>
-                        <th style="width: 15%;">Satuan</th>
-                        <th style="width: 15%;">COA</th>
-                        <th style="width: 15%;">Result</th>
-                        <th style="width: 10%;">Tanggal</th>
+                        <th style="width: 10%;">Nama</th>
+                        <th style="width: 10%;">Supplier</th>
+                        <th style="width: 10%;">Spesifikasi</th>
+                        <th style="width: 10%;">Satuan</th>
+                        <th style="width: 10%;">COA</th>
+                        <th style="width: 10%;">Result</th>
+                        <th style="width: 5%;">Tanggal</th>
                     </tr>
                 </thead>
                 <tbody>

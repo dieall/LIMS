@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('contents')
+<!-- CSS Select2 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<!-- JS Select2 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 <div class="panel-body">
     <nav aria-label="breadcrumb">
@@ -14,122 +18,139 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold">Cetak CoA Lokal | {{ $pengajuansolder->tipe_solder }}</h6>
+        <h6 class="m-0 font-weight-bold">Cetak CoA Ekspor | {{ $pengajuansolder->tipe_solder }}</h6>
     </div>
 
     <div class="card-body" id="print-area">
         <div class="row">
             <div class="col">
-                <div style="margin-bottom: 3px;">
-                    <label for="nomor_coa" style="display: inline-block; width: 200px;">Nomor CoA</label>
+                <div style="margin-bottom: 1px; padding-bottom: 0px;">
+                    <label for="nomor_coa" style="display: inline-block; width: 200px;">CoA Number</label>
                     <span style="margin-left: 5px;">:</span>
                     <input type="text" id="nomor_coa" name="nomor_coa" class="form-control">
                 </div>
 
-                <div style="margin-bottom: 3px;">
+                <div style="margin-bottom: 0px; padding-bottom: 0px;">
                     <label for="product" style="display: inline-block; width: 200px;">Product</label>
                     <span style="margin-left: 5px;">:</span>
                     <input type="text" id="product" name="product" value="{{ $pengajuansolder->tipe_solder }}" class="form-control">
                 </div>
-
-                <div style="margin-bottom: 3px;">
-                    <label for="compositions" style="display: inline-block; width: 200px;">Compositions</label>
+                <div style="margin-bottom: 0px; padding-bottom: 0px;">
+                    <label for="product" style="display: inline-block; width: 200px;">Composition</label>
                     <span style="margin-left: 5px;">:</span>
-                    <input type="text" id="compositions" name="compositions" value="{{ $pengajuansolder->spesification ?? '-' }}" class="form-control">
+                    <input type="text" id="product" name="product" value="{{ $pengajuansolder->nama_kategori }}" class="form-control">
+                </div>
+                <div style="margin-bottom: 0px; padding-bottom: 0px;">
+                    <label for="po_number" style="display: inline-block; width: 200px;">PO Number</label>
+                    <span style="margin-left: 5px;">:</span>
+                    <input type="text" id="po_number" name="po_number" value="{{ $pengajuansolder->spesification ?? '-' }}" class="form-control">
                 </div>
 
-                <div style="margin-bottom: 3px;">
+                <div style="margin-bottom: 0px; padding-bottom: 0px;">
                     <label for="marks" style="display: inline-block; width: 200px;">Marks</label>
                     <span style="margin-left: 5px;">:</span>
                     <input type="text" id="marks" name="marks" class="form-control">
                 </div>
 
-                <div style="margin-bottom: 3px;">
-                    <label for="number_of_boxes" style="display: inline-block; width: 200px;">Number of Boxes</label>
+                <div style="margin-bottom: 0px; padding-bottom: 0px;">
+                    <label for="number_of_boxes" style="display: inline-block; width: 200px;">Number Of Boxes</label>
                     <span style="margin-left: 5px;">:</span>
                     <input type="text" id="number_of_boxes" name="number_of_boxes" class="form-control">
                 </div>
-            </div>X 
+            </div>
         </div>
+
+        <div style="margin-bottom: 1px; padding-top: 2px;">
+    <label for="number_of_boxes" style="display: inline-block; width: 200px;">Pilih Pengajuan</label>
+    <div class="form-group">
+        <!-- Dropdown untuk mengganti data di tabel -->
+        <select id="dropdownPengajuan" name="dropdownPengajuan" class="form-control" onchange="fetchPengajuanData(this.value)">
+            <option value="" selected disabled>Pilih Pengajuan</option>
+            @foreach ($allPengajuanSolder as $pengajuan)
+                <option value="{{ $pengajuan->id }}">
+                    {{ $pengajuan->batch ?? '' }} - {{ $pengajuan->tgl ?? '' }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
+
+        <div style="padding-top: 5px;">
+            
+        </div> <!-- Menambahkan jarak di atas elemen lain -->
 
         <textarea name="w3review" class="form-control" style="margin-top: 20px;">
             We further certify that the analysis of the below mentioned lot as follows:
         </textarea>
         
-        <br>
-        
-        <table style="width: 70%; border-collapse: collapse; border: 1px solid black; text-align: center;" id="mainTable">
-    <thead>
-        <tr>
-            <th rowspan="2" style="border: 1px solid black; padding: 5px;">Composition</th>
-            <th style="border: 1px solid black; padding: 5px;">Standard (%)</th>
-            <th style="border: 1px solid black; padding: 5px;">Lot No. {{ $pengajuansolder->batch ?? '-' }}</th>
-        </tr>
-        <tr>
-            <th style="border: 1px solid black; padding: 5px;">Prod. Date</th>
-            <th style="border: 1px solid black; padding: 5px;">{{ $pengajuansolder->tgl ?? '-' }}</th>
-        </tr>
-    </thead>
-    <tbody id="tableBody">
-    @php
-        $fields = [
-            'sn' => 'Sn',
-            'ag' => 'Ag',
-            'cu' => 'Cu',
-            'pb' => 'Pb',
-            'sb' => 'Sb',
-            'zn' => 'Zn',
-            'fe' => 'Fe',
-            'as' => 'As',
-            'ni' => 'Ni',
-            'bi' => 'Bi',
-            'cd' => 'Cd',
-            'ai' => 'Al',
-            'pe' => 'Pe',
-            'ga' => 'Ga',
-        ];
-    @endphp
+        <div style="padding-top: 5px;">
 
-    @foreach ($fields as $field => $label)
-    <tr id="row-{{ $field }}">
-        <td style="border: 1px solid black; padding: 5px;">{{ $label }}</td>
-        <td style="border: 1px solid black; padding: 5px;">{{ $pengajuansolder->DataSolder->$field ?? '-' }}</td>
-        <td style="border: 1px solid black; padding: 5px;">{{ $pengajuansolder->$field ?? '-' }}</td>
-    </tr>
-    @endforeach
-</tbody>
-<tfoot>
-    <tr id="weightRow">
-        <td colspan="2" style="border: 1px solid black; padding: 5px; text-align: center; font-weight: bold;">
-            Weight (Kg)
-        </td>
-        <td style="border: 1px solid black; padding: 5px;">
-            <input type="number" id="weight-0" class="weight-input"
-                   style="width: 100%; border: none; padding: 5px; text-align: center;"
-                   oninput="updateTotalWeight()">
-        </td>
-    </tr>
-    <tr>
+        </div> <!-- Menambahkan jarak di atas elemen lain -->
 
+        <table style="width: 87%; border-collapse: collapse; border: 1px solid black; text-align: center;" id="mainTable">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="padding: 4px; text-align: center; border: 1px solid black;">Composition</th>
+                    <th rowspan="2" style="padding: 4px; text-align: center; border: 1px solid black;">Method</th>
+                    
+                    <th rowspan="2" style="padding: 4px; text-align: center; border: 1px solid black;">Specification</th>
+                
+                    <th style="padding: 2px; text-align: center; border: 1px solid black;">Lot No. {{ $pengajuansolder->batch ?? '-' }}</th>
+                </tr>
+                <tr>
+                    <th style="padding: 2px; text-align: center; border: 1px solid black;">{{ $pengajuansolder->tgl ?? '-' }}</th>
+                </tr>
+            </thead>
+                <tbody id="tableBody">
+                    @php
+                        $fields = [
+                            'sn' => 'Sn',
+                            'ag' => 'Ag',
+                            'cu' => 'Cu',
+                            'pb' => 'Pb',
+                            'sb' => 'Sb',
+                            'zn' => 'Zn',
+                            'fe' => 'Fe',
+                            'as' => 'As',
+                            'ni' => 'Ni',
+                            'bi' => 'Bi',
+                            'cd' => 'Cd',
+                            'ai' => 'Al',
+                            'pe' => 'Pe',
+                            'ga' => 'Ga',
+                        ];
+                    @endphp
 
-</tfoot>
+                    @foreach ($fields as $field => $label)
+                    <tr id="row-{{ $field }}">
+                        <td style="border: 1px solid black; padding: 5px;">{{ $label }}</td>
+                        <td style="border: 1px solid black; padding: 5px;">OES</td>
+                        <td style="border: 1px solid black; padding: 5px;">{{ $pengajuansolder->DataSolder->$field ?? '' }}</td>
+                        <td style="border: 1px solid black; padding: 5px;">{{ $pengajuansolder->$field ?? '' }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr id="weightRow">
+                        <td colspan="2" style="border: 1px solid black; padding: 5px; text-align: center; font-weight: bold;">
+                            Weight (Kg)
+                        </td>
+                        
+                        <td>
 
-</table>
+                        </td>
+                        <td style="border: 1px solid black; padding: 3px;">
+                            <input type="number" class="weight-input" style="width: 100%; padding: 5px;" placeholder="Masukan Kg Disini ! ! !"oninput="updateTotalWeight()" /> Kg
+                        </td>
+                    </tr>
+                </tfoot>
+        </table>
 
-<div style="margin-top: 20px;">
-    <!-- Dropdown untuk mengganti data di tabel -->
-    <select id="dropdownPengajuan" name="dropdownPengajuan" style="width: 100%; padding: 5px; margin-bottom: 10px;" onchange="fetchPengajuanData(this.value)">
-        <option value="" selected disabled>Pilih Pengajuan</option>
-        @foreach ($allPengajuanSolder as $pengajuan)
-            <option value="{{ $pengajuan->id }}">Lot No: {{ $pengajuan->batch ?? '-' }} - Prod. Date: {{ $pengajuan->tgl ?? '-' }}</option>
-        @endforeach
-    </select>
-</div>
+        <div style="font-size: 11px; margin-top: 10px;">
+            <span>Total Weight : </span><span id="totalWeight">0 kg</span>
+        </div>
 
-<br>
-<div style="font-size: 18px; font-weight: bold; margin-top: 10px;">
-    Total Weight: <span id="totalWeight">0.00</span> 
-</div>
     </div></div>
 <div class="mt-3">
         <a href="{{ route('pengajuansolder.index') }}" class="btn btn-secondary">Kembali</a>
@@ -137,7 +158,21 @@
       
     </div>
 
+    <script>
+    // Menunggu hingga halaman sepenuhnya dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const day = today.getDate(); // Mendapatkan tanggal
+        const month = today.toLocaleString('default', { month: 'long' }); // Mendapatkan nama bulan
+        const year = today.getFullYear(); // Mendapatkan tahun
 
+        // Format tanggal yang diinginkan
+        const formattedDate = `${month} ${day}, ${year}`;
+
+        // Menampilkan tanggal dalam elemen dengan id "date"
+        document.getElementById('date').textContent = formattedDate;
+    });
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const dropdown = document.getElementById('dropdownPengajuan');
@@ -205,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newCell = document.createElement("td");
                 newCell.style.border = "1px solid black";
                 newCell.style.padding = "5px";
-                newCell.textContent = data[field] ?? '-';
+                newCell.textContent = data[field] ?? '';
                 row.appendChild(newCell);
             }
 
@@ -215,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newWeightCell.style.padding = "5px";
             newWeightCell.innerHTML = `<input type="number" class="weight-input"
                                         style="width: 100%; border: none; padding: 5px; text-align: center;"
-                                        oninput="updateTotalWeight()">`;
+                                        oninput="updateTotalWeight()"> kg`;
             weightRow.appendChild(newWeightCell);
 
         })
@@ -236,69 +271,139 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 function printData() {
-    const printArea = document.getElementById('print-area');
-    const clonePrintArea = printArea.cloneNode(true);
+    // Simpan elemen utama yang akan dicetak
+    const printArea = document.getElementById('print-area').cloneNode(true);
 
     // Ambil nilai dari input "Nomor CoA"
     const nomorCoaInput = document.querySelector('input[name="nomor_coa"]');
     const nomorCoaValue = nomorCoaInput ? nomorCoaInput.value.trim() : '-';
 
-    // Hapus kolom Action dari salinan tabel untuk mode cetak
-    const actionHeaders = clonePrintArea.querySelectorAll('th:nth-child(4)');
-    const actionCells = clonePrintArea.querySelectorAll('td:nth-child(4)');
-    actionHeaders.forEach(header => header.remove());
-    actionCells.forEach(cell => cell.remove());
-
-    const inputs = clonePrintArea.querySelectorAll('input, textarea, select');
+    // Ubah semua input, textarea, dan select menjadi teks biasa agar tidak muncul kotak input saat cetak
+    const inputs = printArea.querySelectorAll('input, textarea, select');
     inputs.forEach(input => {
         const span = document.createElement('span');
         span.textContent = input.value || '-';
         input.parentNode.replaceChild(span, input);
     });
 
+    // Template cetak
     const customPrintContent = `
-   
     <br>
     <br>
-    <br>
-    <br>
-   
         <div style="text-align: center; margin-top: 20px;">
-  <h2 style="margin: 0; font-size: 40px; font-weight: bold; font-family: 'Times New Roman', Times, serif; text-decoration: underline;">
+<h2 style="margin: 0; font-size: 35px; font-weight: bold; font-family: 'Times New Roman', Times, serif; text-decoration: underline;">
     Certificate of Analysis
 </h2>
-            <p style="margin: 5px 0;">No. ${nomorCoaValue}</p>
+
+            <p style="margin-bottom: 1.5px;">No. ${nomorCoaValue}</p>
         </div>
-        This is to certify that solder bar under the following particulars:
-            <br>
-        ${clonePrintArea.innerHTML}
- <div style="text-align: right; position: relative; margin-top: 50px;">
-    <p style="margin: 0; font-weight: bold;">SELFIRA ARUM ANDADARI</p>
-    <div style="border-top: 2px solid black; width: 187px; margin: 10px 0 0 auto; position: relative;"></div>
-    <p style="margin: 5px 0 0 auto; font-weight: bold; text-align: right; width: 250px;">Laboratory Spv</p>
+         <div style="color: black; display: inline; font-size: 12px;">This is to certify that solder bar under the following particulars:</div>
+        ${printArea.innerHTML}
+<div style="text-align: right; position: relative; margin-top: 5px; width: 634px;">
+    <!-- Tanggal dan Lokasi -->
+<p style="margin: 0; font-weight: normal; font-size: 12px; text-align: right; padding-right: 10px;"> 
+    <span id="date"></span>
+</p>
+<p style="margin: 0; font-weight: normal; font-size: 12px; text-align: right; padding-right: 13px;">
+    Laboratory Supervisor
+</p>
+
+    <br><br><br><br>
+    <u style="margin-bottom: 0px; font-weight: bold; font-size: 11px; text-align: right;">
+        SELFIRA ARUM ANDADARI
+    </u>
 </div>
+
     `;
 
+    // Simpan isi asli halaman sebelum mencetak
     const originalContents = document.body.innerHTML;
 
     document.body.innerHTML = `
-        <style>
-            @media print {
-                @page { margin: 0; }
-                body { margin: 1cm; font-family: 'Times New Roman', sans-serif; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid black; padding: 1px; font-size: 10px; }
-                
-            }
-        </style>
+<style>
+    @media print {
+        @page {
+            margin: 0;
+        }
+        
+        body {
+            margin: 2cm;
+            font-family: 'Times New Roman', sans-serif;
+            color: black; /* Pastikan semua teks berwarna hitam */
+        }
+
+        table {
+            width: 95%;
+            border-collapse: collapse;
+            
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 0px;
+            font-size: 9px;
+            color: black; /* Warna teks di tabel */
+        }
+        
+        col input,
+        col label,
+        col span {
+            border: 1px solid black;
+            padding: 1px;
+            font-size: 10px;
+            color: black; /* Warna teks pada input, label, span */
+        }
+
+        /* Pastikan seluruh elemen teks yang relevan berwarna hitam */
+        .col input,
+        .col label,
+        .col span,
+        .col textarea,
+        .col p,
+        .panel-body p,
+        .card-header h6,
+        .breadcrumb li,
+        .breadcrumb a,
+        .form-group,
+        .weight-input,
+        #mainTable,
+        .breadcrumb {
+            font-size: 10px; /* Ukuran font menjadi 10px */
+            padding: 0px; /* Menambahkan padding pada input dan textarea */
+            color: black; /* Pastikan semua warna teks hitam */
+        }
+        /* Menyembunyikan dropdown saat print */
+        .form-group {
+            display: none;
+        }
+        div[style*="margin-bottom: 1px;"] {
+            display: none !important;
+        }
+    }
+    </style>
         ${customPrintContent}
     `;
 
+    // Menambahkan tanggal otomatis dalam format "Cilegon, 31 January 2025"
+    const dateElement = document.getElementById("date");
+    const currentDate = new Date();
+    const day = currentDate.getDate();
+    const monthIndex = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const formattedDate = `Cilegon, ${day} ${months[monthIndex]} ${year}`;
+    dateElement.textContent = formattedDate;
+
+    // Cetak halaman
     window.print();
+
+    // Kembalikan halaman ke tampilan awal setelah cetak selesai
     document.body.innerHTML = originalContents;
     location.reload();
 }
 </script>
+
 <script>
     function updateTotalWeight() {
     let totalWeight = 0;
@@ -314,4 +419,24 @@ function printData() {
 }
 
     </script>
+<script>
+  // Mendapatkan elemen dengan id "date"
+  var dateElement = document.getElementById("date");
+
+  // Membuat objek Date untuk mendapatkan tanggal saat ini
+  var currentDate = new Date();
+
+  // Mendapatkan tanggal, bulan, dan tahun
+  var day = currentDate.getDate();
+  var month = currentDate.getMonth() + 1; // Bulan dimulai dari 0, jadi perlu ditambah 1
+  var year = currentDate.getFullYear();
+
+  // Format menjadi string: dd/mm/yyyy
+  var formattedDate = day + "/" + month + "/" + year;
+
+  // Menampilkan tanggal yang sudah diformat ke elemen dengan id "date"
+  dateElement.textContent = formattedDate;
+</script>
+
+
 @endsection

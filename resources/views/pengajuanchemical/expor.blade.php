@@ -1,74 +1,89 @@
 @extends('layouts.app')
 
 @section('contents')
-<div class="panel-body">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb bg-light rounded">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Cetak CoA Ekspor</li>
-        </ol>
-        <hr>
-    </nav>
-</div>
+
+<style>
+        .data-table th {
+            padding-right: 30px; /* Memberikan jarak kanan */
+            padding-left: 30px;  /* Memberikan jarak kiri */
+        }
+        
+        .data-table tr {
+            margin-bottom: 10px; /* Memberikan jarak antar baris */
+        }
+</style>
+
+    <div class="panel-body">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-light rounded">
+                <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cetak CoA Ekspor</li>
+            </ol>
+            <hr>
+        </nav>
+    </div>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-    <h6 class="m-0 font-weight-bold">Cetak CoA Ekspor | {{ $pengajuanchemical->nama }}</h6>
+        <h6 class="m-0 font-weight-bold">Cetak CoA Ekspor | {{ $pengajuanchemical->nama }}</h6>
     </div>
 
     <div class="card-body" id="print-area">
         <div class="row">
-            <div class="col">
-                <table class="data-table" id="dynamic-table">
-                    <tr>
-                        <th>Nomor CoA</th>
-                        <td><input type="text" class="form-control" name="nomor_coa"></td>
-                    </tr>
-                    <tr>
-                        <th>Brand</th>
-                        <td><input type="text" class="form-control" name="nama" value="{{ $pengajuanchemical->nama }}" style="font-weight: bold"></td>
-                    </tr>
-                    <tr>
-                        <th>Lot No</th>
-                        <td><input type="text" class="form-control" name="nama" value="{{ $pengajuanchemical->batch }}"></td>
-                    </tr>
-                    <tr>
-                        <th>Date Of Inspection</th>
-                        <td><input type="date" class="form-control" name="date_of_inspection" required></td>
-                    </tr>
-                    <tr>
-                        <th>Date Of Release</th>
-                        <td><input type="date" class="form-control" name="date_of_release" required></td>
-                    </tr>
-                    <tr>
-                        <th>PO Number</th>
-                        <td><input type="text" class="form-control" name="po_number" required></td>
-                    </tr>
-                    <tr>
-                        <th>Net Weight</th>
-                        <td>
-                            <input type="text" class="form-control" name="net_weight" required>
-                            <span>kg</span>
-                        </td>
-                    </tr>
-                </table>
-           
+        <div class="col">
+        <table class="data-table" id="dynamic-table">
+            <tr class="coa-row">
+                <th>CoA Number</th>
+                <td><input type="text" class="form-control" name="nomor_coa" class="coa-row"></td>
+            </tr>
+            <tr>
+            <th style="padding-right: 70px;">Brand</th>
+                <td><input type="text" class="form-control" name="nama" value="{{ $pengajuanchemical->nama }}" style="font-weight: bold"></td>
+            </tr>
+            <tr>
+            <th>Lot No</th>
+                <td><input type="text" class="form-control" name="nama" value="{{ $pengajuanchemical->batch }}"></td>
+            </tr>
+            <tr>
+                <th>Date Of Inspection</th>
+                <td>
+                    <input type="text" class="form-control" name="date_of_inspection" value="{{ \Carbon\Carbon::parse($pengajuanchemical->tgl)->format('d F Y') }}" readonly>
+                </td>
+            </tr>
+
+            <tr>
+                <th>Date Of Release</th>
+                <td>
+                    <input type="text" id="date_of_release" class="form-control" name="date_of_release" required>
+                </td>
+            </tr>
+            <tr>
+            <th>PO Number</th>
+                <td><input type="text" class="form-control" name="po_number" required></td>
+            </tr>
+            <tr>
+            <th>Net Weight</th>
+                <td>
+                    <input type="text" class="form-control" name="net_weight" required>
+                    <span>kg</span>
+                </td>
+            </tr>
+        </table>
+    </div>
             </div>
-        </div>
-        <br>
-  
-        <textarea name="w3review" class="form-control">
-    The undersigned hereby certifies the following data to be true specification of the obtained results of tests and assays.</p>
+            <div style="padding-top: 5px;"></div> <!-- Menambahkan jarak di atas elemen lain -->
+            <textarea name="w3review" class="form-control">
+    The undersigned hereby certifies the following data to be true specification of the obtained results of tests and assays.
     Manufacture name at PT. TIMAH INDUSTRI
-        </textarea>
-        <br>
+</textarea>
+
+<div style="padding-top: 5px;"></div> <!-- Menambahkan jarak di atas elemen lain -->
         <table style="width: 70%; border-collapse: collapse; border: 1px solid black;">
     <thead>
         <tr style="background-color: #f2f2f2; border: 1px solid black;">
-        <th style="padding: 8px; text-align: center; border: 1px solid black; font-style: italic;">Test</th>
-        <th style="padding: 8px; text-align: center; border: 1px solid black; font-style: italic;">Specification</th>
-        <th style="padding: 8px; text-align: center; border: 1px solid black; font-style: italic;">Result</th>
-
+            <th style="padding: 8px; text-align: center; border: 1px solid black;">Tests</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid black;">Specification</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid black;">Results</th>
             <th style="padding: 8px; text-align: center; border: 1px solid black;">Action</th> <!-- Kolom Action -->
         </tr>
     </thead>
@@ -104,10 +119,10 @@
             @foreach ($fields as $field => $label)
                 @if (!empty($pengajuanchemical->dataChemical->$field))
                     <tr style="border: 1px solid black;">
-                        <td style="padding: 8px; text-align: left; border: 1px solid black;">{{ $label }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->dataChemical->$field }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->$field ?? '-' }}</td>
-                        <td style="padding: 8px; text-align: center; border: 1px solid black;">
+                        <td style="padding: 3px; padding-top: 3px; text-align: left; border: 1px solid black;">{{ $label }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->dataChemical->$field }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">{{ $pengajuanchemical->$field ?? '-' }}</td>
+                        <td style="padding: 3px; text-align: center; border: 1px solid black;">
                             <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">X</button>
                         </td> <!-- Tombol Hapus -->
                     </tr>
@@ -197,34 +212,47 @@ function printData() {
 
     const customPrintContent = `
     <br>
-
     <br>
         <div style="text-align: center; margin-top: 20px;">
-           <h2 style="margin: 0; font-size: 40px; font-weight: bold; font-family: 'Times New Roman', Times, serif;">
+           <h2 style="margin: 0; font-size: 36px; font-weight: bold; font-family: 'Times New Roman', Times, serif;">
                 Certificate of Analysis
             </h2>
-            <p style="margin: 5px 0;">No. ${nomorCoaValue}</p>
+            <p style="margin-bottom: 8px;">No. ${nomorCoaValue}</p>
         </div>
         ${clonePrintArea.innerHTML}
- <div style="text-align: right; position: relative; margin-top: 150px;">
-    <p style="margin: 0; font-weight: bold;">SELFIRA ARUM ANDADARI</p>
-    <div style="border-top: 2px solid black; width: 187px; margin: 10px 0 0 auto; position: relative;"></div>
-    <p style="margin: 5px 0 0 auto; font-weight: bold; text-align: right; width: 250px;">Laboratory Spv</p>
-</div>
+        <div style="text-align: right; position: relative; margin-top: 100px;">
+            <u style="margin: 2; font-weight: bold;">SELFIRA ARUM ANDADARI</u>
+  
+        <p style="margin: 0px;  font-size: 11px; text-align: right; width: 638px; ">Laboratory Spv</p>
+        </div>
     `;
 
     const originalContents = document.body.innerHTML;
 
     document.body.innerHTML = `     
-        <style>
-            @media print {
-                @page { margin: 0; }
-                body { margin: 1cm; font-family: 'Times New Roman', sans-serif; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid black; padding: 4px; font-size: 10px; }
-                
-            }
-        </style>
+<style>
+    @media print {
+        @page { margin: 0; }
+        body { margin: 2cm; font-family: 'Times New Roman', sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        td { border: 1px solid black; padding: 4px; font-size: 10px; }
+        th { border: 1px solid black; padding: 4px; font-size: 10px; }
+        tr { border: 1px solid black; padding: 8px; font-size: 10px; color:black; }
+
+        /* Menyembunyikan input dengan name "nomor_coa" */
+        .coa-row {
+            display: none !important;
+        }
+        input[name="nomor_coa"] {
+            display: none !important;
+        }
+        /* Memastikan seluruh teks berwarna hitam */
+        body {
+            color: black !important;
+        }
+    }
+</style>
+
         ${customPrintContent}
     `;
 
@@ -234,6 +262,28 @@ function printData() {
 }
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the current date
+        const today = new Date();
+
+        // Create a list of months for formatting
+        const months = [
+            "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+        ];
+
+        // Get the day, month, and year
+        const day = today.getDate();
+        const month = months[today.getMonth()];
+        const year = today.getFullYear();
+
+        // Format the date as "d F Y" (e.g., "4 February 2025")
+        const formattedDate = `${day} ${month} ${year}`;
+
+        // Set the formatted date as the value of the input field
+        document.getElementById('date_of_release').value = formattedDate;
+    });
+</script>
 
 
 <style>
@@ -260,12 +310,17 @@ function printData() {
     .data-table td:nth-child(2) {
         width: 80%;
     }
+    
 
     /* Aturan khusus untuk mode cetak */
     @media print {
-        .data-table th:nth-child(4), /* Header kolom Action */
+        
+        .data-table th:nth-child(10), /* Header kolom Action */
         .data-table td:nth-child(4), /* Isi kolom Action */
         
+        .data-table th {
+    width: 20%; /* Sesuaikan nilai width sesuai dengan kebutuhan */
+}
         button { /* Semua tombol */
             display: none; /* Sembunyikan */
             

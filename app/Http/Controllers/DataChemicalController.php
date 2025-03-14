@@ -10,23 +10,26 @@ class DataChemicalController extends Controller
 {
     public function index(Request $request)
     {
-        $filter = $request->get('filter', 'today'); // Default filter diubah menjadi 'today'
         $pageSize = $request->get('page_size', 10); // Default page size is 10
-    
+        $filter = $request->get('filter', 'today'); // Default filter 'today' agar data hari ini ditampilkan secara default
+        
         $query = DataChemical::query();
-    
-        // Filter berdasarkan parameter
+        $today = Carbon::today(); // Mendefinisikan variabel $today sebelum filter
+        
+        // Menambahkan filter untuk data hari ini
         if ($filter == 'today') {
-            $query->whereDate('created_at', Carbon::today());
-        } elseif ($filter == 'limit14') {
-            $query->whereBetween('id', [1, 14]); // Filter untuk ID 1 sampai 14
+            $query->whereDate('created_at', $today); // Filter berdasarkan tanggal hari ini
         }
-    
+        
         // Apply pagination
         $datachemical = $query->paginate($pageSize);
     
-        return view('datachemical.index', compact('datachemical'));
+        return view('datachemical.index', compact('datachemical', 'today', 'filter'));
     }
+    
+    
+    
+    
     
     
     
@@ -51,38 +54,24 @@ class DataChemicalController extends Controller
     }
     public function edit($id)
     {
+        // Menampilkan data berdasarkan ID
         $dataChemical = DataChemical::findOrFail($id);
-        
-        // Menentukan kolom-kolom yang harus ditampilkan berdasarkan nilai yang ada
-        $fields = [
-            'nama', 'kategori', 'tgl', 'batch', 'desc', 'orang', 'status',
-            'clarity', 'transmission', 'ape', 'dimet', 'trime', 'tin', 'solid',
-            'ri', 'sg', 'acid', 'sulfur', 'water', 'mono', 'yellow', 'eh', 
-            'visco', 'pt', 'moisture', 'cloride', 'spec', 'cla', 'densi'
-        ];
 
-        // Filter kolom yang ada datanya saja
-        $fieldsWithData = array_filter($fields, function($field) use ($dataChemical) {
-            return !is_null($dataChemical->{$field});
-        });
-
-        return view('datachemical.edit', compact('dataChemical', 'fieldsWithData'));
+        // Mengirim data ke view
+        return view('datachemical.edit', compact('dataChemical'));
     }
 
-    // Proses untuk update data
+    // Method untuk update data
     public function update(Request $request, $id)
     {
-        $dataChemical = DataChemical::findOrFail($id);
-
-        // Validasi hanya kolom yang terisi
-        $validatedData = $request->validate([
-            'nama' => 'nullable|string|max:255',
+        // Validasi input yang diberikan
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
             'kategori' => 'nullable|string|max:255',
             'tgl' => 'nullable|date',
-            'batch' => 'required|string|max:50',
-            'desc' => 'required|string|max:50',
-            'orang' => 'required|string|max:50',
-            'status' => 'required|string|max:25',
+            'batch' => 'nullable|string|max:50',
+            'desc' => 'nullable|string|max:50',
+            'orang' => 'nullable|string|max:50',
             'clarity' => 'nullable|string|max:50',
             'transmission' => 'nullable|string|max:50',
             'ape' => 'nullable|string|max:50',
@@ -104,14 +93,19 @@ class DataChemicalController extends Controller
             'cloride' => 'nullable|string|max:50',
             'spec' => 'nullable|string|max:50',
             'cla' => 'nullable|string|max:50',
-            'densi' => 'nullable|string|max:50',
+            // Jangan lupa menambahkan kolom lainnya sesuai kebutuhan
         ]);
 
-        // Update data dengan nilai yang baru
-        $dataChemical->update($validatedData);
+        // Temukan data yang akan diupdate berdasarkan ID
+        $dataChemical = DataChemical::findOrFail($id);
 
-        return redirect()->route('datachemical')->with('success', 'Data updated successfully!');
+        // Update data dengan nilai yang telah divalidasi
+        $dataChemical->update($validated);
+
+        // Redirect kembali ke index atau halaman lain setelah berhasil
+        return redirect()->route('datachemical.index')->with('success', 'Data chemical berhasil diperbarui.');
     }
+    
     public function destroy(string $id)
     {
         // Cari data solder berdasarkan ID

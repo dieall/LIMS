@@ -145,13 +145,19 @@ class PengajuanChemicalController extends Controller
             'orang'     => $validatedData['orang'] ?? null,
 
         ]);
-    
+
         $pengajuanchemical->save();
     
-        // Redirect setelah berhasil menyimpan
+        // Simpan status "Pengajuan" ke StatusHistory
+        StatusHistory::create([
+            'pengajuan_chemical_id' => $pengajuanchemical->id, // Menggunakan ID yang baru disimpan
+            'status' => 'Pengajuan',
+            'updated_at' => Carbon::now(),
+            'user_id' => auth()->user()->id,
+        ]);
+    
         return redirect()->route('pengajuanchemical.index')->with('success', 'Data Pengajuan Chemical berhasil disimpan.');
     }
-
 
     public function edit(string $id)
     {
@@ -176,139 +182,267 @@ class PengajuanChemicalController extends Controller
         return view('pengajuanchemical.show', compact('pengajuanchemical'));
     }
 
+    public function destroy(string $id)
+    {
+        $pengajuanchemical = PengajuanChemical::findOrFail($id);
+  
+        $pengajuanchemical->delete();
+  
+        return redirect()->route('pengajuanchemical')->with('success', 'Pengajuan Chemical deleted successfully');
+    }
 
 
 
-
+    public function pengajuan($id)
+    {
+        $data = PengajuanChemical::findOrFail($id);
+    
+        // Cek apakah status Pengajuan sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->where('status', 'Pengajuan')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Pengajuan ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'Pengajuan',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
+        }
+    
+        // Ubah status menjadi "Pengajuan"
+        $data->status = 'Pengajuan';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Pengajuan');
+    }
+    
     public function prosesAnalisa($id)
     {
         $data = PengajuanChemical::findOrFail($id);
     
         // Cek apakah status ini sudah pernah disimpan di status_histories
         $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
-            ->where('status', $data->status)
+            ->where('status', 'Proses Analisa')
             ->first();
     
         if (!$existingHistory) {
-            // Simpan status sebelumnya ke status_histories
+            // Simpan status Proses Analisa ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
             StatusHistory::create([
                 'pengajuan_chemical_id' => $data->id,
-                'status' => $data->status,
-                'changed_at' => $data->jam_masuk ?? now(), // Ambil jam_masuk jika ada
+                'status' => 'Proses Analisa',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
             ]);
         }
     
         // Ubah status menjadi "Proses Analisa"
         $data->status = 'Proses Analisa';
-        $data->jam_masuk = now(); // Waktu baru untuk status baru
+        $data->jam_masuk = Carbon::now();
         $data->save();
     
-        return redirect()->route('pengajuanchemical.show', $data->id);
+        return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Proses Analisa');
     }
     
     public function analisaSelesai($id)
     {
         $data = PengajuanChemical::findOrFail($id);
     
-        // Menyimpan status sebelumnya jika status sebelumnya belum tercatat
-        if ($data->status != 'Analisa Selesai') {
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->where('status', 'Analisa Selesai')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Analisa Selesai ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
             StatusHistory::create([
                 'pengajuan_chemical_id' => $data->id,
-                'status' => $data->status,
-                'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
+                'status' => 'Analisa Selesai',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
             ]);
         }
     
         // Ubah status menjadi "Analisa Selesai"
         $data->status = 'Analisa Selesai';
+        $data->jam_masuk = Carbon::now();
         $data->save();
     
-        // Redirect atau response
-        return redirect()->route('pengajuanchemical.show', $data->id);
+        return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Analisa Selesai');
     }
     
     public function reviewHasil($id)
     {
         $data = PengajuanChemical::findOrFail($id);
     
-        // Pastikan status sudah selesai dianalisa
-        if ($data->status != 'Analisa Selesai') {
-            return redirect()->back()->with('error', 'Status harus dalam Analisa Selesai sebelum melakukan Review Hasil');
-        }
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->where('status', 'Review Hasil')
+            ->first();
     
-        // Menyimpan status sebelumnya jika status sebelumnya belum tercatat
-        if ($data->status != 'Review Hasil') {
+        if (!$existingHistory) {
+            // Simpan status Review Hasil ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
             StatusHistory::create([
                 'pengajuan_chemical_id' => $data->id,
-                'status' => $data->status,
-                'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
+                'status' => 'Review Hasil',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
             ]);
         }
     
-        // Ubah status pengajuan solder menjadi "Review Hasil"
+        // Ubah status menjadi "Review Hasil"
         $data->status = 'Review Hasil';
         $data->jam_masuk = Carbon::now();
         $data->save();
     
-        return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah ke Review Hasil');
+        return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Review Hasil');
     }
     
-
     public function tolakReviewHasil($id, Request $request)
-{
-    $data = PengajuanChemical::findOrFail($id);
-
-    // Pastikan status sudah dalam "Review Hasil"
-    if ($data->status != 'Review Hasil') {
-        return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum dapat melakukan penolakan');
+    {
+        $data = PengajuanChemical::findOrFail($id);
+    
+        // Pastikan status sebelumnya adalah "Review Hasil"
+        if ($data->status != 'Review Hasil') {
+            return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan penolakan.');
+        }
+    
+        // Validasi input alasan penolakan
+        $request->validate([
+            'rejection_reason' => 'required|string|max:255',
+        ]);
+    
+        // Simpan status sebelumnya di status_histories
+        $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->orderBy('changed_at', 'desc')
+            ->first();
+    
+        $interval = '-';
+        if ($previousHistory) {
+            $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+            $currentChangedAt = Carbon::now();
+            $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+        }
+    
+        StatusHistory::create([
+            'pengajuan_chemical_id' => $data->id,
+            'status' => $data->status,
+            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
+            'rejection_reason' => $request->rejection_reason,
+            'user_id' => $data->user_id ?? auth()->user()->id,
+            'user_name' => ucwords(auth()->user()->name),
+            'interval' => $interval,
+        ]);
+    
+        // Ubah status menjadi "Proses Analisa"
+        $data->status = 'Proses Analisa';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuanchemical.show', $data->id)
+            ->with('success', 'Pengajuan Solder ditolak dan status diubah menjadi Proses Analisa.');
     }
-
-    // Validasi apakah alasan penolakan sudah diisi
-    $request->validate([
-        'rejection_reason' => 'required|string|max:255',  // Validasi untuk alasan penolakan
-    ]);
-
-    // Menyimpan status sebelumnya di status_histories
-    StatusHistory::create([
-        'pengajuan_chemical_id' => $data->id,
-        'status' => $data->status,
-        'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-        'rejection_reason' => $request->rejection_reason,  // Menyimpan alasan penolakan
-    ]);
-
-    // Ubah status pengajuan solder menjadi "Tidak Diterima"
-    $data->status = 'Proses Analisa';
-    $data->save();
-
-    return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Pengajuan Solder ditolak dan status diubah menjadi Tidak Diterima');
-}
-
-public function approve($id)
-{
-    $data = PengajuanChemical::findOrFail($id);
-
-    // Pastikan status sudah dalam "Review Hasil"
-    if ($data->status != 'Review Hasil') {
-        return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan Approve');
+    
+    public function approve($id)
+    {
+        $data = PengajuanChemical::findOrFail($id);
+    
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->where('status', 'Approve')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Approve ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'Approve',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
+        }
+    
+        // Ubah status PengajuanSolder menjadi "Approve"
+        $data->status = 'Approve';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuanchemical.show', $data->id)
+            ->with('success', 'Status berhasil diubah menjadi Approve');
     }
-
-    // Simpan status sebelumnya di status_histories
-    StatusHistory::create([
-        'pengajuan_chemical_id' => $data->id,
-        'status' => $data->status,
-        'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-    ]);
-
-    // Tambahkan delay 100 milidetik untuk membedakan timestamp
-    usleep(100000); // Delay 100 ms
-
-    // Ubah status pengajuan solder menjadi "Approve"
-    $data->status = 'Approve';
-    $data->jam_masuk = Carbon::now()->format('Y-m-d H:i:s.u');
-    $data->save();
-
-    return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah ke Approve');
-}
 
 public function exportToExcel()
 {
@@ -379,7 +513,7 @@ public function exportToExcel()
                 'Dimet',
                 'Trime',
                 'Tin',
-                'Solid',
+                'solid',
                 'RI',
                 'SG',
                 'Acid',
@@ -433,6 +567,15 @@ public function expor($id)
                                 ->first();
 
     return view('pengajuanchemical.expor', compact('pengajuanchemical', 'DataChemical'));
+}
+
+public function print($id)
+{
+    // Ambil data pengajuan chemical berdasarkan ID
+    $pengajuanchemical = PengajuanChemical::findOrFail($id);
+
+
+    return view('pengajuanchemical.print', compact('pengajuanchemical'));
 }
 
 
