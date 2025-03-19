@@ -357,51 +357,53 @@ class PengajuanChemicalController extends Controller
         return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Review Hasil');
     }
     
-    public function tolakReviewHasil($id, Request $request)
-    {
-        $data = PengajuanChemical::findOrFail($id);
-    
-        // Pastikan status sebelumnya adalah "Review Hasil"
-        if ($data->status != 'Review Hasil') {
-            return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan penolakan.');
-        }
-    
-        // Validasi input alasan penolakan
-        $request->validate([
-            'rejection_reason' => 'required|string|max:255',
-        ]);
-    
-        // Simpan status sebelumnya di status_histories
-        $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
-            ->orderBy('changed_at', 'desc')
-            ->first();
-    
-        $interval = '-';
-        if ($previousHistory) {
-            $previousChangedAt = Carbon::parse($previousHistory->changed_at);
-            $currentChangedAt = Carbon::now();
-            $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
-        }
-    
-        StatusHistory::create([
-            'pengajuan_chemical_id' => $data->id,
-            'status' => $data->status,
-            'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
-            'rejection_reason' => $request->rejection_reason,
-            'user_id' => $data->user_id ?? auth()->user()->id,
-            'user_name' => ucwords(auth()->user()->name),
-            'interval' => $interval,
-        ]);
-    
-        // Ubah status menjadi "Proses Analisa"
-        $data->status = 'Proses Analisa';
-        $data->jam_masuk = Carbon::now();
-        $data->save();
-    
-        return redirect()->route('pengajuanchemical.show', $data->id)
-            ->with('success', 'Pengajuan Solder ditolak dan status diubah menjadi Proses Analisa.');
+        public function tolakReviewHasil($id, Request $request)
+{
+    $data = PengajuanChemical::findOrFail($id);
+
+    // Pastikan status pengajuan adalah "Review Hasil"
+    if ($data->status != 'Review Hasil') {
+        return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan penolakan.');
     }
-    
+
+    // Validasi alasan penolakan
+    $request->validate([
+        'rejection_reason' => 'required|string|max:255',
+    ]);
+
+    // Simpan status sebelumnya di status_histories
+    $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+        ->orderBy('changed_at', 'desc')
+        ->first();
+
+    // Hitung interval waktu jika ada history sebelumnya
+    $interval = '-';
+    if ($previousHistory) {
+        $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+        $currentChangedAt = Carbon::now();
+        $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+    }
+
+    // Simpan status penolakan ke history
+    StatusHistory::create([
+        'pengajuan_chemical_id' => $data->id,
+        'status' => 'Review Hasil', // status sebelumnya
+        'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
+        'rejection_reason' => $request->rejection_reason,
+        'user_id' => auth()->user()->id,
+        'user_name' => ucwords(auth()->user()->name),
+        'interval' => $interval,
+    ]);
+
+    // Ubah status pengajuan menjadi "Proses Analisa"
+    $data->status = 'Proses Analisa';
+    $data->jam_masuk = Carbon::now();
+    $data->save();
+
+    return redirect()->route('pengajuanchemical.show', $data->id)
+        ->with('success', 'Pengajuan Chemical ditolak dan status diubah menjadi Proses Analisa.');
+}
+
     public function approve($id)
     {
         $data = PengajuanChemical::findOrFail($id);

@@ -10,7 +10,7 @@ use App\Models\Tinchem;
 use App\Models\PengajuanSolder;
 use App\Models\PengajuanChemical;
 use App\Models\PengajuanRawmat;
-use App\Models\StatusHistory;
+use App\Models\statusHistory;
 use DB;
 use Carbon\Carbon; // Tambahkan Carbon untuk manipulasi tanggal
 

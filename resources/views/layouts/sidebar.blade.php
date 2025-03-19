@@ -13,7 +13,7 @@
             <!-- Pages Section -->
             <li class="sidebar-header">Pages</li>
 
-            @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC' || Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Supervisor' || Auth::user()->level === 'Foreman' || Auth::user()->level === 'Manager' || Auth::user()->level === 'General Manager')
+            @if (Auth::check() && (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC' || Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Supervisor' || Auth::user()->level === 'Foreman' || Auth::user()->level === 'Manager' || Auth::user()->level === 'General Manager'))
     <li class="sidebar-item active">
         <a class="sidebar-link" href="{{ route('dashboard') }}">
             <i class="fas fa-home align-middle"></i>

@@ -385,7 +385,7 @@ class PengajuanSolderController extends Controller
     public function tolakReviewHasil($id, Request $request)
     {
         $data = PengajuanSolder::findOrFail($id);
-    
+        
         // Pastikan status sebelumnya adalah "Review Hasil"
         if ($data->status != 'Review Hasil') {
             return redirect()->back()->with('error', 'Status harus dalam Review Hasil sebelum melakukan penolakan.');
@@ -400,7 +400,8 @@ class PengajuanSolderController extends Controller
         $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
             ->orderBy('changed_at', 'desc')
             ->first();
-    
+        
+        // Hitung interval waktu jika ada history sebelumnya
         $interval = '-';
         if ($previousHistory) {
             $previousChangedAt = Carbon::parse($previousHistory->changed_at);
@@ -408,12 +409,13 @@ class PengajuanSolderController extends Controller
             $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
         }
     
+        // Simpan status penolakan ke history
         StatusHistory::create([
             'pengajuan_solder_id' => $data->id,
-            'status' => $data->status,
+            'status' => 'Review Hasil', // status sebelumnya
             'changed_at' => Carbon::now()->format('Y-m-d H:i:s.u'),
             'rejection_reason' => $request->rejection_reason,
-            'user_id' => $data->user_id ?? auth()->user()->id,
+            'user_id' => auth()->user()->id,
             'user_name' => ucwords(auth()->user()->name),
             'interval' => $interval,
         ]);
@@ -426,6 +428,7 @@ class PengajuanSolderController extends Controller
         return redirect()->route('pengajuansolder.show', $data->id)
             ->with('success', 'Pengajuan Solder ditolak dan status diubah menjadi Proses Analisa.');
     }
+    
     
     public function approve($id)
     {
@@ -574,24 +577,25 @@ public function lokal($id)
 
     return view('pengajuansolder.lokal', compact('pengajuansolder', 'DataSolder'));
 }
-public function expor($id)
-{
-    // Ambil data pengajuan solder berdasarkan ID
-    $pengajuansolder = PengajuanSolder::findOrFail($id);
 
-    // Ambil semua data pengajuan solder dengan tipe_solder yang sama
-    $allPengajuanSolder = PengajuanSolder::where('tipe_solder', $pengajuansolder->tipe_solder)->get();
+        public function expor($id)
+        {
+            // Ambil data pengajuan solder berdasarkan ID
+            $pengajuansolder = PengajuanSolder::findOrFail($id);
 
-    // Jika ada permintaan AJAX untuk mendapatkan detail pengajuan solder berdasarkan ID
-    if (request()->ajax() && request()->has('pengajuan_id')) {
-        $pengajuanDetail = PengajuanSolder::findOrFail(request('pengajuan_id'));
-        return response()->json($pengajuanDetail); // Kembalikan data JSON
-    }
+            // Ambil semua data pengajuan solder dengan tipe_solder yang sama
+            $allPengajuanSolder = PengajuanSolder::where('tipe_solder', $pengajuansolder->tipe_solder)->get();
 
-    // Render halaman dengan data
-    return view('pengajuansolder.expor', compact('pengajuansolder', 'allPengajuanSolder'));
-}
-    
+            // Jika ada permintaan AJAX untuk mendapatkan detail pengajuan solder berdasarkan ID
+            if (request()->ajax() && request()->has('pengajuan_id')) {
+                $pengajuanDetail = PengajuanSolder::findOrFail(request('pengajuan_id'));
+                return response()->json($pengajuanDetail); // Kembalikan data JSON
+            }
+
+            // Render halaman dengan data
+            return view('pengajuansolder.expor', compact('pengajuansolder', 'allPengajuanSolder'));
+        }
+
 
 
 

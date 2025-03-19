@@ -61,9 +61,15 @@
         </div>
 
         <div style="margin-bottom: 1px; padding-top: 2px;">
-    <label for="number_of_boxes" style="display: inline-block; width: 200px;">Pilih Pengajuan</label>
+    <!-- Filter berdasarkan Batch -->
+    <label for="filterBatch" class="filter-label">Filter Berdasarkan Batch</label>
     <div class="form-group">
-        <!-- Dropdown untuk mengganti data di tabel -->
+        <input type="text" id="filterBatch" class="form-control" placeholder="Cari berdasarkan Batch" onkeyup="filterBatch()" />
+    </div>
+
+    <!-- Dropdown untuk memilih Pengajuan -->
+    <label for="dropdownPengajuan" class="dropdown-label">Pilih Pengajuan</label>
+    <div class="form-group">
         <select id="dropdownPengajuan" name="dropdownPengajuan" class="form-control" onchange="fetchPengajuanData(this.value)">
             <option value="" selected disabled>Pilih Pengajuan</option>
             @foreach ($allPengajuanSolder as $pengajuan)
@@ -74,6 +80,7 @@
         </select>
     </div>
 </div>
+
 
 
         <div style="padding-top: 5px;">
@@ -438,5 +445,69 @@ function printData() {
   dateElement.textContent = formattedDate;
 </script>
 
+<script>
+    // Fungsi untuk filter batch
+    function filterBatch() {
+        var input, filter, select, options, option, i, txtValue;
+        input = document.getElementById("filterBatch");
+        filter = input.value.toUpperCase();
+        select = document.getElementById("dropdownPengajuan");
+        options = select.getElementsByTagName("option");
 
+        // Loop melalui semua opsi dan sembunyikan yang tidak cocok dengan filter batch
+        for (i = 0; i < options.length; i++) {
+            option = options[i];
+            txtValue = option.textContent || option.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                option.style.display = "";
+            } else {
+                option.style.display = "none";
+            }
+        }
+    }
+
+    // Ambil data pengajuan berdasarkan ID yang dipilih
+    function fetchPengajuanData(pengajuanId) {
+        if (!pengajuanId) return;
+
+        fetch(`/path/to/ajax/route/${pengajuanId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Gunakan data yang diterima untuk memperbarui elemen tampilan
+                console.log(data);
+            });
+    }
+</script>
+<style>
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-label, .dropdown-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-control:focus {
+        border-color: #5cb85c;
+        outline: none;
+    }
+</style>
 @endsection

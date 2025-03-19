@@ -101,16 +101,17 @@
 
 
                 <!-- Form Penolakan Khusus Foreman -->
-                @if (Auth::user()->level === 'Foreman')
-                    <form action="{{ route('pengajuanchemical.tolak', $pengajuanchemical->id) }}" method="POST" class="mt-3">
-                        @csrf
-                        <div class="form-group">
-                            <label for="rejection_reason">Alasan Penolakan</label>
-                            <textarea id="rejection_reason" name="rejection_reason" class="form-control" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-danger mt-2">Tolak</button>
-                    </form>
-                @endif
+                @if (Auth::user()->level === 'Foreman' && $pengajuanchemical->status === 'Review Hasil')
+    <form action="{{ route('pengajuanchemical.tolak', $pengajuanchemical->id) }}" method="POST">
+        @csrf
+        <div class="form-group">
+            <label for="rejection_reason">Alasan Penolakan</label>
+            <textarea id="rejection_reason" name="rejection_reason" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger mt-2">Tolak</button>
+    </form>
+
+@endif
             </div>
     
 

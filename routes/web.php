@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
  
 });
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/user-history/{userName}', [DashboardController::class, 'showUserHistory'])->name('user.history');
 Route::get('/user-history1/{userName1}', [DashboardController::class, 'showUserHistory1'])->name('user.history1');
