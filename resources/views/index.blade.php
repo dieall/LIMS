@@ -33,19 +33,6 @@
 </head>
 
 <body>
-    <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-        <div class="spinner-grow text-primary m-1" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-dark m-1" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div class="spinner-grow text-secondary m-1" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-    <!-- Spinner End -->
 
 
     <!-- Topbar Start -->
@@ -130,7 +117,7 @@
                     <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
                         <div class="p-3" style="max-width: 900px;">
                             <h5 class="text-white text-uppercase mb-3 animated slideInDown">Efficient Lab Management Starts Here</h5>
-                            <h4 class="display-1 text-white mb-md-4 animated zoomIn">Simplify, Automate, and Manage with Our LIMS Technology</h4>
+                            <h4 class="display-1 text-white mb-md-4 animated zoomIn">Simplify, Automate with Our LIMS Technology</h4>
                             <a href="{{ route('login') }}" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">Login</a>
                             <a href="{{ route('register') }}" class="btn btn-secondary py-md-3 px-md-5 animated slideInRight">Register</a>
                         </div>

@@ -33,6 +33,10 @@ class PengajuanSolderController extends Controller
         // Logika filter data
         if ($filter === 'today') {
             $query->whereDate('created_at', Carbon::today());
+        } elseif ($filter === 'this_month') {
+            // Filter berdasarkan bulan dan tahun saat ini
+            $query->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year);
         }
     
         // Ambil data dengan paginasi
@@ -41,6 +45,7 @@ class PengajuanSolderController extends Controller
         return view('pengajuansolder.index', compact('pengajuansolder'));
     }
     
+        
 
     public function create()
     {

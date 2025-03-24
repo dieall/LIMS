@@ -80,8 +80,10 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="filterDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', ['filter' => 'all']) }}">Semua Data</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', ['filter' => 'this_month']) }}">Data Bulan Ini</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuansolder.index', ['filter' => 'today']) }}">Data Hari Ini</a></li>
             </ul>
+
         </div>
 
         <!-- Dropdown for Page Size -->

@@ -28,8 +28,11 @@ class PengajuanChemicalController extends Controller
         // Logika filter data
         if ($filter === 'today') {
             $query->whereDate('created_at', Carbon::today());
+        } elseif ($filter === 'this_month') {
+            // Filter berdasarkan bulan dan tahun saat ini
+            $query->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year);
         }
-    
         // Ambil data dengan pagination
         $pengajuanchemical = $query->orderBy('created_at', 'ASC')->paginate($pageSize);
     
@@ -42,7 +45,6 @@ class PengajuanChemicalController extends Controller
         return view('pengajuanchemical.index', compact('pengajuanchemical'));
     }
     
-        
 
 
     public function create()

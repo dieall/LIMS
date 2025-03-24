@@ -99,6 +99,7 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="filterDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', ['filter' => 'all']) }}">Semua Data</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', ['filter' => 'this_month']) }}">Data Bulan Ini</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', ['filter' => 'today']) }}">Data Hari Ini</a></li>
             </ul>
         </div>
@@ -119,9 +120,7 @@
         <a href="{{ route('pengajuanrawmat.create') }}" class="btn btn-success btn-sm">
             <i class="fas fa-plus"></i> Tambah
         </a>
-        <a href="" class="btn btn-success btn-sm">
-            <i class="fas fa-file-export"></i> Export to Excel
-        </a>
+
     </div>
 </div>
 

@@ -23,6 +23,10 @@ class PengajuanRawmatController extends Controller
         // Logika filter data
         if ($filter === 'today') {
             $query->whereDate('created_at', Carbon::today());
+        } elseif ($filter === 'this_month') {
+            // Filter berdasarkan bulan dan tahun saat ini
+            $query->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year);
         }
     
         // Paginasi dengan jumlah data per halaman

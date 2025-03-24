@@ -89,6 +89,7 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="filterDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', ['filter' => 'all']) }}">Semua Data</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', ['filter' => 'this_month']) }}">Data Bulan Ini</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuanchemical.index', ['filter' => 'today']) }}">Data Hari Ini</a></li>
             </ul>
         </div>

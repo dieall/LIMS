@@ -104,6 +104,7 @@
             @enderror
         </div>
     </div>
+    
 
     <!-- Alamat and Tanggal Lahir Fields -->
     <div class="row mb-3">
@@ -123,6 +124,8 @@
             @enderror
         </div>
     </div>
+
+    
 
     <!-- Submit Button -->
     <div class="text-center mt-3">
