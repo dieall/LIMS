@@ -25,35 +25,35 @@
             <div class="form-group row">
                 <label for="nama_kategori" class="col-md-3 col-form-label">Nama Kategori</label>
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" value="{{ old('nama_kategori', $datasolder->nama_kategori) }}" required>
+                    <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" value="{{ old('nama_kategori', $datasolder->nama_kategori) }}" required readonly>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="tipe_solder" class="col-md-3 col-form-label">Tipe Solder</label>
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="tipe_solder" name="tipe_solder" value="{{ old('tipe_solder', $datasolder->tipe_solder) }}" required>
+                    <input type="text" class="form-control" id="tipe_solder" name="tipe_solder" value="{{ old('tipe_solder', $datasolder->tipe_solder) }}" required readonly>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="spesification" class="col-md-3 col-form-label">Spesifikasi</label>
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="spesification" name="spesification" value="{{ old('spesification', $datasolder->spesification) }}" required>
+                    <input type="text" class="form-control" id="spesification" name="spesification" value="{{ old('spesification', $datasolder->spesification) }}" required readonly>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="tgl" class="col-md-3 col-form-label">Tanggal</label>
                 <div class="mb-3">
-                    <input type="date" class="form-control" id="tgl" name="tgl" value="{{ old('tgl', $datasolder->tgl) }}" required>
+                    <input type="date" class="form-control" id="tgl" name="tgl" value="{{ old('tgl', $datasolder->tgl) }}" required readonly>
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="rev" class="col-md-3 col-form-label">Rev</label>
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="rev" name="rev" value="{{ old('rev', $datasolder->rev) }}" required>
+                    <input type="text" class="form-control" id="rev" name="rev" value="{{ old('rev', $datasolder->rev) }}" required readonly>
                 </div>
             </div>
 

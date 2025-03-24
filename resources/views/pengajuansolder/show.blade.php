@@ -28,7 +28,7 @@
                     </tr>
                     <tr>
                         <th>Kategori</th>
-                        <td>{{ $pengajuansolder->category->nama_kategori ?? 'N/A' }}</td>
+                        <td>{{ $pengajuansolder->datasolder->nama_kategori ?? 'N/A' }}</td>
                     </tr>
                     <tr>
                         <th>Tipe Solder</th>
@@ -45,7 +45,7 @@
                     </tr>
                     <tr>
                         <th>Jam Pengajuan</th>
-                        <td>{{ $pengajuansolder->audit_trail}}</td>
+                        <td>{{ $pengajuansolder->audit_trail }}</td>
                     </tr>
                     <tr>
                         <th>Status</th>
@@ -55,77 +55,93 @@
 
                 <!-- Tabel Riwayat Status -->
                 <h5>Riwayat Status</h5>
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Jam Masuk</th>
-                            <th>Status</th>
-                            <th>Alasan Penolakan</th>
-                            <th>Interval Waktu</th>
-                            <th>Nama</th>
-                        </tr>
-                    </thead>
-                <tbody>
+                <div class="table-responsive">
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>No</th>
+                <th>Jam Masuk</th>
+                <th>Status</th>
+                <th>Alasan Penolakan</th>
+                <th>Interval Waktu</th>
+                <th>Nama</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $no = 1;
+                $previousDate = null;
+            @endphp
+
+            @foreach($pengajuansolder->statusHistory as $history)
                 @php
-                    $no = 1;
-                    $previousDate = null;
+                    // Menghitung interval waktu antara status saat ini dan status sebelumnya
+                    $currentDate = \Carbon\Carbon::parse($history->changed_at);
+                    $interval = '-';
+
+                    if ($previousDate) {
+                        // Membulatkan interval waktu ke angka bulat dalam satuan menit
+                        $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit';
+                    }
+
+                    // Menyimpan tanggal status sebelumnya untuk perhitungan interval selanjutnya
+                    $previousDate = $currentDate;
                 @endphp
-                @foreach($pengajuansolder->statusHistory as $history)
-                    @php
-                        $currentDate = \Carbon\Carbon::parse($history->changed_at);
-                        $interval = '-';
 
-                        if ($previousDate) {
-                            $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit'; // Membulatkan interval ke angka bulat
-                        }
-
-                        $previousDate = $currentDate;
-                    @endphp
-                        <tr>
-                            <td>{{ $no++ }}</td>
-                            <td>{{ $currentDate->format('Y-m-d H:i:s') }}</td>
-                            <td>{{ $history->status }}</td>
-                            <td>{{ $history->rejection_reason ?? '-' }}</td>
-                            <td>{{ $interval }}</td>
-                            <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
-                        </tr>
-                @endforeach
                 <tr>
-                    @php
-                        $lastDate = \Carbon\Carbon::parse($pengajuansolder->jam_masuk);
-                        $interval = $previousDate ? round($previousDate->diffInMinutes($lastDate), 0) . ' menit' : '-'; // Membulatkan interval ke angka bulat
-                    @endphp
                     <td>{{ $no++ }}</td>
-                    <td>{{ $lastDate->format('Y-m-d H:i:s') }}</td>
-                    <td>{{ $pengajuansolder->status }}</td>
-                    <td>{{ $pengajuansolder->rejection_reason ?? '-' }}</td>
+                    <td>{{ $currentDate->format('Y-m-d H:i:s') }}</td>
+                    <td>{{ $history->status }}</td>
+                    <td>{{ $history->rejection_reason ?? '-' }}</td>
                     <td>{{ $interval }}</td>
-                    <td>{{ ucwords($pengajuansolder->statusHistory->last()->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
+                    <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
                 </tr>
-                </tbody>
-                </table>
+            @endforeach
+
+            <tr>
+                @php
+                    // Menghitung interval waktu dari jam masuk hingga status terakhir
+                    $lastDate = \Carbon\Carbon::parse($pengajuansolder->jam_masuk);
+                    $interval = $previousDate ? round($previousDate->diffInMinutes($lastDate), 0) . ' menit' : '-';
+                @endphp
+                <td>{{ $no++ }}</td>
+                <td>{{ $lastDate->format('Y-m-d H:i:s') }}</td>
+                <td>{{ $pengajuansolder->status }}</td>
+                <td>{{ $pengajuansolder->rejection_reason ?? '-' }}</td>
+                <td>{{ $interval }}</td>
+                <td>{{ ucwords($pengajuansolder->statusHistory->last()->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 
 
 
 
                 <!-- Formulir Penolakan untuk Foreman -->
                 @if (Auth::user()->level === 'Foreman' && $pengajuansolder->status === 'Review Hasil')
-    <form action="{{ route('pengajuansolder.tolak', $pengajuansolder->id) }}" method="POST">
-        @csrf
-        <div class="form-group">
-            <label for="rejection_reason">Alasan Penolakan</label>
-            <textarea id="rejection_reason" name="rejection_reason" class="form-control" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-danger mt-2">Tolak</button>
-    </form>
+                    <form action="{{ route('pengajuansolder.tolak', $pengajuansolder->id) }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="rejection_reason">Alasan Penolakan</label>
+                            <textarea id="rejection_reason" name="rejection_reason" class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger mt-2">Tolak</button>
+                    </form>
 
-@endif
+                @endif
             </div>
 
             <!-- Kolom Kanan: Detail Solder -->
             <div class="col-md-6">
                 <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Unsur Kimia</th>
+                    <th>Results</th>
+                </tr>
+            </thead>
                     <tr><th>Sn</th><td>{{ $pengajuansolder->sn ?? '-' }}</td></tr>
                     <tr><th>Ag</th><td>{{ $pengajuansolder->ag ?? '-' }}</td></tr>
                     <tr><th>Cu</th><td>{{ $pengajuansolder->cu ?? '-' }}</td></tr>

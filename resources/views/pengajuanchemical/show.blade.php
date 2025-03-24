@@ -6,7 +6,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Data Detail Pengajuan Solder</li>
+            <li class="breadcrumb-item active" aria-current="page">Data Detail Pengajuan Chemical</li>
         </ol>
         <hr>
     </nav>
@@ -49,55 +49,59 @@
 
                 <!-- Tabel Riwayat Status -->
                 <h5>Riwayat Status</h5>
-                <table class="table table-bordered mt-3">
-    <thead class="table-light">
-        <tr>
-            <th>No</th>
-            <th>Jam Masuk</th>
-            <th>Status</th>
-            <th>Alasan Penolakan</th>
-            <th>Interval Waktu</th>
-            <th>Nama</th>
-        
-        </tr>
-    </thead>
-    <tbody>
-    @php
-        $no = 1;
-        $previousDate = null;
-    @endphp
-    @foreach($pengajuanchemical->statusHistory as $history)
-        @php
-            $currentDate = \Carbon\Carbon::parse($history->changed_at);
-            $interval = '-';
+                <div class="table-responsive">
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>No</th>
+                <th>Jam Masuk</th>
+                <th>Status</th>
+                <th>Alasan Penolakan</th>
+                <th>Interval Waktu</th>
+                <th>Nama</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $no = 1;
+                $previousDate = null;
+            @endphp
 
-            if ($previousDate) {
-                $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit'; // Membulatkan interval ke angka bulat
-            }
+            @foreach($pengajuanchemical->statusHistory as $history)
+                @php
+                    $currentDate = \Carbon\Carbon::parse($history->changed_at);
+                    $interval = '-';
 
-            $previousDate = $currentDate;
-        @endphp
+                    if ($previousDate) {
+                        // Membulatkan interval waktu ke angka bulat dalam satuan menit
+                        $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit';
+                    }
+
+                    // Menyimpan tanggal status sebelumnya untuk perhitungan interval selanjutnya
+                    $previousDate = $currentDate;
+                @endphp
+
+                <tr>
+                    <td>{{ $no++ }}</td>
+                    <td>{{ \Carbon\Carbon::parse($history->changed_at)->format('Y-m-d H:i:s') }}</td>
+                    <td>{{ $history->status }}</td>
+                    <td>{{ $history->rejection_reason ?? '-' }}</td>
+                    <td>{{ $interval }}</td>
+                    <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
+                </tr>
+            @endforeach
+
+            <!-- Status Saat Ini -->
             <tr>
                 <td>{{ $no++ }}</td>
-                <td>{{ \Carbon\Carbon::parse($history->changed_at)->format('Y-m-d H:i:s') }}</td>
-                <td>{{ $history->status }}</td>
-                <td>{{ $history->rejection_reason ?? '-' }}</td>
-                <td>{{ $interval }}</td>
-                <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td> <!-- Normalisasi nama pengguna -->
-               
+                <td>{{ \Carbon\Carbon::parse($pengajuanchemical->jam_masuk)->format('Y-m-d H:i:s') }}</td>
+                <td>{{ $pengajuanchemical->status }}</td>
+                <td>{{ $pengajuanchemical->rejection_reason ?? '-' }}</td>
             </tr>
-        @endforeach
+        </tbody>
+    </table>
+</div>
 
-        <!-- Status Saat Ini -->
-        <tr>
-            <td>{{ $no++ }}</td>
-            <td>{{ \Carbon\Carbon::parse($pengajuanchemical->jam_masuk)->format('Y-m-d H:i:s') }}</td>
-            <td>{{ $pengajuanchemical->status }}</td>
-            <td>{{ $pengajuanchemical->rejection_reason ?? '-' }}</td>
-            
-        </tr>
-    </tbody>
-</table>
 
 
                 <!-- Form Penolakan Khusus Foreman -->

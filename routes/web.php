@@ -200,16 +200,59 @@ Route::controller(CategoryController::class)->prefix('category')->group(function
 });
 
 
-Route::controller(UserController::class)->prefix('user')->group(function () {
-    Route::get('/user', [DataChemicalController::class, 'index'])->name('user.index');
-    Route::get('', 'index')->name('user');
-    Route::get('create', 'create')->name('user.create');
-    Route::post('store', 'store')->name('user.store');
-    Route::get('show/{id}', 'show')->name('user.show');
-    Route::get('edit/{id}', 'edit')->name('user.edit');
-    Route::put('edit/{id}', 'update')->name('user.update');
-    Route::delete('destroy/{id}', 'destroy')->name('user.destroy');
-});
+    Route::controller(UserController::class)->prefix('user')->group(function () {
+        // Rute utama untuk halaman 'user', hanya untuk Admin
+        Route::get('', function () {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->index();
+        })->name('user');
+
+        // Rute untuk halaman 'create', hanya untuk Admin
+        Route::get('create', function () {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->create();
+        })->name('user.create');
+
+        // Rute untuk menyimpan data user, hanya untuk Admin
+        Route::post('store', function () {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->store();
+        })->name('user.store');
+
+        // Rute untuk melihat user, hanya untuk Admin
+        Route::get('show/{id}', function ($id) {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->show($id);
+        })->name('user.show');
+
+        // Rute untuk halaman edit user, hanya untuk Admin
+        Route::get('edit/{id}', function ($id) {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->edit($id);
+        })->name('user.edit');
+
+        // Rute untuk update data user, hanya untuk Admin
+        Route::put('edit/{id}', [UserController::class, 'update'])->name('user.update');
+
+        // Rute untuk menghapus user, hanya untuk Admin
+        Route::delete('destroy/{id}', function ($id) {
+            if (Auth::user()->level !== 'Admin') {
+                return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+            }
+            return app(UserController::class)->destroy($id);
+        })->name('user.destroy');
+    });
+
 
 //WEB ROUTER UNTUK BQR
 
@@ -276,17 +319,24 @@ Route::controller(TinchemController::class)->prefix('tinchem')->group(function (
 
 
 Route::controller(ImportController::class)->prefix('import')->group(function () {
-    Route::get('', 'index')->name('import');
-    Route::get('/export-data', [ImportController::class, 'export'])->name('export.data');
-    Route::get('/export', [ImportController::class, 'export']);
-    Route::get('/export', [ImportController::class, 'export'])->name('export');
-    Route::get('/export/pengajuan-solder', [ImportController::class, 'exportPengajuanSolder'])->name('export.pengajuan-solder');
-    Route::get('/export/pengajuan-chemical', [ImportController::class, 'exportPengajuanChemical'])->name('export.pengajuan-chemical');
-    Route::get('/export/pengajuan-rawmat', [ImportController::class, 'exportPengajuanRawmat'])->name('export.pengajuan-rawmat');
+    // Rute untuk halaman utama import, hanya untuk Admin
+    Route::get('', function () {
+        if (Auth::user()->level !== 'Admin') {
+            return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+        }
 
+        return view('import.index'); // Menampilkan view import/index.blade.php untuk admin
+    })->name('import');
 
+    // Rute lainnya tetap ada seperti ekspor data
+    Route::get('/export-data', 'export')->name('export.data');
+    Route::get('/export', 'export')->name('export');
+
+    // Rute ekspor spesifik untuk pengajuan
+    Route::get('/export/pengajuan-solder', 'exportPengajuanSolder')->name('export.pengajuan-solder');
+    Route::get('/export/pengajuan-chemical', 'exportPengajuanChemical')->name('export.pengajuan-chemical');
+    Route::get('/export/pengajuan-rawmat', 'exportPengajuanRawmat')->name('export.pengajuan-rawmat');
 });
-
 
 
 //Data Solder
@@ -482,12 +532,19 @@ Route::controller(DataChemicalController::class)->prefix('datachemical')->group(
 });
 
 Route::controller(DataIntervalController::class)->prefix('datainterval')->group(function () {
-    Route::get('', 'index')->name('datainterval');
+    // Rute utama untuk halaman 'datainterval', hanya untuk Admin
+    Route::get('', function () {
+        if (Auth::user()->level !== 'Admin') {
+            return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
+        }
+        return app(DataIntervalController::class)->index();
+    })->name('datainterval');
+
+    // Rute lainnya yang tidak perlu pengecekan admin
     Route::get('create', 'create')->name('datainterval.create');
     Route::post('store', 'store')->name('datainterval.store');
     Route::get('show/{user_id}', 'show')->name('datainterval.show');
     Route::get('edit/{id}', 'edit')->name('datainterval.edit');
     Route::put('edit/{id}', 'update')->name('datainterval.update');
     Route::delete('destroy/{id}', 'destroy')->name('datainterval.destroy');
-
 });

@@ -64,26 +64,16 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 @endif
-
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold">Data Solder</h6>
         <div class="d-flex gap-3 align-items-center">
-            <!-- Dropdown Filter -->
-            <div style="width: 250px;">
-                <label for="solderFilter" class="sr-only">Filter by Category</label>
-                <select class="form-select form-select-sm" id="solderFilter">
-                    <option value="all">Show All</option>
-                    <option value="Sn/Cu Series">Sn/Cu Series</option>
-                    <option value="Sn/Ag/Cu Series">Sn/Ag/Cu Series</option>
-                    <option value="Sn/Ag Series">Sn/Ag Series</option>
-                    <option value="Tin-Lead Solder Bar">Tin-Lead Solder Bar</option>
-                </select>
-            </div>
+
             <!-- Button Tambah -->
             <a href="{{ route('datasolder.create') }}" class="btn btn-success btn-sm">
                 <i class="fas fa-plus"></i> Tambah
             </a>
+
         </div>
     </div>
 

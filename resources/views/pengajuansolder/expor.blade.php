@@ -74,7 +74,7 @@
             <option value="" selected disabled>Pilih Pengajuan</option>
             @foreach ($allPengajuanSolder as $pengajuan)
                 <option value="{{ $pengajuan->id }}">
-                    {{ $pengajuan->batch ?? '' }} - {{ $pengajuan->tgl ?? '' }}
+                    {{ $pengajuan->batch ?? '' }} - {{ \Carbon\Carbon::parse($pengajuan->tgl)->format('j  M  y') ?? '-' }}
                 </option>
             @endforeach
         </select>
@@ -106,7 +106,7 @@
                     <th style="padding: 2px; text-align: center; border: 1px solid black;">Lot No. {{ $pengajuansolder->batch ?? '-' }}</th>
                 </tr>
                 <tr>
-                    <th style="padding: 2px; text-align: center; border: 1px solid black;">{{ $pengajuansolder->tgl ?? '-' }}</th>
+                    <th style="padding: 2px; text-align: center; border: 1px solid black;">{{ \Carbon\Carbon::parse($pengajuansolder->tgl)->format('j  M  y') ?? '-' }}</th>
                 </tr>
             </thead>
                 <tbody id="tableBody">
