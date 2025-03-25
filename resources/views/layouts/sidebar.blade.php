@@ -62,6 +62,13 @@
             <span class="align-middle">Sampel Chemical</span>
         </a>
     </li>
+    <li class="sidebar-header">Data Pengajuan</li>
+    <li class="sidebar-item">
+        <a class="sidebar-link" href="{{ route('instruments') }}" data-bs-toggle="tooltip" title="Lihat Kondisi Instrument">
+            <i class="fas fa-vial align-middle"></i>
+            <span class="align-middle">Kondisi Instrument</span>
+        </a>
+    </li>
     @if (Auth::user()->level === 'Admin')
     <!-- Master Section -->
     <li class="sidebar-header">Master</li>

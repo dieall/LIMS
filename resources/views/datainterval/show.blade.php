@@ -24,12 +24,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <!-- Tombol Export -->
-                        <a href="{{ route('export.data.interval', ['user_id' => $user->id, 'month' => $selectedMonth]) }}" class="btn btn-success btn-sm mt-4">
-                            Export to Excel
-                        </a>
-                    </div>
+
                 </div>
             </form>
         </div>
@@ -123,6 +118,13 @@
             <!-- Menampilkan Total Interval -->
             <div class="mt-4">
                 <h4>Total Akumulasi Waktu Keseluruhan : <strong>{{ $hours }} Jam {{ $minutes }} Menit</strong></h4>
+                <a href="{{ route('datainterval') }}" class="btn btn-secondary btn-sm mt-4">
+                            Kembali
+                </a>
+                <!-- Tombol Export -->
+                <a href="{{ route('export.data.interval', ['user_id' => $user->id, 'month' => $selectedMonth]) }}" class="btn btn-success btn-sm mt-4">
+                            Export to Excel
+                </a>
             </div>
         </div>
     </div>

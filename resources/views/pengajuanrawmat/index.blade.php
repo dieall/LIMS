@@ -112,7 +112,8 @@
             <ul class="dropdown-menu" aria-labelledby="pageSizeDropdown">
                 <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', array_merge(request()->all(), ['page_size' => 10])) }}">10</a></li>
                 <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', array_merge(request()->all(), ['page_size' => 20])) }}">20</a></li>
-                <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', array_merge(request()->all(), ['page_size' => 30])) }}">30</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', array_merge(request()->all(), ['page_size' => 50])) }}">50</a></li>
+                <li><a class="dropdown-item" href="{{ route('pengajuanrawmat.index', array_merge(request()->all(), ['page_size' => 100])) }}">100</a></li>
             </ul>
         </div>
 
@@ -148,7 +149,7 @@
                                 <td class="text-center align-middle">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-cogs"></i> Actions
+                                            <i class="fas fa-cogs"></i> Act ions
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a href="{{ route('pengajuanrawmat.show', $rs->id) }}" class="dropdown-item"><i class="fas fa-info-circle"></i> Detail</a></li>

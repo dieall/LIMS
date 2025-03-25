@@ -2,6 +2,9 @@
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InstrumentController;
+
+
 use App\Http\Controllers\MeclController;
 use App\Http\Controllers\LogamtimahController;
 
@@ -12,9 +15,6 @@ use App\Http\Controllers\LineController;
 use App\Http\Controllers\MixingController;
 
 
-
-
-use App\Http\Controllers\SirController;
 use App\Http\Controllers\FinishController;
 use App\Http\Controllers\SolderController;
 use App\Http\Controllers\TransaksiController;
@@ -294,7 +294,14 @@ Route::controller(DmtController::class)->prefix('dmt')->group(function () {
     
 });
 
+Route::controller(InstrumentController::class)->prefix('instruments')->group(function () {
+    Route::get('/instrument', [TinController::class, 'index'])->name('instrument.index');
+    Route::get('', 'index')->name('instruments');
+    Route::get('show/{id}', 'show')->name('instrument.show'); 
+    Route::get('create', 'create')->name('instrument.create');
+    Route::post('store', 'store')->name('instrument.store');
 
+});
 
 
 Route::controller(TinchemController::class)->prefix('tinchem')->group(function () {
@@ -336,6 +343,7 @@ Route::controller(ImportController::class)->prefix('import')->group(function () 
     Route::get('/export/pengajuan-solder', 'exportPengajuanSolder')->name('export.pengajuan-solder');
     Route::get('/export/pengajuan-chemical', 'exportPengajuanChemical')->name('export.pengajuan-chemical');
     Route::get('/export/pengajuan-rawmat', 'exportPengajuanRawmat')->name('export.pengajuan-rawmat');
+    Route::get('/export/data-instrument', 'exportInstrument')->name('export.data-instrument');
 });
 
 

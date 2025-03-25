@@ -60,6 +60,14 @@
                         <i class="fas fa-file-excel"></i> Export Pengajuan Rawmat
                     </a>
                 </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{{ route('export.data-instrument') }}" class="btn btn-success w-100 rawmat-btn">
+                        <i class="fas fa-file-excel"></i> Export Data Instrument
+                    </a>
+                </div>
+
+
+
             </div>
         </div>
     </div>
