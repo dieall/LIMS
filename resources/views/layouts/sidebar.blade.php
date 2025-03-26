@@ -63,12 +63,22 @@
         </a>
     </li>
     <li class="sidebar-header">Data Pengajuan</li>
+
     <li class="sidebar-item">
         <a class="sidebar-link" href="{{ route('instruments') }}" data-bs-toggle="tooltip" title="Lihat Kondisi Instrument">
-            <i class="fas fa-vial align-middle"></i>
+            <i class="fas fa-cogs align-middle"></i> <!-- Ganti dengan fa-cogs untuk Kondisi Instrument -->
             <span class="align-middle">Kondisi Instrument</span>
         </a>
     </li>
+
+    <li class="sidebar-item">
+        <a class="sidebar-link" href="" data-bs-toggle="tooltip" title="Lihat Kondisi Instrument">
+            <i class="fas fa-tint align-middle"></i> <!-- Ganti dengan fa-tint untuk Data Humidity -->
+            <span class="align-middle">Data Humidity</span>
+        </a>
+    </li>
+
+
     @if (Auth::user()->level === 'Admin')
     <!-- Master Section -->
     <li class="sidebar-header">Master</li>

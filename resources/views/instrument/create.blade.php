@@ -6,7 +6,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('instrument.index') }}">Data Kondisi Instrument</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('instrument.index') }}">Data Kondisi Instrumen</a></li>
             <li class="breadcrumb-item active" aria-current="page">Tambah Instrumen</li>
         </ol>
         <hr>
@@ -28,6 +28,33 @@
         <form action="{{ route('instrument.store') }}" method="POST">
             @csrf
 
+            <div class="row mb-3">
+                <!-- Kolom Kiri 1 -->
+                <div class="col-md-6">
+                    <label for="shift" class="form-label">Shift</label>
+                    <input type="text" name="shift" class="form-control" id="shift" placeholder="Masukkan Shift" value="{{ $shift }}" readonly>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="tanggal" class="form-label">Tanggal</label>
+                    <input type="date" name="tgl" class="form-control" id="tgl" required readonly>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <!-- Kolom Kiri 2 -->
+                <div class="col-md-6">
+                    <label for="jam" class="form-label">Jam</label>
+                    <input type="time" name="jam" class="form-control" id="jam" placeholder="Masukkan Jam" required readonly>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="nama" class="form-label">Nama</label>
+                    <input type="text" name="nama" class="form-control" id="nama" value="{{ auth()->user()->name }}" required readonly>
+                    <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="bg-light text-dark">
@@ -38,43 +65,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                                <div class="row">
-                    <!-- Kolom Kiri 1 -->
-                    <div class="col-md-6 mb-3">
-    <label for="shift" class="form-label">Shift</label>
-    <input type="text" name="shift" class="form-control" id="shift" placeholder="Masukkan Shift" value="{{ $shift }}" readonly>
-</div>
-                    <div class="col-md-6 mb-3">
-    <label for="tanggal" class="form-label">Tanggal</label>
-    <input type="date" name="tgl" class="form-control" id="tgl" required readonly>
-</div>
-
-                </div>
-
-                <div class="row">
-                    <!-- Kolom Kiri 2 -->
-                    <div class="col-md-6 mb-3">
-    <label for="jam" class="form-label">Jam</label>
-    <input type="time" name="jam" class="form-control" id="jam" placeholder="Masukkan Jam" required readonly>
-</div>
-<div class="col-md-6 mb-3">
-                            <label for="nama" class="form-label">Nama</label>
-                            <!-- Menampilkan nama pengguna -->
-                            <input type="text" name="nama" class="form-control" id="nama" value="{{ auth()->user()->name }}" required readonly>
-
-                            <!-- Hidden input untuk menyimpan user_id yang sebenarnya -->
-                            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-                        </div>
-                </div>
                         @foreach($instruments as $instrument)
                             <tr>
                                 <td>
-                                    <!-- Input untuk nama instrumen, dikirimkan dalam bentuk array -->
                                     <input type="text" class="form-control" name="nama_instrument[{{ $instrument->id }}]" value="{{ old('nama_instrument.' . $instrument->id, $instrument->nama_instrument) }}" required readonly>
                                 </td>
                                 <td>
                                     <div class="form-check" style="display: flex; justify-content: space-between; width: 150px;">
-                                        <!-- Kondisi array, menggunakan multiple checkbox -->
                                         <label class="form-check-label" for="normal" style="margin-right: 10px;">
                                             <input class="form-check-input" type="checkbox" name="kondisi[{{ $instrument->id }}][]" value="Normal" {{ in_array('Normal', old('kondisi.' . $instrument->id, [])) ? 'checked' : '' }}> Normal
                                         </label>
@@ -84,10 +81,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <!-- Keterangan per instrumen -->
-                                    <textarea name="keterangan[{{ $instrument->id }}]" class="form-control" value=".">{{ old('keterangan.' . $instrument->id) }}</textarea>
+                                    <textarea name="keterangan[{{ $instrument->id }}]" class="form-control">{{ old('keterangan.' . $instrument->id) }}</textarea>
                                 </td>
-                                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                             </tr>
                         @endforeach
                     </tbody>
@@ -98,51 +93,40 @@
         </form>
     </div>
 </div>
+
 <script>
 // Fungsi untuk menentukan shift berdasarkan jam saat ini
 function setShift() {
-    const currentTime = new Date(); // Mendapatkan waktu saat ini
-    const hours = currentTime.getHours(); // Mengambil jam saat ini
+    const currentTime = new Date();
+    const hours = currentTime.getHours();
 
-    let shift = ''; // Variabel untuk menyimpan shift
-
-    // Menentukan shift berdasarkan jam
+    let shift = '';
     if (hours >= 0 && hours < 8) {
-        shift = 'Shift 1'; // Jam 00:00 - 08:00
+        shift = 'Shift 1';
     } else if (hours >= 8 && hours < 16) {
-        shift = 'Shift 2'; // Jam 08:00 - 16:00
+        shift = 'Shift 2';
     } else if (hours >= 16 && hours < 24) {
-        shift = 'Shift 3'; // Jam 16:00 - 23:59
+        shift = 'Shift 3';
     }
-
-    // Menetapkan nilai shift ke dalam input
     document.getElementById('shift').value = shift;
 }
 
-// Panggil fungsi setShift untuk mengatur shift saat halaman dimuat
-window.onload = setShift;
-</script>
-<script>
-        const today = new Date().toISOString().split('T')[0];
-    document.getElementById('tgl').value = today;
+// Fungsi untuk mengatur tanggal hari ini
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('tgl').value = today;
 
-</script>
+// Fungsi untuk mengatur waktu saat ini
+function setJam() {
+    const currentTime = new Date();
+    const hours = String(currentTime.getHours()).padStart(2, '0');
+    const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+    const formattedTime = `${hours}:${minutes}`;
+    document.getElementById('jam').value = formattedTime;
+}
 
-<script>
-    function setJam() {
-        const currentTime = new Date(); // Mendapatkan waktu saat ini
-        
-        const hours = String(currentTime.getHours()).padStart(2, '0'); // Mengambil jam (format 24 jam)
-        const minutes = String(currentTime.getMinutes()).padStart(2, '0'); // Mengambil menit
-
-        // Menyusun format waktu menjadi HH:MM
-        const formattedTime = `${hours}:${minutes}`;
-        
-        // Menetapkan nilai waktu ke dalam input
-        document.getElementById('jam').value = formattedTime;
-    }
-
-    // Panggil fungsi setJam untuk mengatur jam saat halaman dimuat
-    window.onload = setJam;
+window.onload = function() {
+    setShift();
+    setJam();
+};
 </script>
 @endsection

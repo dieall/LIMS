@@ -30,7 +30,7 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered">
-                <thead>
+                <thead class="bg-light text-dark">
                     <tr>
                         <th>No</th>
                         <th>Shift</th>
