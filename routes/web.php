@@ -3,6 +3,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InstrumentController;
+use App\Http\Controllers\DataThermoController;
 
 
 use App\Http\Controllers\MeclController;
@@ -472,6 +473,18 @@ Route::controller(DataRawmatController::class)->prefix('datarawmat')->group(func
 
 });
 
+Route::controller(DataThermoController::class)->prefix('datathermo')->group(function () {
+    Route::get('', 'index')->name('datathermo');
+    Route::get('create', 'create')->name('datathermo.create');
+    Route::post('store', 'store')->name('datathermo.store');
+    Route::get('show/{id_rawmat}', 'show')->name('datathermo.show');
+    Route::get('edit/{id_rawmat}', 'edit')->name('datathermo.edit');
+    Route::put('edit/{id_rawmat}', 'update')->name('datathermo.update');
+    Route::delete('destroy/{id_rawmat}', 'destroy')->name('datathermo.destroy');
+
+
+
+});
 
 Route::controller(PengajuanRawmatController::class)->prefix('pengajuanrawmat')->group(function () {
     Route::get('/pengajuanrawmat', [PengajuanRawmatController::class, 'index'])->name('pengajuanrawmat.index');

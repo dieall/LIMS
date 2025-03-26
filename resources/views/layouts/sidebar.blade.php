@@ -72,9 +72,9 @@
     </li>
 
     <li class="sidebar-item">
-        <a class="sidebar-link" href="" data-bs-toggle="tooltip" title="Lihat Kondisi Instrument">
+        <a class="sidebar-link" href="{{ route('datathermo') }}" data-bs-toggle="tooltip" title="Lihat Kondisi Instrument">
             <i class="fas fa-tint align-middle"></i> <!-- Ganti dengan fa-tint untuk Data Humidity -->
-            <span class="align-middle">Data Humidity</span>
+            <span class="align-middle">Data Thermohygrometer</span>
         </a>
     </li>
 

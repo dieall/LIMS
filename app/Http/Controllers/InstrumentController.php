@@ -43,7 +43,7 @@ class InstrumentController extends Controller
     public function create()
     {
         $instruments = InstrumentData::all();
-        $users = User::all();
+        $users = User::where('level', 'Operator Lab')->get(); // Mengambil pengguna dengan level 'operator_lab'
         $shift = $this->getShift(); // Dapatkan shift otomatis
     
         return view('instrument.create', compact('users', 'instruments', 'shift'));

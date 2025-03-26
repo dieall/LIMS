@@ -49,9 +49,16 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="nama" class="form-label">Nama</label>
-                    <input type="text" name="nama" class="form-control" id="nama" value="{{ auth()->user()->name }}" required readonly>
-                    <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                    <label for="user_id" class="form-label">Nama</label>
+                    <select name="user_id" class="form-control" id="user_id" required>
+                        <option value="">Pilih Nama</option> <!-- Opsi default -->
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}" 
+                                {{ old('user_id', auth()->user()->id) == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 

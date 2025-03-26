@@ -19,19 +19,21 @@
     <div class="card-body">
         <!-- Displaying Shift as a normal text above the table -->
         <div class="mb-3 row">
-    <div class="col-md-6">
+  
+<div class="col-md-12 mb-3">
         <strong>Shift :</strong> {{ $instrument['shift'] }}
     </div>
-    <div class="col-md-6 text-md-right">
+
+    <div class="col-md-12 mb-3">
         <strong>Tanggal :</strong> {{ \Carbon\Carbon::parse($instrument->tgl)->locale('id')->isoFormat('D MMMM YYYY') }}
     </div>
-</div>
 
-<div class="mb-3 row">
-    <div class="col-md-6">
+
+
+<div class="col-md-12 mb-3">
         <strong>Jam :</strong> {{ \Carbon\Carbon::parse($instrument->jam)->format('H:i') }}
     </div>
-    <div class="col-md-6 text-md-right">
+    <div class="col-md-12 mb-3">
         <strong>Nama :</strong> {{ $instrument->user->name }}  <!-- Menampilkan nama pengguna -->
     </div>
 </div>
