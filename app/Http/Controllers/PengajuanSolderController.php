@@ -46,7 +46,12 @@ class PengajuanSolderController extends Controller
     }
     
         
-
+    public function getTipeSolderByCategory($categoryId)
+    {
+        $tipeSolders = TipeSolder::where('id_category', $categoryId)->get();
+        return response()->json($tipeSolders);
+    }
+    
     public function create()
     {
         $solders = DataSolder::all(); // Ambil data dari tabel tipe_solder
@@ -62,60 +67,105 @@ class PengajuanSolderController extends Controller
         return view('pengajuansolder.create', compact('categorysolder', 'datasolder1', 'datasolder2', 'datasolder3', 'datasolder4','tipesolder','solders'));
     }
 
-    public function store(Request $request)
-{
-    // Validasi input
-    $validatedData = $request->validate([
-        'nama' => 'nullable|string',
-        'tgl' => 'nullable|date',
-        'tipe_solder' => 'nullable|string',
-        'batch' => 'nullable|string',
-        'audit_trail' => 'nullable|string',
-        'jam_masuk' => 'nullable|string',
-        'id_category' => 'nullable|exists:category_solder,id_category',
-        'sn' => 'nullable|string',
-        'ag' => 'nullable|numeric',
-        'cu' => 'nullable|numeric',
-        'pb' => 'nullable|string',
-        'sb' => 'nullable|numeric',
-        'zn' => 'nullable|numeric',
-        'fe' => 'nullable|numeric',
-        'as' => 'nullable|numeric',
-        'ni' => 'nullable|numeric',
-        'bi' => 'nullable|numeric', 
-        'cd' => 'nullable|numeric',
-        'ai' => 'nullable|numeric',
-        'pe' => 'nullable|numeric',
-        'ga' => 'nullable|numeric',
-        'status' => 'nullable|string',
-    ]);
+        public function createe($id)
+        {
+            $solders = DataSolder::all(); // Ambil data dari tabel tipe_solde
+            $pengajuansolder = PengajuanSolder::findOrFail($id); // Data pengajuan berdasarkan IDr
+            $categorysolder = CategorySolder::all();
+            $datasolder1 = DataSolder::where('nama_kategori', 'Sn/Cu Series')->distinct()->get();
+            $datasolder2 = DataSolder::where('nama_kategori', 'Sn/Ag/Cu Series')->distinct()->get();
+            $datasolder3 = DataSolder::where('nama_kategori', 'Sn/Ag Series')->distinct()->get();
+            $datasolder4 = DataSolder::where('nama_kategori', 'Tin-Lead Solder Bar')->distinct()->get();
 
-    // Menambahkan previous_status dengan nilai default
-    $pengajuansolder = new PengajuanSolder([
-        'nama' => $validatedData['nama'] ?? null,
-        'tgl' => $validatedData['tgl'] ?? null,
-        'tipe_solder' => $validatedData['tipe_solder'] ?? null,
-        'batch' => $validatedData['batch'] ?? null,
-        'audit_trail' => $validatedData['audit_trail'] ?? null,
-        'jam_masuk' => $validatedData['jam_masuk'] ?? null,
-        'id_category' => $validatedData['id_category'] ?? null,
-        'sn' => $validatedData['sn'] ?? null,
-        'ag' => $validatedData['ag'] ?? null,
-        'cu' => $validatedData['cu'] ?? null,
-        'pb' => $validatedData['pb'] ?? null,
-        'sb' => $validatedData['sb'] ?? null,
-        'zn' => $validatedData['zn'] ?? null,
-        'fe' => $validatedData['fe'] ?? null,
-        'as' => $validatedData['as'] ?? null,
-        'ni' => $validatedData['ni'] ?? null,
-        'bi' => $validatedData['bi'] ?? null,
-        'cd' => $validatedData['cd'] ?? null,
-        'ai' => $validatedData['ai'] ?? null,
-        'pe' => $validatedData['pe'] ?? null,
-        'ga' => $validatedData['ga'] ?? null,
-        'status' => $validatedData['status'] ?? null,
-        'previous_status' => 'Pengajuan', // Nilai default
-    ]);
+            $tipesolder = DataSolder::select('tipe_solder')->distinct()->get();
+        
+        
+            return view('pengajuansolder.createe', compact('categorysolder', 'datasolder1', 'datasolder2', 'datasolder3', 'datasolder4','tipesolder','solders','pengajuansolder'));
+        }
+        
+        public function store(Request $request)
+        {
+            // Validasi input
+            $validatedData = $request->validate([
+                'nama' => 'nullable|string',
+                'tgl' => 'nullable|date',
+                'tipe_solder' => 'nullable|string',
+                'batch' => 'nullable|string',
+                'audit_trail' => 'nullable|string',
+                'jam_masuk' => 'nullable|string',
+                'id_category' => 'nullable|exists:category_solder,id_category',
+                'sn' => 'nullable|string',
+                'ag' => 'nullable|numeric',
+                'cu' => 'nullable|numeric',
+                'pb' => 'nullable|string',
+                'sb' => 'nullable|numeric',
+                'zn' => 'nullable|numeric',
+                'fe' => 'nullable|numeric',
+                'as' => 'nullable|numeric',
+                'ni' => 'nullable|numeric',
+                'bi' => 'nullable|numeric', 
+                'cd' => 'nullable|numeric',
+                'ai' => 'nullable|numeric',
+                'pe' => 'nullable|numeric',
+                'ga' => 'nullable|numeric',
+                'status' => 'nullable|string',
+                // Validasi untuk status tambahan
+                'sn_status' => 'nullable|string',
+                'ag_status' => 'nullable|string',
+                'cu_status' => 'nullable|string',
+                'pb_status' => 'nullable|string',
+                'sb_status' => 'nullable|string',
+                'zn_status' => 'nullable|string',
+                'fe_status' => 'nullable|string',
+                'as_status' => 'nullable|string',
+                'ni_status' => 'nullable|string',
+                'bi_status' => 'nullable|string',
+                'cd_status' => 'nullable|string',
+                'ai_status' => 'nullable|string',
+                'pe_status' => 'nullable|string',
+                'ga_status' => 'nullable|string',
+            ]);
+        
+            // Menambahkan previous_status dengan nilai default
+            $pengajuansolder = new PengajuanSolder([
+                'nama' => $validatedData['nama'] ?? null,
+                'tgl' => $validatedData['tgl'] ?? null,
+                'tipe_solder' => $validatedData['tipe_solder'] ?? null,
+                'batch' => $validatedData['batch'] ?? null,
+                'audit_trail' => $validatedData['audit_trail'] ?? null,
+                'jam_masuk' => $validatedData['jam_masuk'] ?? null,
+                'id_category' => $validatedData['id_category'] ?? null,
+                'sn' => $validatedData['sn'] ?? null,
+                'ag' => $validatedData['ag'] ?? null,
+                'cu' => $validatedData['cu'] ?? null,
+                'pb' => $validatedData['pb'] ?? null,
+                'sb' => $validatedData['sb'] ?? null,
+                'zn' => $validatedData['zn'] ?? null,
+                'fe' => $validatedData['fe'] ?? null,
+                'as' => $validatedData['as'] ?? null,
+                'ni' => $validatedData['ni'] ?? null,
+                'bi' => $validatedData['bi'] ?? null,
+                'cd' => $validatedData['cd'] ?? null,
+                'ai' => $validatedData['ai'] ?? null,
+                'pe' => $validatedData['pe'] ?? null,
+                'ga' => $validatedData['ga'] ?? null,
+                'status' => $validatedData['status'] ?? null,
+                // Menambahkan status untuk masing-masing elemen
+                'sn_status' => $validatedData['sn_status'] ?? null,
+                'ag_status' => $validatedData['ag_status'] ?? null,
+                'cu_status' => $validatedData['cu_status'] ?? null,
+                'pb_status' => $validatedData['pb_status'] ?? null,
+                'sb_status' => $validatedData['sb_status'] ?? null,
+                'zn_status' => $validatedData['zn_status'] ?? null,
+                'fe_status' => $validatedData['fe_status'] ?? null,
+                'as_status' => $validatedData['as_status'] ?? null,
+                'ni_status' => $validatedData['ni_status'] ?? null,
+                'bi_status' => $validatedData['bi_status'] ?? null,
+                'cd_status' => $validatedData['cd_status'] ?? null,
+                'ai_status' => $validatedData['ai_status'] ?? null,
+                'pe_status' => $validatedData['pe_status'] ?? null,
+                'ga_status' => $validatedData['ga_status'] ?? null,
+            ]);
 
     $pengajuansolder->save();
 
@@ -130,9 +180,6 @@ class PengajuanSolderController extends Controller
     return redirect()->route('pengajuansolder.index')->with('success', 'Data Pengajuan Solder berhasil disimpan.');
 }
 
-    
-    
-    
 
     public function show($id)
     {
@@ -170,14 +217,48 @@ class PengajuanSolderController extends Controller
     
         return view('pengajuansolder.edit', compact('pengajuansolder'));
     }
+
     public function update(Request $request, string $id)
     {
+        // Find the solder record to update
         $pengajuansolder = PengajuanSolder::findOrFail($id);
-
-        $pengajuansolder->update($request->all());
-
-        return redirect()->route('pengajuansolder')->with('success', 'pengajuansolder updated successfully');
+        
+        // Set basic fields with null/default handling
+        $pengajuansolder->nama = $request->input('nama', $pengajuansolder->nama);
+        $pengajuansolder->tgl = $request->input('tgl', $pengajuansolder->tgl);
+        $pengajuansolder->tipe_solder = $request->input('tipe_solder', $pengajuansolder->tipe_solder); 
+        $pengajuansolder->batch = $request->input('batch', $pengajuansolder->batch);
+        $pengajuansolder->audit_trail = $request->input('audit_trail', $pengajuansolder->audit_trail);
+        $pengajuansolder->jam_masuk = $request->input('jam_masuk', $pengajuansolder->jam_masuk);
+        $pengajuansolder->id_category = $request->input('id_category', $pengajuansolder->id_category);
+        $pengajuansolder->status = $request->input('status', $pengajuansolder->status);
+        
+        // Process chemical fields and their status fields
+        $chemicalFields = ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'fe', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'];
+        
+        foreach ($chemicalFields as $field) {
+            // Update element value
+            if ($request->has($field)) {
+                $pengajuansolder->$field = $request->input($field);
+            }
+            
+            // Update element status (Passed or Not Passed)
+            $statusField = $field . '_status';
+            if ($request->has($statusField)) {
+                $pengajuansolder->$statusField = $request->input($statusField);
+            }
+        }
+        
+        // Save all changes
+        $pengajuansolder->save();
+        
+        // Stay on the same page with a success message
+        return redirect()->route('pengajuansolder.createe', $pengajuansolder->id)
+            ->with('success', 'Data berhasil disimpan dengan status validasi');
     }
+    
+    
+    
     
 
     public function destroy(string $id)
@@ -189,12 +270,6 @@ class PengajuanSolderController extends Controller
         return redirect()->route('pengajuansolder')->with('success', 'Pengajuan Solder deleted successfully');
     }
   
-    
-    
-    
-    
-    
-    
     
     public function getTipeSolderDetail($tipe_solder)
     {
@@ -269,19 +344,20 @@ class PengajuanSolderController extends Controller
     public function prosesAnalisa($id)
     {
         $data = PengajuanSolder::findOrFail($id);
-    
-        // Cek apakah status ini sudah pernah disimpan di status_histories
+        
+        // Check if we already have a "Proses Analisa" status record
         $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
             ->where('status', 'Proses Analisa')
             ->first();
     
+        // If there's no existing status history, create one
         if (!$existingHistory) {
-            // Simpan status Proses Analisa ke status_histories
+            // Get the previous status history
             $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
                 ->orderBy('changed_at', 'desc')
                 ->first();
     
-            // Hitung interval waktu jika ada history sebelumnya
+            // Calculate interval if there's previous history
             $interval = '-';
             if ($previousHistory) {
                 $previousChangedAt = Carbon::parse($previousHistory->changed_at);
@@ -289,8 +365,9 @@ class PengajuanSolderController extends Controller
                 $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
             }
     
+            // Create status history record
             StatusHistory::create([
-                'pengajuan_solder_id' => $data->id,
+                'pengajuan_solder_id' => $data->id,  // FIXED: Changed from pengajuan_chemical_id
                 'status' => 'Proses Analisa',
                 'changed_at' => Carbon::now(),
                 'user_id' => auth()->user()->id,
@@ -299,13 +376,18 @@ class PengajuanSolderController extends Controller
             ]);
         }
     
-        // Ubah status menjadi "Proses Analisa"
+        // Always update status to "Proses Analisa" (ensure it's always in process mode)
         $data->status = 'Proses Analisa';
         $data->jam_masuk = Carbon::now();
         $data->save();
     
-        return redirect()->route('pengajuansolder.show', $data->id)->with('success', 'Status berhasil diubah menjadi Proses Analisa');
+        // Always redirect to createe for analysis
+        return redirect()->route('pengajuansolder.createe', $data->id)
+            ->with('success', 'Status berhasil diubah menjadi Proses Analisa');
     }
+    
+    
+
     
     public function analisaSelesai($id)
     {

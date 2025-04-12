@@ -192,29 +192,43 @@
                     </li>
                         
                         @endif
-                                                            <!-- Proses Analisa -->
-                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
-                        <li>
-                            <form action="{{ route('pengajuansolder.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-cogs"></i> Proses Analisa
-                                </button>
-                            </form>
-                        </li>
-                    @endif
+                        @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
+                            @if ($rs->status != 'Analisa Selesai') 
+                                <!-- Always show the button until analysis is complete -->
+                                <li>
+                                    <form action="{{ route('pengajuansolder.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-cogs"></i> 
+                                            @if ($rs->status == 'Proses Analisa')
+                                                Lanjutkan Proses Analisa
+                                            @else
+                                                Proses Analisa
+                                            @endif
+                                        </button>
+                                    </form>
+                                </li>
+                            @endif
+                        @endif
 
-                    <!-- Analisa Selesai -->
-                    @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
-                        <li>
-                            <form action="{{ route('pengajuansolder.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="dropdown-item">
-                                    <i class="fas fa-check-circle"></i> Analisa Selesai
-                                </button>
-                            </form>
-                        </li>
-                    @endif
+
+
+
+<!-- Tombol Analisa Selesai -->
+@if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
+    @if ($rs->status == 'Proses Analisa') <!-- Tombol hanya muncul saat status 'Proses Analisa' -->
+        <li>
+            <form action="{{ route('pengajuansolder.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
+                @csrf
+                <button type="submit" class="dropdown-item">
+                    <i class="fas fa-check-circle"></i> Analisa Selesai
+                </button>
+            </form>
+        </li>
+    @endif
+@endif
+
+
 
                     <!-- Review Hasil -->
                     @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Foreman')

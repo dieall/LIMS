@@ -17,10 +17,6 @@
         border: 1px solid #c3e6cb;
     }
 
-    #success-alert {
-        opacity: 1;
-    }
-
     /* Styling untuk pagination */
     .custom-pagination {
         display: flex;
@@ -71,7 +67,7 @@
 
 <!-- Alert Section -->
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show" id="success-alert" role="alert">
         {{ Session::get('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -112,9 +108,8 @@
             <i class="fas fa-plus"></i> Tambah
         </a>
         <a href="{{ route('pengajuanchemical.export-excel') }}" class="btn btn-success btn-sm">
-    <i class="fas fa-file-export"></i> Export to Excel
-</a>
-
+            <i class="fas fa-file-export"></i> Export to Excel
+        </a>
     </div>
 </div>
 
@@ -135,181 +130,190 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($pengajuanchemical->count() > 0)
-                        @foreach($pengajuanchemical as $rs)
-                            <tr>
-                                <td class="text-center align-middle">{{ $loop->iteration }}</td>
-                                <td class="align-middle">{{ $rs->nama_chemical }}</td>
-                                <td class="align-middle">{{ $rs->nama }}</td>
-                                <td class="align-middle">{{ $rs->batch }}</td>
-                                <td class="align-middle">{{ \Carbon\Carbon::parse($rs->jam_masuk)->format('H:i') }}</td>
-                                <td class="align-middle">{{ $rs->orang }}</td>
-                                <td class="align-middle text-center">
-                                    @if ($rs->status == 'Pengajuan')
-                                        <span class="badge bg-primary">{{ $rs->status }}</span>
-                                    @elseif ($rs->status == 'Proses Analisa')
-                                        <span class="badge bg-info">{{ $rs->status }}</span>
-                                    @elseif ($rs->status == 'Selesai Analisa')
-                                        <span class="badge bg-secondary">{{ $rs->status }}</span>
-                                    @elseif ($rs->status == 'Review Hasil')
-                                        <span class="badge bg-warning">{{ $rs->status }}</span>
-                                    @elseif ($rs->status == 'Approve')
-                                        <span class="badge bg-success">{{ $rs->status }}</span>
-                                    @else
-                                        <span class="badge bg-secondary">{{ $rs->status }}</span>
-                                    @endif
-                                </td>
-                                <td class="text-center align-middle">
-    <div class="btn-group">
-        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-cogs"></i> Actions
-        </button>
-        <ul class="dropdown-menu">
-            <!-- Tombol Detail -->
-            <li>
-                <a href="{{ route('pengajuanchemical.show', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-info-circle"></i> Detail
-                </a>
-            </li>
-            
-            <!-- Tombol Print -->
-            <li>
-                <a href="{{ route('pengajuanchemical.print', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-print"></i> Print
-                </a>
-            </li>
-            
-            <!-- Tombol Edit -->
-            <li>
-                <a href="{{ route('pengajuanchemical.edit', $rs->id) }}" class="dropdown-item">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-            </li>
-            @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC')                                 
-                            <li>
-                        <form action="{{ route('pengajuanchemical.pengajuan', $rs->id) }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="dropdown-item">
-                                <i class="fas fa-file-alt"></i> Pengajuan
-                            </button>
-                        </form>
-                    </li>
-                        
-                        @endif
-            <!-- Tombol Proses Analisa (Operator Lab atau Admin) -->
-            @if (Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Admin')
-                <li>
-                    <form action="{{ route('pengajuanchemical.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <i class="fas fa-cogs"></i> Proses Analisa
-                        </button>
-                    </form>
-                </li>
-            @endif
-            
-            <!-- Tombol Analisa Selesai (Operator Lab atau Admin) -->
-            @if (Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Admin')
-                <li>
-                    <form action="{{ route('pengajuanchemical.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <i class="fas fa-check-circle"></i> Analisa Selesai
-                        </button>
-                    </form>
-                </li>
-            @endif
-            
-            <!-- Tombol Review Hasil (Foreman atau Admin) -->
-            @if (Auth::user()->level === 'Foreman' || Auth::user()->level === 'Admin')
-                <li>
-                    <form action="{{ route('pengajuanchemical.reviewHasil', $rs->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <i class="fas fa-eye"></i> Review Hasil
-                        </button>
-                    </form>
-                </li>
-            @endif
-            
-            <!-- Tombol Approve (Supervisor atau Admin) -->
-            @if (Auth::user()->level === 'Supervisor' || Auth::user()->level === 'Admin')
-                <li>
-                    <form action="{{ route('pengajuanchemical.approve', $rs->id) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <i class="fas fa-thumbs-up"></i> Approve
-                        </button>
-                    </form>
-                </li>
-            @endif
-            
-            <!-- Tombol Delete (Semua Role) -->
-             
-            @if (Auth::user()->level === 'Admin') 
-            <li>
-                <form action="{{ route('pengajuanchemical.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="dropdown-item text-danger">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </form>
-            </li>
-            @endif
-        </ul>
-    </div>
+                    @forelse($pengajuanchemical as $rs)
+                        <tr>
+                            <td class="text-center align-middle">{{ $loop->iteration }}</td>
+                            <td class="align-middle">{{ $rs->nama_chemical }}</td>
+                            <td class="align-middle">{{ $rs->nama }}</td>
+                            <td class="align-middle">{{ $rs->batch }}</td>
+                            <td class="align-middle">{{ \Carbon\Carbon::parse($rs->jam_masuk)->format('H:i') }}</td>
+                            <td class="align-middle">{{ $rs->orang }}</td>
+                            <td class="align-middle text-center">
+                                @if ($rs->status == 'Pengajuan')
+                                    <span class="badge bg-primary">{{ $rs->status }}</span>
+                                @elseif ($rs->status == 'Proses Analisa')
+                                    <span class="badge bg-info">{{ $rs->status }}</span>
+                                @elseif ($rs->status == 'Selesai Analisa')
+                                    <span class="badge bg-secondary">{{ $rs->status }}</span>
+                                @elseif ($rs->status == 'Review Hasil')
+                                    <span class="badge bg-warning">{{ $rs->status }}</span>
+                                @elseif ($rs->status == 'Approve')
+                                    <span class="badge bg-success">{{ $rs->status }}</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $rs->status }}</span>
+                                @endif
+                            </td>
+                            <td class="text-center align-middle">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cogs"></i> Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <!-- Tombol Detail -->
+                                        <li>
+                                            <a href="{{ route('pengajuanchemical.show', $rs->id) }}" class="dropdown-item">
+                                                <i class="fas fa-info-circle"></i> Detail
+                                            </a>
+                                        </li>
+                                        
+                                        <!-- Tombol Print -->
+                                        <li>
+                                            <a href="{{ route('pengajuanchemical.print', $rs->id) }}" class="dropdown-item">
+                                                <i class="fas fa-print"></i> Print
+                                            </a>
+                                        </li>
+                                        
+                                        <!-- Tombol Edit -->
+                                        <li>
+                                            <a href="{{ route('pengajuanchemical.edit', $rs->id) }}" class="dropdown-item">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </li>
+                                        @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator QC')                                 
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.pengajuan', $rs->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-file-alt"></i> Pengajuan
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                        
+                                        <!-- Tombol untuk Proses Analisa -->
+                                        @if ((Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Admin') && 
+                                            (!$rs->statusHistory()->where('status', 'Proses Analisa')->exists()))
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-cogs"></i> Proses Analisa
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
 
-    @if (Auth::user()->level === 'Admin') 
-    <div class="btn-group">
-        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-cogs"></i> Cetak CoA
-        </button>
-        <ul class="dropdown-menu">
-            <!-- Tombol Detail -->
-            <li>
-                <a href="{{ route('pengajuanchemical.lokal', $rs->id) }}" class="dropdown-item">
-                <i class="fas fa-map-marker-alt"></i> Lokal
-                </a>
-            </li>
-            
-            <!-- Tombol Print -->
-            <li>
-            <a href="{{ route('pengajuanchemical.expor', $rs->id) }}" class="dropdown-item">
-            <i class="fas fa-paper-plane"></i> Ekspor
-            </li>
-        </ul>
-    </div>
-    @endif
+                                        <!-- Tombol untuk Lanjutkan Menganalisa - Only show if already in process -->
+                                        @if ($rs->statusHistory()->where('status', 'Proses Analisa')->exists() && 
+                                            $rs->status === 'Proses Analisa')
+                                            <li>
+                                                <a href="{{ route('pengajuanchemical.createe', $rs->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-edit"></i> Lanjutkan Menganalisa
+                                                </a>
+                                            </li>
+                                        @endif
+                                                                                <!-- Tombol Analisa Selesai (Operator Lab atau Admin) -->
+                                        @if (Auth::user()->level === 'Operator Lab' || Auth::user()->level === 'Admin')
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-check-circle"></i> Analisa Selesai
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                        
+                                        <!-- Tombol Review Hasil (Foreman atau Admin) -->
+                                        @if (Auth::user()->level === 'Foreman' || Auth::user()->level === 'Admin')
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.reviewHasil', $rs->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-eye"></i> Review Hasil
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                        
+                                        <!-- Tombol Approve (Supervisor atau Admin) -->
+                                        @if (Auth::user()->level === 'Supervisor' || Auth::user()->level === 'Admin')
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.approve', $rs->id) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-thumbs-up"></i> Approve
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                        
+                                        <!-- Tombol Delete (Semua Role) -->
+                                        @if (Auth::user()->level === 'Admin') 
+                                            <li>
+                                                <form action="{{ route('pengajuanchemical.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
 
-</td>
-                            </tr>
-                        @endforeach
-                    @else
+                                @if (Auth::user()->level === 'Admin') 
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-cogs"></i> Cetak CoA
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <!-- Tombol Detail -->
+                                            <li>
+                                                <a href="{{ route('pengajuanchemical.lokal', $rs->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-map-marker-alt"></i> Lokal
+                                                </a>
+                                            </li>
+                                            
+                                            <!-- Tombol Print -->
+                                            <li>
+                                                <a href="{{ route('pengajuanchemical.expor', $rs->id) }}" class="dropdown-item">
+                                                    <i class="fas fa-paper-plane"></i> Ekspor
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
                         <tr>
                             <td colspan="8" class="text-center">Tidak ada data tersedia.</td>
                         </tr>
-                    @endif
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <!-- Custom Pagination -->
-        <div class="custom-pagination">
-            @if ($pengajuanchemical->currentPage() > 1)
-                <a href="{{ $pengajuanchemical->previousPageUrl() }}" class="page-link">« Previous</a>
-            @endif
+        @if($pengajuanchemical->count() > 0)
+            <div class="custom-pagination">
+                @if ($pengajuanchemical->currentPage() > 1)
+                    <a href="{{ $pengajuanchemical->previousPageUrl() }}" class="page-link">« Previous</a>
+                @endif
 
-            @for ($i = 1; $i <= $pengajuanchemical->lastPage(); $i++)
-                <a href="{{ $pengajuanchemical->url($i) }}" class="page-link {{ $pengajuanchemical->currentPage() == $i ? 'active' : '' }}">
-                    {{ $i }}
-                </a>
-            @endfor
+                @for ($i = 1; $i <= $pengajuanchemical->lastPage(); $i++)
+                    <a href="{{ $pengajuanchemical->url($i) }}" class="page-link {{ $pengajuanchemical->currentPage() == $i ? 'active' : '' }}">
+                        {{ $i }}
+                    </a>
+                @endfor
 
-            @if ($pengajuanchemical->currentPage() < $pengajuanchemical->lastPage())
-                <a href="{{ $pengajuanchemical->nextPageUrl() }}" class="page-link">Next »</a>
-            @endif
-        </div>
+                @if ($pengajuanchemical->currentPage() < $pengajuanchemical->lastPage())
+                    <a href="{{ $pengajuanchemical->nextPageUrl() }}" class="page-link">Next »</a>
+                @endif
+            </div>
+        @endif
     </div>
 </div>
 

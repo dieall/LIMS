@@ -379,14 +379,18 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::get('/pengajuansolder', [PengajuanSolderController::class, 'index'])->name('pengajuansolder.index');
     Route::get('', 'index')->name('pengajuansolder');
     Route::get('create', 'create')->name('pengajuansolder.create');
+    Route::get('createe/{id}', 'createe')->name('pengajuansolder.createe');
     Route::post('store', 'store')->name('pengajuansolder.store');
     Route::get('show/{id}', 'show')->name('pengajuansolder.show'); 
     Route::get('edit/{id}', 'edit')->name('pengajuansolder.edit');
     Route::put('edit/{id}', 'update')->name('pengajuansolder.update');
+    Route::put('createe/{id}', 'update')->name('pengajuansolder.update');
     Route::delete('destroy/{id}', 'destroy')->name('pengajuansolder.destroy');
     Route::get('/get-tipe-solder/{tipe_solder}', [DataSolderController::class, 'getTipeSolderDetail']);
     Route::get('/pengajuan-solder/{id}/print', [PengajuanSolderController::class, 'print'])->name('pengajuansolder.print');   
     Route::get('/pengajuansolder/export-excel', [PengajuanSolderController::class, 'exportToExcel'])->name('pengajuansolder.export-excel');
+    
+    Route::get('/get-tipe-solder/{categoryId}', [PengajuanSolderController::class, 'getTipeSolderByCategory']);
 
     //coa
     Route::get('lokal/{id}', 'lokal')->name('pengajuansolder.lokal');
@@ -508,6 +512,7 @@ Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical
     Route::get('/pengajuanchemical', [PengajuanChemicalController::class, 'index'])->name('pengajuanchemical.index');
     Route::get('', 'index')->name('pengajuanchemical');
     Route::get('create', 'create')->name('pengajuanchemical.create');
+    Route::get('createe/{id}', 'createe')->name('pengajuanchemical.createe');
     Route::post('store', 'store')->name('pengajuanchemical.store');
     Route::get('show/{id}', 'show')->name('pengajuanchemical.show');
     Route::get('edit/{id}', 'edit')->name('pengajuanchemical.edit');
@@ -520,9 +525,10 @@ Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical
     Route::get('expor/{id}', 'expor')->name('pengajuanchemical.expor');
     Route::get('/pengajuanchemical/printlokal/{id}', [PengajuanChemicalController::class, 'printlokal'])->name('pengajuanchemical.printlokal');
 
+    Route::post('/pengajuanchemical/tolak/{id}', [PengajuanChemicalController::class, 'tolakReviewHasil'])->name('pengajuanchemical.tolak');
 
 
-   
+
     Route::get('/get-names/{kategori}', [PengajuanChemicalController::class, 'getNamesByCategory']);
     Route::post('/pengajuanchemical/pengajuan/{id}', [PengajuanChemicalController::class, 'pengajuan'])->name('pengajuanchemical.pengajuan');
     Route::post('/pengajuanchemical/proses-analisa/{id}', [PengajuanChemicalController::class, 'prosesAnalisa'])->name('pengajuanchemical.proses-analisa');

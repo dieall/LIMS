@@ -143,7 +143,7 @@
         </table>
     </div>
 </div>
-<table class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-hover" id="data-table" style="display: none;">
     <thead class="thead-dark">
         <tr>
             <th class="text-center">Nama Unsur</th>

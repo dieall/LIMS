@@ -18,9 +18,8 @@ class PengajuanChemicalController extends Controller
     
     public function index(Request $request)
     {
-        // Ambil parameter filter dan jumlah data per halaman
-        $filter = $request->get('filter', 'all'); // Default filter: 'all'
-        $pageSize = $request->get('page_size', 10); // Default jumlah data per halaman: 10
+        $filter = $request->get('filter', 'all');
+        $pageSize = $request->get('page_size', 10);
     
         // Query dasar
         $query = PengajuanChemical::query();
@@ -29,14 +28,18 @@ class PengajuanChemicalController extends Controller
         if ($filter === 'today') {
             $query->whereDate('created_at', Carbon::today());
         } elseif ($filter === 'this_month') {
-            // Filter berdasarkan bulan dan tahun saat ini
             $query->whereMonth('created_at', Carbon::now()->month)
                   ->whereYear('created_at', Carbon::now()->year);
         }
+    
         // Ambil data dengan pagination
         $pengajuanchemical = $query->orderBy('created_at', 'ASC')->paginate($pageSize);
     
-        // Tambahkan parameter ke pagination
+        // Debugging: pastikan data ada
+        if ($pengajuanchemical->isEmpty()) {
+            return view('pengajuanchemical.index')->with('error', 'Data tidak ditemukan.');
+        }
+    
         $pengajuanchemical->appends([
             'filter' => $filter,
             'page_size' => $pageSize,
@@ -45,7 +48,6 @@ class PengajuanChemicalController extends Controller
         return view('pengajuanchemical.index', compact('pengajuanchemical'));
     }
     
-
 
     public function create()
     {
@@ -68,6 +70,46 @@ class PengajuanChemicalController extends Controller
     
         return view('pengajuanchemical.create', compact('datachemical', 'datasolder1', 'datasolder2', 'datasolder3', 'transaksi'));
     }
+    
+    public function createe($id = null)
+    {
+        $pengajuanchemical = null;
+    
+        if ($id) {
+            $pengajuanchemical = PengajuanChemical::findOrFail($id);
+        }
+    
+        $datachemical = PengajuanChemical::select('nama_chemical')->distinct()->get();
+        $datasolder = PengajuanChemical::whereIn('nama_chemical', ['DMT', 'Tinstab', 'Tinchem'])->get();
+    
+        $today = Carbon::today(); // Mengambil tanggal hari ini
+    
+        // Pastikan orderBy digunakan sebelum get(), bukan setelahnya
+        $transaksi = PengajuanChemical::select('id', 'nama', 'nama_chemical', 'created_at', 'orang', 'batch', 'desc')
+            ->whereDate('created_at', $today) // Filter transaksi hari ini
+            ->orderBy('created_at', 'DESC') // Urutkan berdasarkan tanggal
+            ->get();
+    
+        $datasolder1 = PengajuanChemical::where('nama_chemical', 'DMT')->get();
+        $datasolder2 = PengajuanChemical::where('nama_chemical', 'Tinstab')->get();
+        $datasolder3 = PengajuanChemical::where('nama_chemical', 'Tinchem')->get();
+        $datasolder4 = PengajuanChemical::where('nama', 'like', 'DMTDCL-%')->get();
+    
+        $all_chemical_specs = DB::table('tbc_chemical')->get();
+    
+        return view('pengajuanchemical.createe', compact(
+            'pengajuanchemical',
+            'datachemical', 
+            'datasolder1', 
+            'datasolder2', 
+            'datasolder3', 
+            'datasolder4', 
+            'transaksi', 
+            'datasolder',
+            'all_chemical_specs'
+        ));
+    }
+    
     
     
     
@@ -161,20 +203,54 @@ class PengajuanChemicalController extends Controller
         return redirect()->route('pengajuanchemical.index')->with('success', 'Data Pengajuan Chemical berhasil disimpan.');
     }
 
-    public function edit(string $id)
-    {
-        $pengajuanchemical = PengajuanChemical::findOrFail($id);
-    
-        return view('pengajuanchemical.edit', compact('pengajuanchemical'));
-    }
-    public function update(Request $request, string $id)
-    {
-        $pengajuanchemical = PengajuanChemical::findOrFail($id);
-
-        $pengajuanchemical->update($request->all());
-
-        return redirect()->route('pengajuanchemical')->with('success', 'Pengajuan Chemical updated successfully');
-    }
+        public function edit(string $id)
+        {
+            $pengajuanchemical = PengajuanChemical::findOrFail($id);
+        
+            return view('pengajuanchemical.edit', compact('pengajuanchemical'));
+        }
+        public function update(Request $request, $id)
+        {
+            // Find the chemical record to update
+            $pengajuanchemical = PengajuanChemical::findOrFail($id);
+            
+            // Update basic fields
+            $pengajuanchemical->nama_chemical = $request->input('nama_chemical');
+            $pengajuanchemical->nama = $request->input('nama');
+            $pengajuanchemical->batch = $request->input('batch');
+            $pengajuanchemical->desc = $request->input('desc');
+            $pengajuanchemical->orang = $request->input('orang');
+            $pengajuanchemical->tgl = $request->input('tgl');
+            
+            // Process chemical fields and their statuses
+            if ($request->has('fields')) {
+                foreach ($request->input('fields') as $field => $value) {
+                    // Check if this field exists in our table schema
+                    if (in_array($field, [
+                        'clarity', 'transmission', 'ape', 'dimet', 'trime', 'tin', 'solid', 
+                        'ri', 'sg', 'acid', 'sulfur', 'water', 'mono', 'yellow', 'eh', 
+                        'visco', 'pt', 'moisture', 'cloride', 'spec', 'densi'
+                    ])) {
+                        // Update this field
+                        $pengajuanchemical->$field = $value;
+                        
+                        // Update corresponding status field
+                        $statusField = $field . '_status';
+                        if ($request->has($statusField)) {
+                            $pengajuanchemical->$statusField = $request->input($statusField);
+                        }
+                    }
+                }
+            }
+            
+            // Save all changes
+            $pengajuanchemical->save();
+            
+            // Redirect back with success message
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'Data chemical berhasil diperbarui');
+        }
+        
     public function show($id)
     {
         // Mencari data pengajuan chemical berdasarkan ID
@@ -235,47 +311,51 @@ class PengajuanChemicalController extends Controller
     
         return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Pengajuan');
     }
-    
     public function prosesAnalisa($id)
     {
         $data = PengajuanChemical::findOrFail($id);
-    
-        // Cek apakah status ini sudah pernah disimpan di status_histories
+        
+        // Check if we already have a "Proses Analisa" status record
         $existingHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
             ->where('status', 'Proses Analisa')
             ->first();
     
-        if (!$existingHistory) {
-            // Simpan status Proses Analisa ke status_histories
-            $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
-                ->orderBy('changed_at', 'desc')
-                ->first();
+        // If this is the second or later attempt to process analysis
+        if ($existingHistory) {
+            // Redirect to the createe route for continued analysis
+            return redirect()->route('pengajuanchemical.createe', $data->id);
+        }
+        
+        // First time processing - create history record
+        $previousHistory = StatusHistory::where('pengajuan_chemical_id', $data->id)
+            ->orderBy('changed_at', 'desc')
+            ->first();
     
-            // Hitung interval waktu jika ada history sebelumnya
-            $interval = '-';
-            if ($previousHistory) {
-                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
-                $currentChangedAt = Carbon::now();
-                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
-            }
-    
-            StatusHistory::create([
-                'pengajuan_chemical_id' => $data->id,
-                'status' => 'Proses Analisa',
-                'changed_at' => Carbon::now(),
-                'user_id' => auth()->user()->id,
-                'user_name' => ucwords(auth()->user()->name),
-                'interval' => $interval,
-            ]);
+        // Calculate time interval if there's previous history
+        $interval = '-';
+        if ($previousHistory) {
+            $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+            $currentChangedAt = Carbon::now();
+            $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
         }
     
-        // Ubah status menjadi "Proses Analisa"
+        StatusHistory::create([
+            'pengajuan_chemical_id' => $data->id,
+            'status' => 'Proses Analisa',
+            'changed_at' => Carbon::now(),
+            'user_id' => auth()->user()->id,
+            'user_name' => ucwords(auth()->user()->name),
+            'interval' => $interval,
+        ]);
+    
+        // Update the record status
         $data->status = 'Proses Analisa';
         $data->jam_masuk = Carbon::now();
         $data->save();
     
         return redirect()->route('pengajuanchemical.show', $data->id)->with('success', 'Status berhasil diubah menjadi Proses Analisa');
     }
+    
     
     public function analisaSelesai($id)
     {

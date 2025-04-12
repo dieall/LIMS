@@ -13,8 +13,32 @@ use carbon\Carbon;
 class DataThermoController extends Controller
 {
     // Menampilkan data Thermo
-    public function index()
+    public function index(request $request)
     {
+        $filter = $request->get('filter', 'all'); // Default filter: 'all'
+        $pageSize = $request->get('page_size', 10); // Default jumlah data per halaman: 10
+    
+        $query = DataThermo::query(); // Mulai query
+    
+        // Filter berdasarkan waktu
+        if ($filter === 'today') {
+            $query->whereDate('created_at', Carbon::today()); // Data hari ini
+        } elseif ($filter === 'this_month') {
+            // Filter berdasarkan bulan dan tahun saat ini
+            $query->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year); // Data bulan ini
+        }
+    
+        // Ambil data sesuai dengan filter dan jumlah data per halaman
+        $datathermo = $query->orderBy('created_at', 'ASC') // Urutkan berdasarkan tanggal
+                              ->paginate($pageSize); // Paginasi
+    
+        // Menambahkan filter dan page_size ke pagination links
+        $datathermo->appends([
+            'filter' => $filter,
+            'page_size' => $pageSize,
+        ]);
+        
         $datathermo = DataThermo::all();
         return view('datathermo.index', compact('datathermo'));
     }

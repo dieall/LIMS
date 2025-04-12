@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ThermoData extends Model
 {
     // Menentukan nama tabel
-    protected $table = 'tb_thermo';
+    protected $table = 'thermo_data';
 
     // Menentukan kolom yang bisa diisi
     protected $fillable = ['nama_thermo'];

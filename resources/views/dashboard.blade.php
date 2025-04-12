@@ -5,72 +5,69 @@
 @section('contents')
 
 <style>
-/* Modal background */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    padding-top: 60px;
-}
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
 
-/* Konten Modal */
-.modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 1200px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 1200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
 
-/* Tombol Close */
-.close-btn {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    position: absolute;
-    top: 10px;
-    right: 25px;
-}
+    .close-btn {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 25px;
+        cursor: pointer;
+    }
 
-.close-btn:hover,
-.close-btn:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+    .close-btn:hover,
+    .close-btn:focus {
+        color: black;
+        text-decoration: none;
+    }
 
-/* Table style inside modal */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th, .table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-.table th {
-    background-color: #f2f2f2;
-}
-
-/* Modal Title */
-#modalTitle {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 20px;
-    font-weight: bold;
-}
+    #modalTitle {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    /* Card animations */
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Badge styling */
+    .badge {
+        font-size: 85%;
+    }
 </style>
 
 
@@ -516,8 +513,8 @@
                         label: "Total Pengajuan",
                         fill: true, // Aktifkan area di bawah garis
                         backgroundColor: gradient, // Gradient untuk area
-                        borderColor: "rgba(54, 162, 235, 1)", // Warna garis biru
-                        pointBackgroundColor: "rgba(54, 162, 235, 1)", // Warna titik
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        pointBackgroundColor: "rgba(54, 162, 235, 1)",
                         pointBorderColor: "#fff", // Warna border titik
                         data: @json($totalMonthlyData) // Ambil data total dari controller
                     }
@@ -821,51 +818,50 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <script>
-// Fungsi untuk membuka modal
-function openModal() {
-    document.getElementById('statusHistoryModal').style.display = 'block';  // Tampilkan modal
-}
+<script>
+    // Modal functions
+    function openModal() {
+        document.getElementById('statusHistoryModal').style.display = 'block';
+    }
 
-// Fungsi untuk menutup modal
-function closeModal() {
-    document.getElementById('statusHistoryModal').style.display = 'none';  // Sembunyikan modal
-}
+    function closeModal() {
+        document.getElementById('statusHistoryModal').style.display = 'none';
+    }
 
-// Fungsi untuk mengambil data dan menampilkan detail di modal
-function viewDetail(solder_id) {
-    fetch(/getStatusHistory?solder_id=${solder_id})
-        .then(response => response.json())
-        .then(data => {
-            let historyList = "";
-            // Menggabungkan semua status terkait pengajuan solder dalam satu modal
-            data.forEach(item => {
-                historyList += `
-                    <div class="status-entry">
-                        <div class="status-detail">
-                            <strong>Status:</strong> ${item.status || 'Unknown'}
+    function viewDetail(solder_id) {
+        fetch(`/getStatusHistory?solder_id=${solder_id}`)
+            .then(response => response.json())
+            .then(data => {
+                let historyList = "";
+                
+                data.forEach(item => {
+                    historyList += `
+                        <div class="status-entry card mb-3">
+                            <div class="card-body">
+                                <p><strong>Status:</strong> ${item.status || 'Unknown'}</p>
+                                <p><strong>Waktu Perubahan:</strong> ${item.changed_at || 'Unknown'}</p>
+                                <p><strong>Nama Pengguna:</strong> ${item.user ? item.user.name : 'Unknown'}</p>
+                                <p><strong>Interval Waktu:</strong> ${item.interval || 'Unknown'}</p>
+                                <p><strong>Nama Pengaju:</strong> ${item.pengajuan_solder ? item.pengajuan_solder.nama : 'Unknown'}</p>
+                            </div>
                         </div>
-                        <div class="status-detail">
-                            <strong>Waktu Perubahan:</strong> ${item.changed_at || 'Unknown'}
-                        </div>
-                        <div class="status-detail">
-                            <strong>Nama Pengguna:</strong> ${item.user ? item.user.name : 'Unknown'}
-                        </div>
-                        <div class="status-detail">
-                            <strong>Interval Waktu:</strong> ${item.interval || 'Unknown'}
-                        </div>
-                        <div class="status-detail">
-                            <strong>Nama Pengaju:</strong> ${item.pengajuan_solder ? item.pengajuan_solder.nama : 'Unknown'}
-                        </div>
-                    </div>
-                `;
+                    `;
+                });
+                
+                document.getElementById('historyDetails').innerHTML = historyList;
+                openModal();
+            })
+            .catch(error => {
+                console.error('Error fetching status history:', error);
             });
-            document.getElementById('historyDetails').innerHTML = historyList;
-            openModal();  // Menampilkan modal
-        })
-        .catch(error => {
-            console.error('Error fetching status history:', error);
-        });
-}
+    }
 
-
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('statusHistoryModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+</script>
 </script>
