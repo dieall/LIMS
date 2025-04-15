@@ -46,10 +46,10 @@
                         </div>
                         
                         <div class="d-flex mb-2">
-                            <div class="text-info" style="width: 30px;"><i class="fas fa-user fa-fw"></i></div>
-                            <div style="width: 150px;"><strong>Operator</strong></div>
-                            <div>: {{ $instrument->user->name ?? 'N/A' }}</div>
-                        </div>
+                        <div class="text-info" style="width: 30px;"><i class="fas fa-user fa-fw"></i></div>
+                        <div style="width: 150px;"><strong>Operator</strong></div>
+                        <div>: {{ $instrument->nama }}</div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -155,12 +155,7 @@
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
                 
-                <!-- Add other action buttons if needed -->
-                @if(Auth::check() && (Auth::user()->level === 'Admin' || Auth::user()->id === $instrument->user_id))
-                    <a href="{{ route('instruments.edit', $instrument->id) }}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                @endif
+
             </div>
         </div>
     </div>

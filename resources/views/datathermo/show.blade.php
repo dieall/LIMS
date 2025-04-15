@@ -46,9 +46,9 @@
 <div class="panel-body">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('datathermo') }}">Data Thermohygrometer</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Detail Data Thermohygrometer</li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home me-1"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('datathermo') }}"><i class="fas fa-thermometer-half me-1"></i> Data Thermohygrometer</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-info-circle me-1"></i> Detail Data</li>
         </ol>
     </nav>
 </div>
@@ -70,7 +70,7 @@
                         <div class="d-flex mb-2">
                             <div class="icon-container"><i class="fas fa-user fa-fw"></i></div>
                             <div style="width: 120px;"><strong>Operator</strong></div>
-                            <div>: {{ $datathermo->user->name ?? 'N/A' }}</div>
+                            <div>: {{ $datathermo->nama }}</div>
                         </div>
                         
                         <div class="d-flex mb-2">
@@ -185,7 +185,7 @@
                     <i class="fas fa-arrow-left me-1"></i> Kembali
                 </a>
                 
-                @if(Auth::check() && (Auth::user()->level === 'Admin' || Auth::user()->id === $datathermo->user_id))
+                @if(Auth::check() && (Auth::user()->level === 'Admin' || Auth::user()->name === $datathermo->nama))
                     <a href="{{ route('datathermo.edit', $datathermo->id) }}" class="btn btn-warning">
                         <i class="fas fa-edit me-1"></i> Edit Data
                     </a>

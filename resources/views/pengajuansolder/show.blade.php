@@ -47,6 +47,10 @@
                         <td>{{ $pengajuansolder->audit_trail ?? '-' }}</td>
                     </tr>
                     <tr>
+                        <th>Deskripsi</th>
+                        <td>{{ $pengajuansolder->deskripsi ?? '-' }}</td>
+                    </tr>
+                    <tr>
                         <th>Status</th>
                         <td>
                             @if ($pengajuansolder->status == 'Pengajuan')

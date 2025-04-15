@@ -33,19 +33,16 @@ class PengajuanChemicalController extends Controller
         }
     
         // Ambil data dengan pagination
-        $pengajuanchemical = $query->orderBy('created_at', 'ASC')->paginate($pageSize);
+        $pengajuanchemical = $query->orderBy('created_at', 'DESC')->paginate($pageSize); // Changed to DESC for newest first
     
-        // Debugging: pastikan data ada
-        if ($pengajuanchemical->isEmpty()) {
-            return view('pengajuanchemical.index')->with('error', 'Data tidak ditemukan.');
-        }
-    
+        // Apply pagination parameters
         $pengajuanchemical->appends([
             'filter' => $filter,
             'page_size' => $pageSize,
         ]);
     
-        return view('pengajuanchemical.index', compact('pengajuanchemical'));
+        // Always return the view with the pengajuanchemical variable, even if empty
+        return view('pengajuanchemical.index', compact('pengajuanchemical', 'filter'));
     }
     
 

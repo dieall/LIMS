@@ -145,8 +145,8 @@
                     <h5 class="card-title">Jumlah Pengajuan Data Rawmat</h5>
                 </div>
                 <div class="col-auto">
-                    <div class="stat text-warning">
-                        <i class="align-middle" data-feather="plus-circle"></i> <!-- Ikon untuk data masuk -->
+                <div class="stat text-success">
+                        <i class="align-middle" data-feather="check-circle"></i>
                     </div>
                 </div>
             </div>
@@ -354,7 +354,7 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th>Nama</th>
-                            <th>Interval</th>
+                            <th>Rata Rata</th>
                             <th>Jumlah Sampel</th>
                         </tr>
                     </thead>
@@ -410,7 +410,7 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th>Nama</th>
-                            <th>Interval</th>
+                            <th>Rata Rata</th>
                             <th>Jumlah Sampel</th>
                         </tr>
                     </thead>
@@ -430,42 +430,6 @@
     </div>
 </div>
 
-
-
-<div class="col-12 col-lg-12">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title">Data Laboratorium Yang Telah Melakukan Analisa Selesai</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center">No</th>
-                            <th>Nama</th>
-                            <th>Interval</th>
-                            <th>Jumlah Sampel</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($groupedHistories as $userName => $histories)
-                            <tr>
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>{{ $userName }}</td>
-                                <td>{{ $histories->first()->totalInterval ?? 'N/A' }}</td> <!-- Menampilkan total interval -->
-                                <td>{{ $histories->first()->totalSampel ?? 0 }}</td> <!-- Menampilkan total jumlah sampel -->
-                                </td>
-
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 @endsection

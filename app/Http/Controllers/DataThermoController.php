@@ -7,146 +7,194 @@ use Illuminate\Http\Request;
 use App\Models\DataThermo;
 use App\Models\ThermoData;
 use App\Models\User;
-use carbon\Carbon;
-
+use Carbon\Carbon;
 
 class DataThermoController extends Controller
 {
     // Menampilkan data Thermo
-    public function index(request $request)
+    public function index(Request $request)
     {
-        $filter = $request->get('filter', 'all'); // Default filter: 'all'
-        $pageSize = $request->get('page_size', 10); // Default jumlah data per halaman: 10
+        $filter = $request->get('filter', 'all');
+        $pageSize = $request->get('page_size', 10);
     
-        $query = DataThermo::query(); // Mulai query
+        $query = DataThermo::query(); // Removed eager loading of user relation
     
         // Filter berdasarkan waktu
         if ($filter === 'today') {
-            $query->whereDate('created_at', Carbon::today()); // Data hari ini
+            $query->whereDate('tgl', Carbon::today());
         } elseif ($filter === 'this_month') {
-            // Filter berdasarkan bulan dan tahun saat ini
-            $query->whereMonth('created_at', Carbon::now()->month)
-                  ->whereYear('created_at', Carbon::now()->year); // Data bulan ini
+            $query->whereMonth('tgl', Carbon::now()->month)
+                  ->whereYear('tgl', Carbon::now()->year);
         }
     
         // Ambil data sesuai dengan filter dan jumlah data per halaman
-        $datathermo = $query->orderBy('created_at', 'ASC') // Urutkan berdasarkan tanggal
-                              ->paginate($pageSize); // Paginasi
+        $datathermo = $query->orderBy('tgl', 'DESC')
+                            ->orderBy('waktu', 'DESC')
+                            ->paginate($pageSize);
     
         // Menambahkan filter dan page_size ke pagination links
         $datathermo->appends([
             'filter' => $filter,
             'page_size' => $pageSize,
         ]);
-        
-        $datathermo = DataThermo::all();
-        return view('datathermo.index', compact('datathermo'));
+    
+        return view('datathermo.index', compact('datathermo', 'filter', 'pageSize'));
     }
 
     // Menampilkan form untuk membuat data Thermo baru
     public function create()
     {
-        // Ambil pengguna berdasarkan level tertentu
-        $users = User::where('level', 'Operator Lab')->get(); // Mengambil pengguna dengan level 'operator_lab'
+        // Optional: Get users for name suggestions
+        $users = User::where('level', 'Operator Lab')->get();
     
-        // Ambil data thermodata
+        // Get thermodata - FIXED: removed orderBy('nama_lokasi')
         $thermodata = ThermoData::all();
     
-        // Kirimkan data ke view
         return view('datathermo.create', compact('users', 'thermodata'));
     }
     
-
-   
+    // Menyimpan data Thermo baru
     public function store(Request $request)
     {
-        // Validasi data input
-        $request->validate([
-            'tgl' => 'required|date_format:Y-m-d',  // Validasi untuk tanggal
+        // Validasi data input - changed user_id to nama
+        $validated = $request->validate([
+            'tgl' => 'required|date_format:Y-m-d',
             'waktu' => 'required|date_format:H:i',
             'nama_thermo' => 'required|array',
             'suhu' => 'required|array',
-            'kelembapan' => 'nullable|array',
-            'user_id' => 'required|exists:users,id',
+            'kelembapan' => 'required|array',
+            'nama' => 'required|string|max:100', // Changed from user_id
         ]);
     
-        // Membuat instance baru dari model datathermo
-        $datathermo = new DataThermo();
-    
-        // Menyimpan data instrumen dan data tambahan
-        $datathermo->user_id = $request->input('user_id');
-        $datathermo->nama_thermo = json_encode($request->input('nama_thermo')); // Menggunakan json_encode untuk array
-        $datathermo->suhu = json_encode($request->input('suhu')); // Menggunakan json_encode untuk array suhu
-        $datathermo->kelembapan = json_encode($request->input('kelembapan') ?? []); // Menggunakan json_encode untuk array kelembapan
-    
-        // Menyimpan data tambahan
-        $datathermo->tgl = Carbon::createFromFormat('Y-m-d', $request->input('tgl'))->format('Y-m-d'); // Convert to correct format
-        $datathermo->waktu = $request->input('waktu');
-    
-        // Menyimpan data ke database
-        $datathermo->save();
-    
-        // Redirect ke halaman daftar instrumen setelah data disimpan
-        return redirect()->route('datathermo')->with('success', 'DataThermo berhasil ditambahkan!');
+        try {
+            // Membuat instance baru dari model datathermo
+            $datathermo = new DataThermo();
+        
+            // Menyimpan data - changed user_id to nama
+            $datathermo->nama = $validated['nama'];
+            $datathermo->nama_thermo = json_encode($validated['nama_thermo']);
+            $datathermo->suhu = json_encode($validated['suhu']);
+            $datathermo->kelembapan = json_encode($validated['kelembapan']);
+        
+            // Menyimpan data tambahan
+            $datathermo->tgl = $validated['tgl'];
+            $datathermo->waktu = $validated['waktu'];
+        
+            // Menyimpan data ke database
+            $datathermo->save();
+        
+            return redirect()->route('datathermo')->with('success', 'Data thermohygrometer berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage())->withInput();
+        }
     }
-    
 
     // Menampilkan detail data Thermo
     public function show($id)
     {
-        // Ambil data instrumen berdasarkan ID
-        $datathermo = DataThermo::findOrFail($id);
-    
-        // Decode JSON fields
-        $nama_thermo = json_decode($datathermo->nama_thermo, true) ?? [];
-        $suhu = json_decode($datathermo->suhu, true) ?? [];
-        $kelembapan = json_decode($datathermo->kelembapan, true) ?? [];
-    
-        // Menentukan panjang maksimal dari array untuk memastikan loop berfungsi
-        $maxLength = max(count($nama_thermo), count($suhu), count($kelembapan));
-    
-        // Mengirimkan data ke view
-        return view('datathermo.show', compact('datathermo', 'nama_thermo', 'suhu', 'kelembapan', 'maxLength'));
+        try {
+            // Ambil data thermo berdasarkan ID - removed user relation
+            $datathermo = DataThermo::findOrFail($id);
+        
+            // Decode JSON fields dengan error handling
+            try {
+                $nama_thermo = json_decode($datathermo->nama_thermo, true);
+                $suhu = json_decode($datathermo->suhu, true);
+                $kelembapan = json_decode($datathermo->kelembapan, true);
+                
+                $nama_thermo = is_array($nama_thermo) ? $nama_thermo : [];
+                $suhu = is_array($suhu) ? $suhu : [];
+                $kelembapan = is_array($kelembapan) ? $kelembapan : [];
+            } catch (\Exception $e) {
+                return redirect()->route('datathermo')
+                    ->with('error', 'Data thermohygrometer tidak valid: ' . $e->getMessage());
+            }
+        
+            // Menentukan panjang maksimal array
+            $maxLength = max(count($nama_thermo), count($suhu), count($kelembapan));
+            
+            if ($maxLength === 0) {
+                return redirect()->route('datathermo')
+                    ->with('error', 'Data pengukuran thermohygrometer kosong atau tidak valid.');
+            }
+        
+            // Mengirimkan data ke view
+            return view('datathermo.show', compact('datathermo', 'nama_thermo', 'suhu', 'kelembapan', 'maxLength'));
+        } catch (\Exception $e) {
+            return redirect()->route('datathermo')
+                ->with('error', 'Data tidak ditemukan: ' . $e->getMessage());
+        }
     }
 
     // Menampilkan form untuk mengedit data Thermo
     public function edit($id)
     {
-        $dataThermo = DataThermo::findOrFail($id);
-        return view('datathermo.edit', compact('dataThermo'));
+        try {
+            // Removed user relation
+            $dataThermo = DataThermo::findOrFail($id);
+            
+            // Still getting users for dropdown suggestions (optional)
+            $users = User::where('level', 'Operator Lab')->get();
+            
+            return view('datathermo.edit', compact('dataThermo', 'users'));
+        } catch (\Exception $e) {
+            return redirect()->route('datathermo')
+                ->with('error', 'Data tidak ditemukan: ' . $e->getMessage());
+        }
     }
 
     // Mengupdate data Thermo
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'tgl' => 'required|date',
-            'waktu' => 'required|time',
-            'nama_thermo' => 'required|string|max:255',
-            'suhu' => 'required|string|max:25',
-            'kelembapan' => 'required|string|max:25',
-            'user_id' => 'required|integer|exists:users,id',
+        // Validasi data input - changed user_id to nama
+        $validated = $request->validate([
+            'tgl' => 'required|date_format:Y-m-d',
+            'waktu' => 'required|date_format:H:i',
+            'nama_thermo' => 'required|array',
+            'suhu' => 'required|array',
+            'kelembapan' => 'required|array',
+            'nama' => 'required|string|max:100', // Changed from user_id
         ]);
 
-        $dataThermo = DataThermo::findOrFail($id);
-        $dataThermo->update([
-            'tgl' => $request->tgl,
-            'waktu' => $request->waktu,
-            'nama_thermo' => $request->nama_thermo,
-            'suhu' => $request->suhu,
-            'kelembapan' => $request->kelembapan,
-            'user_id' => $request->user_id,
-        ]);
+        try {
+            $dataThermo = DataThermo::findOrFail($id);
+            
+            // Update data thermohygrometer - changed user_id to nama
+            $dataThermo->nama = $validated['nama'];
+            $dataThermo->tgl = $validated['tgl'];
+            $dataThermo->waktu = $validated['waktu'];
+            $dataThermo->nama_thermo = json_encode($validated['nama_thermo']);
+            $dataThermo->suhu = json_encode($validated['suhu']);
+            $dataThermo->kelembapan = json_encode($validated['kelembapan']);
+            
+            $dataThermo->save();
 
-        return redirect()->route('datathermo.index')->with('success', 'Data Thermo berhasil diupdate');
+            return redirect()->route('datathermo')->with('success', 'Data thermohygrometer berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui data: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     // Menghapus data Thermo
     public function destroy($id)
     {
-        $dataThermo = DataThermo::findOrFail($id);
-        $dataThermo->delete();
+        try {
+            $dataThermo = DataThermo::findOrFail($id);
+            
+            // Check permissions based on nama rather than user_id
+            if (auth()->user()->level !== 'Admin' && auth()->user()->name !== $dataThermo->nama) {
+                return redirect()->back()
+                    ->with('error', 'Anda tidak memiliki izin untuk menghapus data ini.');
+            }
+            
+            $dataThermo->delete();
 
-        return redirect()->route('datathermo.index')->with('success', 'Data Thermo berhasil dihapus');
+            return redirect()->route('datathermo')->with('success', 'Data thermohygrometer berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 }

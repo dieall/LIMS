@@ -65,15 +65,51 @@ class DataIntervalController extends Controller
             // Calculate total interval time
             list($hours, $minutes) = $this->calculateTotalInterval($statusHistories);
             
-            return view('datainterval.show', compact(
-                'user', 
-                'solderData', 
-                'chemicalData', 
-                'hours', 
-                'minutes', 
-                'selectedMonth'
-            ));
-            
+// Calculate average intervals by category
+$solderCount = $solderData->count();
+$chemicalCount = $chemicalData->count();
+$totalSamples = $solderCount + $chemicalCount;
+
+// Calculate average minutes per solder sample
+$avgSolderMinutes = 0;
+if ($solderCount > 0) {
+    $solderMinutes = 0;
+    foreach ($solderData as $data) {
+        $solderMinutes += floatval($data->interval);
+    }
+    $avgSolderMinutes = round($solderCount > 0 ? $solderMinutes / $solderCount : 0);
+}
+
+// Calculate average minutes per chemical sample
+$avgChemicalMinutes = 0;
+if ($chemicalCount > 0) {
+    $chemicalMinutes = 0;
+    foreach ($chemicalData as $data) {
+        $chemicalMinutes += floatval($data->interval);
+    }
+    $avgChemicalMinutes = round($chemicalCount > 0 ? $chemicalMinutes / $chemicalCount : 0);
+}
+
+// Calculate overall average minutes per sample
+$avgOverallMinutes = 0;
+if ($totalSamples > 0) {
+    $totalMinutes = ($hours * 60) + $minutes;
+    $avgOverallMinutes = round($totalMinutes / $totalSamples);
+}
+
+// Add averages to view data
+return view('datainterval.show', compact(
+    'user', 
+    'solderData', 
+    'chemicalData', 
+    'hours', 
+    'minutes', 
+    'selectedMonth',
+    'avgSolderMinutes',
+    'avgChemicalMinutes',
+    'avgOverallMinutes'
+));
+
         } catch (\Exception $e) {
             return redirect()->route('datainterval')->with('error', 'Error: ' . $e->getMessage());
         }

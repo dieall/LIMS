@@ -143,6 +143,10 @@
                     <label for="nama" class="form-label">Nama</label>
                     <input type="text" name="nama" class="form-control" id="nama" placeholder="Masukkan nama MecL" value="{{ Auth::user()->name }}" required readonly>
                 </div>
+                <div class="col-md-12 mb-3">
+                    <label for="deskripsi" class="form-label">Deskripsi</label>
+                    <textarea name="deskripsi" class="form-control" id="deskripsi" placeholder="Masukkan deskripsi" required>{{ $pengajuansolder->deskripsi }}</textarea>
+                </div>
             </div>
 
             <!-- Hidden Fields -->

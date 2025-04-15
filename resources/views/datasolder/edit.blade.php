@@ -58,98 +58,98 @@
             </div>
 
             <div class="form-group row">
-                <label for="sn" class="col-md-3 col-form-label">SN</label>
+                <label for="sn" class="col-md-3 col-form-label">Sn</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="sn" name="sn" value="{{ old('sn', $datasolder->sn) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="ag" class="col-md-3 col-form-label">AG</label>
+                <label for="ag" class="col-md-3 col-form-label">Ag</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="ag" name="ag" value="{{ old('ag', $datasolder->ag) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="cu" class="col-md-3 col-form-label">CU</label>
+                <label for="cu" class="col-md-3 col-form-label">Cu</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="cu" name="cu" value="{{ old('cu', $datasolder->cu) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="pb" class="col-md-3 col-form-label">PB</label>
+                <label for="pb" class="col-md-3 col-form-label">Pb</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="pb" name="pb" value="{{ old('pb', $datasolder->pb) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="sb" class="col-md-3 col-form-label">SB</label>
+                <label for="sb" class="col-md-3 col-form-label">Sb</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="sb" name="sb" value="{{ old('sb', $datasolder->sb) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="zn" class="col-md-3 col-form-label">ZN</label>
+                <label for="zn" class="col-md-3 col-form-label">Zn</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="zn" name="zn" value="{{ old('zn', $datasolder->zn) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="fe" class="col-md-3 col-form-label">FE</label>
+                <label for="fe" class="col-md-3 col-form-label">Fe</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="fe" name="fe" value="{{ old('fe', $datasolder->fe) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="as" class="col-md-3 col-form-label">AS</label>
+                <label for="as" class="col-md-3 col-form-label">As</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="as" name="as" value="{{ old('as', $datasolder->as) }}" required>
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="ni" class="col-md-3 col-form-label">NI</label>
+                <label for="ni" class="col-md-3 col-form-label">Ni</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="ni" name="ni" value="{{ old('ni', $datasolder->ni) }}">
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="bi" class="col-md-3 col-form-label">BI</label>
+                <label for="bi" class="col-md-3 col-form-label">Bi</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="bi" name="bi" value="{{ old('bi', $datasolder->bi) }}">
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="cd" class="col-md-3 col-form-label">CD</label>
+                <label for="cd" class="col-md-3 col-form-label">Cd</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="cd" name="cd" value="{{ old('cd', $datasolder->cd) }}">
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="ai" class="col-md-3 col-form-label">AI</label>
+                <label for="ai" class="col-md-3 col-form-label">Ai</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="ai" name="ai" value="{{ old('ai', $datasolder->ai) }}">
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="pe" class="col-md-3 col-form-label">PE</label>
+                <label for="pe" class="col-md-3 col-form-label">Pe</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="pe" name="pe" value="{{ old('pe', $datasolder->pe) }}">
                 </div>
             </div>
 
             <div class="form-group row">
-                <label for="ga" class="col-md-3 col-form-label">GA</label>
+                <label for="ga" class="col-md-3 col-form-label">Ga</label>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="ga" name="ga" value="{{ old('ga', $datasolder->ga) }}">
                 </div>

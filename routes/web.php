@@ -301,7 +301,10 @@ Route::controller(InstrumentController::class)->prefix('instruments')->group(fun
     Route::get('show/{id}', 'show')->name('instrument.show'); 
     Route::get('create', 'create')->name('instrument.create');
     Route::post('store', 'store')->name('instrument.store');
+    Route::get('/instrument/{id}/edit', [InstrumentController::class, 'edit'])->name('instrument.edit');
 
+    Route::put('edit/{id}', 'update')->name('instrument.update');
+    Route::delete('destroy/{id}', 'destroy')->name('instrument.destroy');
 });
 
 
@@ -481,10 +484,10 @@ Route::controller(DataThermoController::class)->prefix('datathermo')->group(func
     Route::get('', 'index')->name('datathermo');
     Route::get('create', 'create')->name('datathermo.create');
     Route::post('store', 'store')->name('datathermo.store');
-    Route::get('show/{id_rawmat}', 'show')->name('datathermo.show');
-    Route::get('edit/{id_rawmat}', 'edit')->name('datathermo.edit');
-    Route::put('edit/{id_rawmat}', 'update')->name('datathermo.update');
-    Route::delete('destroy/{id_rawmat}', 'destroy')->name('datathermo.destroy');
+    Route::get('show/{id}', 'show')->name('datathermo.show');
+    Route::get('edit/{idt}', 'edit')->name('datathermo.edit');
+    Route::put('edit/{id}', 'update')->name('datathermo.update');
+    Route::delete('destroy/{id}', 'destroy')->name('datathermo.destroy');
 
 
 

@@ -14,136 +14,160 @@ class PengajuanRawmatController extends Controller
     public function index(Request $request)
     {
         // Ambil parameter filter dan jumlah data per halaman
-        $filter = $request->get('filter', 'all'); // Default filter adalah 'all'
-        $pageSize = $request->get('page_size', 10); // Default jumlah data per halaman adalah 10
+        $filter = $request->get('filter', 'all');
+        $pageSize = $request->get('page_size', 10);
     
         // Query dasar
         $query = PengajuanRawmat::query();
     
         // Logika filter data
         if ($filter === 'today') {
-            $query->whereDate('created_at', Carbon::today());
+            $query->whereDate('tgl', Carbon::today());
         } elseif ($filter === 'this_month') {
             // Filter berdasarkan bulan dan tahun saat ini
-            $query->whereMonth('created_at', Carbon::now()->month)
-                  ->whereYear('created_at', Carbon::now()->year);
+            $query->whereMonth('tgl', Carbon::now()->month)
+                  ->whereYear('tgl', Carbon::now()->year);
         }
     
         // Paginasi dengan jumlah data per halaman
-        $pengajuanrawmat = $query->orderBy('created_at', 'ASC')->paginate($pageSize);
+        $pengajuanrawmat = $query->orderBy('created_at', 'DESC')->paginate($pageSize);
     
         // Kirim parameter tambahan ke view agar query string tetap dipertahankan
-        $pengajuanrawmat->appends([
-            'filter' => $filter,
-            'page_size' => $pageSize,
-        ]);
+        $pengajuanrawmat->appends(request()->all());
     
-        return view('pengajuanrawmat.index', compact('pengajuanrawmat'));
+        return view('pengajuanrawmat.index', compact('pengajuanrawmat', 'filter', 'pageSize'));
     }
 
     public function create() 
     {
         // Mengambil semua kategori
-
-        $datarawmat = DataRawmat::all(); 
+        $datarawmat = DataRawmat::orderBy('nama')->get(); 
         
-        // Ambil semua data dari tabel tc191
-    
-        return view('pengajuanrawmat.create', compact( 'datarawmat'));
+        return view('pengajuanrawmat.create', compact('datarawmat'));
     }
+    
     public function store(Request $request)
     {
         // Validasi data input
-        $request->validate([
+        $validated = $request->validate([
             'tgl' => 'required|date',
             'supplier' => 'required|string|max:255',
             'nama' => 'required|string|max:255',
-            'spesifikasi' => 'required|array',  // Validasi array spesifikasi
-            'satuan' => 'required|array',        // Validasi array satuan
-            'coa' => 'required|array',           // Validasi array coa
-            'result' => 'required|array',        // Validasi array result
+            'spesifikasi' => 'required|array',
+            'satuan' => 'required|array',
+            'coa' => 'required|array',
+            'result' => 'required|array',
         ]);
     
-        // Membuat instance baru dari model PengajuanRawmat
-        $data = new PengajuanRawmat();
-    
-        // Mengambil data inputan form
-        $data->tgl = $request->input('tgl');
-        $data->supplier = $request->input('supplier');
-        $data->nama = $request->input('nama'); // Mengambil nama
-    
-        // Mengambil data spesifikasi, satuan, COA, result dan menyimpannya sebagai JSON
-        $data->spesifikasi = json_encode($request->input('spesifikasi'));
-        $data->satuan = json_encode($request->input('satuan'));
-        $data->coa = json_encode($request->input('coa'));
-        $data->result = json_encode($request->input('result'));
-    
-        // Menyimpan data ke database
-        $data->save();
-    
-        // Redirect ke rute pengajuanrawmat setelah data disimpan
-        return redirect()->route('pengajuanrawmat')->with('success', 'Data berhasil ditambahkan');
+        try {
+            // Membuat instance baru dari model PengajuanRawmat
+            $data = new PengajuanRawmat();
+        
+            // Mengambil data inputan form
+            $data->tgl = $validated['tgl'];
+            $data->supplier = $validated['supplier'];
+            $data->nama = $validated['nama'];
+        
+            // Mengambil data spesifikasi, satuan, COA, result dan menyimpannya sebagai JSON
+            $data->spesifikasi = json_encode($validated['spesifikasi']);
+            $data->satuan = json_encode($validated['satuan']);
+            $data->coa = json_encode($validated['coa']);
+            $data->result = json_encode($validated['result']);
+        
+            // Menyimpan data ke database
+            $data->save();
+        
+            // Redirect ke rute pengajuanrawmat setelah data disimpan
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('success', 'Data pengajuan raw material berhasil ditambahkan');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
     }
     
     public function show(string $id)
     {
-        $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
-  
-        return view('pengajuanrawmat.show', compact('pengajuanrawmat'));
+        try {
+            $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
+            return view('pengajuanrawmat.show', compact('pengajuanrawmat'));
+        } catch (\Exception $e) {
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('error', 'Data tidak ditemukan');
+        }
     }
 
     public function edit(string $id)
     {
-        $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
-  
-        return view('pengajuanrawmat.edit', compact('pengajuanrawmat'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
-  
-        $pengajuanrawmat->update($request->all());
-  
-        return redirect()->route('pengajuanrawmat')->with('success', 'Pengajuan Rawmat updated successfully');
-    }
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        // Cari data berdasarkan ID
-        $pengajuanRawmat = PengajuanRawmat::findOrFail($id);
-    
         try {
-            // Hapus data
-            $pengajuanRawmat->delete();
-    
-            // Redirect ke index dengan pesan sukses
-            return redirect()->route('pengajuanrawmat.index')
-                ->with('success', 'Data Pengajuan Raw Material berhasil dihapus.');
+            $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
+            $datarawmat = DataRawmat::orderBy('nama')->get();
+            return view('pengajuanrawmat.edit', compact('pengajuanrawmat', 'datarawmat'));
         } catch (\Exception $e) {
-            // Redirect ke index dengan pesan error jika terjadi masalah
             return redirect()->route('pengajuanrawmat.index')
-                ->with('error', 'Terjadi kesalahan saat menghapus data.');
+                ->with('error', 'Data tidak ditemukan');
         }
     }
 
-    public function details()
+    public function update(Request $request, string $id)
     {
-        return $this->hasMany(RawmatDetail::class, 'pengajuan_rawmat_id'); // Ganti sesuai nama model dan foreign key Anda
+        // Validasi data input (sama seperti store)
+        $validated = $request->validate([
+            'tgl' => 'required|date',
+            'supplier' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'spesifikasi' => 'required|array',
+            'satuan' => 'required|array',
+            'coa' => 'required|array',
+            'result' => 'required|array',
+        ]);
+    
+        try {
+            $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
+            
+            // Update data
+            $pengajuanrawmat->tgl = $validated['tgl'];
+            $pengajuanrawmat->supplier = $validated['supplier'];
+            $pengajuanrawmat->nama = $validated['nama'];
+            $pengajuanrawmat->spesifikasi = json_encode($validated['spesifikasi']);
+            $pengajuanrawmat->satuan = json_encode($validated['satuan']);
+            $pengajuanrawmat->coa = json_encode($validated['coa']);
+            $pengajuanrawmat->result = json_encode($validated['result']);
+            
+            $pengajuanrawmat->save();
+      
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('success', 'Data pengajuan raw material berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            $pengajuanRawmat = PengajuanRawmat::findOrFail($id);
+            $pengajuanRawmat->delete();
+    
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('success', 'Data pengajuan raw material berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
     }
 
     public function print($id)
     {
-        // Ambil data pengajuan solder berdasarkan ID
-        $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
-    
-    
-        return view('pengajuanrawmat.print', compact('pengajuanrawmat'));
+        try {
+            $pengajuanrawmat = PengajuanRawmat::findOrFail($id);
+            return view('pengajuanrawmat.print', compact('pengajuanrawmat'));
+        } catch (\Exception $e) {
+            return redirect()->route('pengajuanrawmat.index')
+                ->with('error', 'Data tidak ditemukan untuk dicetak');
+        }
     }
-
 }

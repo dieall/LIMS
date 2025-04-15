@@ -108,6 +108,11 @@
                 <input type="text" name="audit_trail" class="form-control" id="audit_trail" required readonly>
             </div>
 
+            <div class="mb-3">
+                <label for="deskripsi" class="form-label">Deskripsi</label>
+                <textarea name="deskripsi" class="form-control" id="deskripsi" placeholder="Masukkan deskripsi" required></textarea>
+            </div>
+
             <!-- Jam Masuk (Tersembunyi) -->
             <div class="mb-3" id="jamMasukContainer" style="display: none;">
                 <label for="jam_masuk" class="form-label">Jam Masuk</label>

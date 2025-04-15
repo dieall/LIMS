@@ -46,46 +46,46 @@
                     <tr><td><strong>Rev</strong></td><td>{{ $solder->rev }}</td></tr>
                 @endif
                 @if($solder->sn)
-                    <tr><td><strong>SN</strong></td><td>{{ $solder->sn }}</td></tr>
+                    <tr><td><strong>Sn</strong></td><td>{{ $solder->sn }}</td></tr>
                 @endif
                 @if($solder->ag)
-                    <tr><td><strong>AG</strong></td><td>{{ $solder->ag }}</td></tr>
+                    <tr><td><strong>Ag</strong></td><td>{{ $solder->ag }}</td></tr>
                 @endif
                 @if($solder->cu)
-                    <tr><td><strong>CU</strong></td><td>{{ $solder->cu }}</td></tr>
+                    <tr><td><strong>Cu</strong></td><td>{{ $solder->cu }}</td></tr>
                 @endif
                 @if($solder->pb)
-                    <tr><td><strong>PB</strong></td><td>{{ $solder->pb }}</td></tr>
+                    <tr><td><strong>Pb</strong></td><td>{{ $solder->pb }}</td></tr>
                 @endif
                 @if($solder->sb)
-                    <tr><td><strong>SB</strong></td><td>{{ $solder->sb }}</td></tr>
+                    <tr><td><strong>Sb</strong></td><td>{{ $solder->sb }}</td></tr>
                 @endif
                 @if($solder->zn)
-                    <tr><td><strong>ZN</strong></td><td>{{ $solder->zn }}</td></tr>
+                    <tr><td><strong>Zn</strong></td><td>{{ $solder->zn }}</td></tr>
                 @endif
                 @if($solder->fe)
-                    <tr><td><strong>FE</strong></td><td>{{ $solder->fe }}</td></tr>
+                    <tr><td><strong>Fe</strong></td><td>{{ $solder->fe }}</td></tr>
                 @endif
                 @if($solder->as)
-                    <tr><td><strong>AS</strong></td><td>{{ $solder->as }}</td></tr>
+                    <tr><td><strong>As</strong></td><td>{{ $solder->as }}</td></tr>
                 @endif
                 @if($solder->ni)
-                    <tr><td><strong>NI</strong></td><td>{{ $solder->ni ?? 'N/A' }}</td></tr>
+                    <tr><td><strong>Ni</strong></td><td>{{ $solder->ni ?? 'N/A' }}</td></tr>
                 @endif
                 @if($solder->bi)
-                    <tr><td><strong>BI</strong></td><td>{{ $solder->bi }}</td></tr>
+                    <tr><td><strong>Bi</strong></td><td>{{ $solder->bi }}</td></tr>
                 @endif
                 @if($solder->cd)
-                    <tr><td><strong>CD</strong></td><td>{{ $solder->cd ?? 'N/A' }}</td></tr>
+                    <tr><td><strong>Cd</strong></td><td>{{ $solder->cd ?? 'N/A' }}</td></tr>
                 @endif
                 @if($solder->ai)
-                    <tr><td><strong>AI</strong></td><td>{{ $solder->ai }}</td></tr>
+                    <tr><td><strong>Ai</strong></td><td>{{ $solder->ai }}</td></tr>
                 @endif
                 @if($solder->pe)
-                    <tr><td><strong>PE</strong></td><td>{{ $solder->pe }}</td></tr>
+                    <tr><td><strong>Pe</strong></td><td>{{ $solder->pe }}</td></tr>
                 @endif
                 @if($solder->ga)
-                    <tr><td><strong>GA</strong></td><td>{{ $solder->ga ?? 'N/A' }}</td></tr>
+                    <tr><td><strong>Ga</strong></td><td>{{ $solder->ga ?? 'N/A' }}</td></tr>
                 @endif
                 @if($solder->created_at)
                     <tr><td><strong>Created At</strong></td><td>{{ $solder->created_at }}</td></tr>

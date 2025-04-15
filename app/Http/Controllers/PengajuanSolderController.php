@@ -93,6 +93,7 @@ class PengajuanSolderController extends Controller
                 'batch' => 'nullable|string',
                 'audit_trail' => 'nullable|string',
                 'jam_masuk' => 'nullable|string',
+                'deskripsi' => 'nullable|string',
                 'id_category' => 'nullable|exists:category_solder,id_category',
                 'sn' => 'nullable|string',
                 'ag' => 'nullable|numeric',
@@ -134,6 +135,7 @@ class PengajuanSolderController extends Controller
                 'batch' => $validatedData['batch'] ?? null,
                 'audit_trail' => $validatedData['audit_trail'] ?? null,
                 'jam_masuk' => $validatedData['jam_masuk'] ?? null,
+                'deskripsi' => $validatedData['deskripsi'] ?? null,
                 'id_category' => $validatedData['id_category'] ?? null,
                 'sn' => $validatedData['sn'] ?? null,
                 'ag' => $validatedData['ag'] ?? null,
@@ -231,6 +233,7 @@ class PengajuanSolderController extends Controller
         $pengajuansolder->audit_trail = $request->input('audit_trail', $pengajuansolder->audit_trail);
         $pengajuansolder->jam_masuk = $request->input('jam_masuk', $pengajuansolder->jam_masuk);
         $pengajuansolder->id_category = $request->input('id_category', $pengajuansolder->id_category);
+        $pengajuansolder->deskripsi = $request->input('deskripsi', $pengajuansolder->deskripsi);
         $pengajuansolder->status = $request->input('status', $pengajuansolder->status);
         
         // Process chemical fields and their status fields

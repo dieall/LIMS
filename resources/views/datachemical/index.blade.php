@@ -65,9 +65,7 @@
                         <th class="text-center">No</th>
                         <th>Nama Category</th>
                         <th>Nama Sampel</th>
-                        <th>Tanggal</th>
-                        <th>Waktu</th>
-                        <th>Nama</th>
+
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -78,9 +76,6 @@
                                 <td class="text-center align-middle">{{ $index + 1 + (($datachemical->currentPage() - 1) * $datachemical->perPage()) }}</td>
                                 <td class="align-middle">{{ $rs->kategori }}</td>
                                 <td class="align-middle">{{ $rs->nama }}</td>
-                                <td class="align-middle">{{ $rs->tgl }}</td>
-                                <td class="align-middle">{{ \Carbon\Carbon::parse($rs->created_at)->format('H:i:s') }}</td>
-                                <td class="align-middle">{{ $rs->orang }}</td>
                                 <td class="text-center align-middle">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">

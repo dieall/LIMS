@@ -22,6 +22,7 @@ class PengajuanSolder extends Model
         'audit_trail',
         'jam_masuk',
         'id_category',
+        'deskripsi',
         'sn',
         'ag',
         'cu',

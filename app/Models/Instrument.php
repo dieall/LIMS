@@ -20,17 +20,14 @@ class Instrument extends Model
         'tgl',
         'shift',
         'jam',
-        'user_id', // Menyimpan ID User
+        'nama', // Menyimpan nama operator, bukan lagi user_id
     ];
 
-    // Mendefinisikan relasi ke model User
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id'); // Relasi ke tabel users berdasarkan user_id
-    }
-        // Relasi dengan model InstrumentData (One-to-Many)
+    // Mendefinisikan relasi ke model User - REMOVED since we no longer use user_id
+    
+    // Relasi dengan model InstrumentData (One-to-Many)
     public function instrumentData()
     {
-        return $this->hasMany(InstrumentData::class); // Relasi one-to-many ke InstrumentData
+        return $this->hasMany(InstrumentData::class);
     }
 }

@@ -36,7 +36,7 @@ class ImportController extends Controller
         $data = $query->select([
             'id', 'nama', 'tgl', 'tipe_solder', 'batch', 'audit_trail', 'jam_masuk', 'created_at', 'updated_at',
             'id_category', 'sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'fe', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga', 'status',
-            'previous_status', 'previous_jam_masuk'
+            'previous_status', 'previous_jam_masuk', 'deskripsi'
         ])->get();
         
         $dateToday = Carbon::now()->format('Y-m-d'); // Format tanggal saat ini
@@ -58,8 +58,8 @@ class ImportController extends Controller
             {
                 return [
                     'ID', 'Nama', 'Tanggal', 'Tipe Solder', 'Batch', 'Audit Trail', 'Jam Masuk', 'Created At', 'Updated At',
-                    'ID Category', 'SN', 'AG', 'CU', 'PB', 'SB', 'ZN', 'FE', 'AS', 'NI', 'BI', 'CD', 'AI', 'PE', 'GA', 'Status',
-                    'Previous Status', 'Previous Jam Masuk'
+                    'ID Category', 'Sn', 'Ag', 'Cu', 'Pb', 'Sb', 'Zn', 'Fe', 'As', 'Ni', 'Bi', 'Cd', 'Ai', 'Pe', 'Ga', 'Status',
+                    'Previous Status', 'Previous Jam Masuk', 'Deskripsi'
                 ];
             }
         }, 'Data_Solder_' . $dateToday . '.xlsx');

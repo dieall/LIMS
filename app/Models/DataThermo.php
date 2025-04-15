@@ -16,7 +16,7 @@ class DataThermo extends Model
         'nama_thermo', 
         'suhu', 
         'kelembapan', 
-        'user_id'
+        'nama' // Changed from user_id to nama
     ];
 
     // Tentukan kolom yang tidak dapat diisi (mass assignable)
@@ -33,12 +33,10 @@ class DataThermo extends Model
     // Jika Anda ingin menggunakan timestamp untuk 'created_at' dan 'updated_at'
     public $timestamps = true;
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id'); // Relasi ke tabel users berdasarkan user_id
-    }
+    // Removed user relationship method since user_id no longer exists
+
     public function ThermoData()
     {
-        return $this->hasMany(ThermoData::class); // Relasi one-to-many ke InstrumentData
+        return $this->hasMany(ThermoData::class);
     }
 }

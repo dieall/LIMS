@@ -148,15 +148,124 @@
         </div>
     </div>
 
-    <!-- Summary Card -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-center">
-                <div>
-                    <h4>Total Akumulasi Waktu: <strong>{{ $hours }} Jam {{ $minutes }} Menit</strong></h4>
+
+
+
+<!-- Summary Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-chart-line me-2"></i> Ringkasan Aktivitas & Rata-rata Waktu Analisa
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Total Time Accumulation -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Akumulasi Waktu</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {{ $hours }} Jam {{ $minutes }} Menit
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-2 mt-md-0">
-                    <a href="{{ route('datainterval') }}" class="btn btn-secondary">
+            </div>
+            
+            <!-- Average Solder Analysis Time -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Rata-rata Analisa Solder</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    @if($avgSolderMinutes > 0 || $solderData->count() > 0)
+                                        {{ floor($avgSolderMinutes / 60) }} Jam {{ $avgSolderMinutes % 60 }} Menit
+                                    @else
+                                        - 
+                                    @endif
+                                </div>
+                                <div class="text-xs text-muted mt-1">
+                                    ({{ $solderData->count() }} sampel)
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-tools fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Chemical Analysis Time -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Rata-rata Analisa Chemical</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    @if($avgChemicalMinutes > 0 || $chemicalData->count() > 0)
+                                        {{ floor($avgChemicalMinutes / 60) }} Jam {{ $avgChemicalMinutes % 60 }} Menit
+                                    @else
+                                        -
+                                    @endif
+                                </div>
+                                <div class="text-xs text-muted mt-1">
+                                    ({{ $chemicalData->count() }} sampel)
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-flask fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Overall Average -->
+        <div class="row">
+            <div class="col-lg-8 col-md-12 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Rata-rata Keseluruhan (Per Sampel)</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    @if(($solderData->count() + $chemicalData->count()) > 0)
+                                        {{ floor($avgOverallMinutes / 60) }} Jam {{ $avgOverallMinutes % 60 }} Menit
+                                    @else
+                                        Belum ada data analisa
+                                    @endif
+                                </div>
+                                <div class="text-xs text-muted mt-1">
+                                    (Total {{ $solderData->count() + $chemicalData->count() }} sampel)
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-12 mb-4">
+                <div class="d-flex justify-content-end align-items-center h-100">
+                    <a href="{{ route('datainterval') }}" class="btn btn-secondary me-2">
                         <i class="fas fa-arrow-left"></i> Kembali
                     </a>
                     <a href="{{ route('export.data.interval', ['user_id' => $user->id, 'month' => $selectedMonth]) }}" 
@@ -167,5 +276,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection

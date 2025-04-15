@@ -40,16 +40,16 @@
         <div class="row gx-0">
             <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
                 <div class="d-inline-flex align-items-center">
-                    <small class="py-2"><i class="far fa-clock text-primary me-2"></i>Opening Hours: Mon - Tues : 6.00 am - 10.00 pm, Sunday Closed </small>
+                    <small class="py-2"><i class="far fa-clock text-primary me-2"></i>Opening Hours: 24 Hours </small>
                 </div>
             </div>
             <div class="col-md-6 text-center text-lg-end">
                 <div class="position-relative d-inline-flex align-items-center bg-primary text-white top-shape px-5">
                     <div class="me-3 pe-3 border-end py-2">
-                        <p class="m-0"><i class="fa fa-envelope-open me-2"></i>cs@timahindustri.com</p>
+                        <p class="m-0"><i class="fa fa-envelope-open me-2"></i>selfira.arum@timahindustri.com</p>
                     </div>
                     <div class="py-2">
-                        <p class="m-0"><i class="fa fa-phone-alt me-2"></i>+62 254 315 000</p>
+                        <p class="m-0"><i class="fa fa-phone-alt me-2"></i>+62 12345678</p>
                     </div>
                 </div>
             </div>
@@ -188,7 +188,7 @@
         <div class="row gx-5 align-items-center">
             <div class="col-lg-6 py-5">
                 <div class="py-5">
-                    <h1 class="display-5 text-white mb-4">Laboratorty Information Management System</h1>
+                    <h1 class="display-5 text-white mb-4">Laboratory Information Management System</h1>
                     <p class="text-white mb-0">What is a LIMS? A Laboratory Information Management System (LIMS) is software that allows you to effectively manage samples and associated data. By using a LIMS, your lab can automate workflows, integrate instruments, and manage samples and associated information.</p>
                 </div>
             </div>
@@ -218,24 +218,24 @@
             <div class="col-lg-7">
                 <div class="section-title mb-5">
                     <h5 class="position-relative d-inline-block text-primary text-uppercase">Our Products</h5>
-                    <h1 class="display-5 mb-0">Tin Chemicals and Tin Solder</h1>
+                    <h1 class="display-5 mb-0">Tin Chemical and Tin Solder</h1>
                     <p class="text-muted">Discover our range of high-quality Tin Chemical and Tin Solder products designed to meet the highest industrial standards. We provide reliable solutions for various applications, ensuring efficiency and durability.</p>
                 </div>
                 <div class="row g-5">
                     <div class="col-md-6 service-item wow zoomIn" data-wow-delay="0.6s">
                         <div class="rounded-top overflow-hidden shadow-sm">
-                            <img class="img-fluid" src="{{ asset('depan_assets/img/tc181.jpg') }}" alt="BANKASTAB® TC-181">
+                            <img class="img-fluid" src="{{ asset('depan_assets/img/mt620.jpg') }}" alt="BANKASTAB® MT-620">
                         </div>
                         <div class="position-relative bg-light rounded-bottom text-center p-4">
-                            <h5 class="m-0">BANKASTAB® TC-181</h5>
+                            <h5 class="m-0">BANKASTAB® MT-620</h5>
                         </div>
                     </div>
                     <div class="col-md-6 service-item wow zoomIn" data-wow-delay="0.9s">
                         <div class="rounded-top overflow-hidden shadow-sm">
-                            <img class="img-fluid" src="{{ asset('depan_assets/img/dmt510.jpg') }}" alt="BANKASTAB® DMT510">
+                            <img class="img-fluid" src="{{ asset('depan_assets/img/top207.jpg') }}" alt="TIN ONE PACK TOP® 207">
                         </div>
                         <div class="position-relative bg-light rounded-bottom text-center p-4">
-                            <h5 class="m-0">BANKASTAB® DMT510</h5>
+                            <h5 class="m-0">TIN ONE PACK TOP® 207</h5>
                         </div>
                     </div>
                 </div>
@@ -248,10 +248,10 @@
                 <div class="row g-5">
                     <div class="col-md-6 service-item wow zoomIn" data-wow-delay="0.3s">
                         <div class="rounded-top overflow-hidden shadow-sm">
-                            <img class="img-fluid" src="{{ asset('depan_assets/img/bankaesa6337.jpg') }}" alt="BANKAESA 6337">
+                            <img class="img-fluid" src="{{ asset('depan_assets/img/banka307.jpg') }}" alt="BANKAESA 307">
                         </div>
                         <div class="position-relative bg-light rounded-bottom text-center p-4">
-                            <h5 class="m-0">BANKAESA 6337</h5>
+                            <h5 class="m-0">BANKAESA 307</h5>
                         </div>
                     </div>
                     <div class="col-md-6 service-item wow zoomIn" data-wow-delay="0.6s">
@@ -294,20 +294,20 @@
                     <h3 class="text-white mb-4">Quick Links</h3>
                     <div class="d-flex flex-column justify-content-start">
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Home</a>
-                        <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>About Us</a>
+                        <!-- <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>About Us</a>
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Our Services</a>
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Latest Blog</a>
-                        <a class="text-light" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Contact Us</a>
+                        <a class="text-light" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Contact Us</a> -->
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h3 class="text-white mb-4">Popular Links</h3>
                     <div class="d-flex flex-column justify-content-start">
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Home</a>
-                        <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>About Us</a>
+                        <!-- <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>About Us</a>
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Our Services</a>
                         <a class="text-light mb-2" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Latest Blog</a>
-                        <a class="text-light" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Contact Us</a>
+                        <a class="text-light" href="#"><i class="bi bi-arrow-right text-primary me-2"></i>Contact Us</a> -->
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
@@ -315,8 +315,8 @@
                     <p class="mb-2"><i class="bi bi-geo-alt text-primary me-2"></i>Jl. Eropa I Kav. A3 Kawasan Industri Krakatau I, Kel. Kotasari, Kec.Gerogol,
                                     Kota Cilegon, Provinsi Banten - Indonesia
                                     Kode Pos: 42436</p>
-                    <p class="mb-2"><i class="bi bi-envelope-open text-primary me-2"></i>cs@timahindustri.com</p>
-                    <p class="mb-0"><i class="bi bi-telephone text-primary me-2"></i>+62 254 315 000</p>
+                    <p class="mb-2"><i class="bi bi-envelope-open text-primary me-2"></i>selfira.arum@timahindustri.com</p>
+                    <p class="mb-0"><i class="bi bi-telephone text-primary me-2"></i>+62 12345678</p>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h3 class="text-white mb-4">Follow Us</h3>
