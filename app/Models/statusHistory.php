@@ -14,6 +14,7 @@ class StatusHistory extends Model
         'pengajuan_solder_id',
         'pengajuan_chemical_id',
         'status',
+        'is_approved',
         'changed_at',
         'rejection_reason',
         'user_id',

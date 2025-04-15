@@ -95,20 +95,20 @@
 </style>
 
 <div class="panel-body">
-    <!-- Breadcrumb Navigation -->
+    <!-- Breadcrumb Navigation - FIX: <hr> moved outside of nav tag -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i> Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Data Sampel Solder</li>
         </ol>
-        <hr>
     </nav>
+    <hr>
 </div>
 
 <!-- Card Wrapper -->
 <div class="card shadow mb-4">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold"><i class="fas fa-vial me-2"></i> Data Sample Solder</h6>
+        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-vial me-2"></i> Data Sample Solder</h6>
         <div class="d-flex gap-2">
             <!-- Dropdown Filter Data -->
             <div class="dropdown">
@@ -244,7 +244,8 @@
                                         @endif
                                         
                                         @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Operator Lab')
-                                            @if ($rs->status != 'Analisa Selesai') 
+                                            <!-- FIX: Ubah dari 'Analisa Selesai' ke 'Selesai Analisa' untuk konsistensi -->
+                                            @if ($rs->status != 'Selesai Analisa') 
                                                 <li>
                                                     <form action="{{ route('pengajuansolder.proses-analisa', $rs->id) }}" method="POST" style="display: inline;">
                                                         @csrf
@@ -268,7 +269,7 @@
                                                     <form action="{{ route('pengajuansolder.analisaSelesai', $rs->id) }}" method="POST" style="display: inline;">
                                                         @csrf
                                                         <button type="submit" class="dropdown-item">
-                                                            <i class="fas fa-check-circle"></i> Analisa Selesai
+                                                            <i class="fas fa-check-circle"></i> Selesai Analisa
                                                         </button>
                                                     </form>
                                                 </li>
@@ -316,24 +317,283 @@
                                 </div>
 
                                 @if (Auth::user()->level === 'Admin')
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-certificate me-1"></i> CoA
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a href="{{ route('pengajuansolder.lokal', $rs->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-map-marker-alt"></i> Lokal
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('pengajuansolder.expor', $rs->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-paper-plane"></i> Ekspor
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+    <div class="btn-group">
+        @if($rs->status === 'Approve')
+            <!-- Check if CoA is already approved by both Foreman and Supervisor -->
+            @php
+                // FIX: Ubah typo "Forman" menjadi "Foreman"
+                $isForemanApproved = $rs->statusHistory()
+                    ->where('status', 'CoA Review Foreman')
+                    ->where('is_approved', true)
+                    ->exists();
+                    
+                $isSupervisorApproved = $rs->statusHistory()
+                    ->where('status', 'CoA Review Supervisor')
+                    ->where('is_approved', true)
+                    ->exists();
+                
+                $isCoaRejectedByForeman = $rs->statusHistory()
+                    ->where('status', 'CoA Rejected by Foreman')
+                    ->exists();
+                    
+                $isCoaRejectedBySupervisor = $rs->statusHistory()
+                    ->where('status', 'CoA Rejected by Supervisor')
+                    ->exists();
+
+                $isCoaFullyApproved = $isForemanApproved && $isSupervisorApproved;
+                
+                $pendingForeman = $rs->statusHistory()
+                    ->where('status', 'CoA Review Foreman')
+                    ->where('is_approved', null)
+                    ->exists();
+                    
+                $pendingSupervisor = $rs->statusHistory()
+                    ->where('status', 'CoA Review Supervisor')
+                    ->where('is_approved', null)
+                    ->exists();
+            @endphp
+            
+            @if($isCoaFullyApproved)
+                <!-- Show CoA buttons only when fully approved -->
+                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-certificate me-1"></i> CoA
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ route('pengajuansolder.lokal', $rs->id) }}" class="dropdown-item">
+                            <i class="fas fa-map-marker-alt"></i> Lokal
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('pengajuansolder.expor', $rs->id) }}" class="dropdown-item">
+                            <i class="fas fa-paper-plane"></i> Ekspor
+                        </a>
+                    </li>
+                </ul>
+            @elseif($isCoaRejectedByForeman || $isCoaRejectedBySupervisor)
+                <!-- Show rejection status and option to start over -->
+                <button type="button" class="btn btn-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-times-circle me-1"></i> CoA Ditolak
+                </button>
+                <ul class="dropdown-menu">
+                    @if($isCoaRejectedByForeman)
+                        <li>
+                            <span class="dropdown-item text-danger">
+                                <i class="fas fa-times-circle"></i> Ditolak oleh Foreman
+                            </span>
+                        </li>
+                        <li>
+                            <!-- FIX: Ubah ke model sederhana dan arahkan ke halaman detail -->
+                            <a href="{{ route('pengajuansolder.show', $rs->id) }}" class="dropdown-item">
+                                <i class="fas fa-info-circle"></i> Lihat Detail Penolakan
+                            </a>
+                        </li>
+                    @endif
+                    
+                    @if($isCoaRejectedBySupervisor)
+                        <li>
+                            <span class="dropdown-item text-danger">
+                                <i class="fas fa-times-circle"></i> Ditolak oleh Supervisor
+                            </span>
+                        </li>
+                        <li>
+                            <a href="{{ route('pengajuansolder.show', $rs->id) }}" class="dropdown-item">
+                                <i class="fas fa-info-circle"></i> Lihat Detail Penolakan
+                            </a>
+                        </li>
+                    @endif
+                    
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{{ route('pengajuansolder.requestCoaApproval', $rs->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sync"></i> Mulai Ulang Proses Approval
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            @else
+                <!-- Show CoA approval request button or status -->
+                <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-certificate me-1"></i> CoA Approval
+                </button>
+                <ul class="dropdown-menu">
+                    @if(!$pendingForeman && !$pendingSupervisor && !$isForemanApproved)
+                        <li>
+                            <form action="{{ route('pengajuansolder.requestCoaApproval', $rs->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-paper-plane"></i> Request CoA Approval
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li>
+                            <span class="dropdown-item disabled">
+                                <i class="fas fa-hourglass-half"></i> Status Approval
+                            </span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <span class="dropdown-item text-muted">
+                                <i class="fas fa-user-check me-1"></i> Foreman: 
+                                @if($pendingForeman)
+                                    <span class="text-warning">Menunggu</span>
+                                @elseif($isForemanApproved)
+                                    <span class="text-success">Approved</span>
+                                @else
+                                    <span class="text-danger">Ditolak</span>
                                 @endif
+                            </span>
+                        </li>
+                        <li>
+                            <span class="dropdown-item text-muted">
+                                <i class="fas fa-user-tie me-1"></i> Supervisor: 
+                                @if(!$isForemanApproved || ($isForemanApproved && !$pendingSupervisor && !$isSupervisorApproved))
+                                    <span class="text-secondary">Menunggu Foreman</span>
+                                @elseif($pendingSupervisor)
+                                    <span class="text-warning">Menunggu</span>
+                                @elseif($isSupervisorApproved)
+                                    <span class="text-success">Approved</span>
+                                @else
+                                    <span class="text-danger">Ditolak</span>
+                                @endif
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            @endif
+        @else
+            <!-- Data belum di-Approve, tidak bisa mengakses CoA -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="fas fa-certificate me-1"></i> CoA
+            </button>
+        @endif
+    </div>
+@endif
+
+<!-- If user is Foreman, show CoA approval option -->
+@if (Auth::user()->level === 'Foreman')
+    @php
+        $pendingForeman = $rs->statusHistory()
+            ->where('status', 'CoA Review Foreman')
+            ->where('is_approved', null)
+            ->exists();
+    @endphp
+    
+    @if($pendingForeman)
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-check-double me-1"></i> Approval CoA
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form action="{{ route('pengajuansolder.approveCoaForeman', $rs->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-success">
+                            <i class="fas fa-check-circle"></i> Approve CoA
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $rs->id }}">
+                        <i class="fas fa-times-circle"></i> Tolak CoA
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Rejection Modal - FIX: Sederhana dan lebih kecil -->
+        <div class="modal fade" id="rejectModal{{ $rs->id }}" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectModalLabel">Tolak CoA</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('pengajuansolder.rejectCoaForeman', $rs->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejection_reason_foreman_{{ $rs->id }}" class="form-label">Alasan:</label>
+                                <textarea name="rejection_reason" id="rejection_reason_foreman_{{ $rs->id }}" class="form-control" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+@endif
+
+<!-- If user is Supervisor, show CoA approval option -->
+@if (Auth::user()->level === 'Supervisor')
+    @php
+        $pendingSupervisor = $rs->statusHistory()
+            ->where('status', 'CoA Review Supervisor')
+            ->where('is_approved', null)
+            ->exists();
+        
+        $foremanApproved = $rs->statusHistory()
+            ->where('status', 'CoA Review Foreman')
+            ->where('is_approved', true)
+            ->exists();
+    @endphp
+    
+    @if($pendingSupervisor && $foremanApproved)
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-check-double me-1"></i> Final Approval CoA
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form action="{{ route('pengajuansolder.approveCoaSupervisor', $rs->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-success">
+                            <i class="fas fa-check-circle"></i> Approve CoA
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#rejectSupervisorModal{{ $rs->id }}">
+                        <i class="fas fa-times-circle"></i> Tolak CoA
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Rejection Modal - FIX: Sederhana dan lebih kecil -->
+        <div class="modal fade" id="rejectSupervisorModal{{ $rs->id }}" tabindex="-1" aria-labelledby="rejectSupervisorModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectSupervisorModalLabel">Tolak CoA</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('pengajuansolder.rejectCoaSupervisor', $rs->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejection_reason_supervisor_{{ $rs->id }}" class="form-label">Alasan:</label>
+                                <textarea name="rejection_reason" id="rejection_reason_supervisor_{{ $rs->id }}" class="form-control" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+@endif
+
                             </td>
                         </tr>
                     @empty
@@ -385,6 +645,8 @@
 
                 @if($endPage < $pengajuansolder->lastPage())
                     @if($endPage < $pengajuansolder->lastPage() - 1)
+               
+
                         <span class="page-link disabled">...</span>
                     @endif
                     <a href="{{ $pengajuansolder->appends(request()->except('page'))->url($pengajuansolder->lastPage()) }}" 

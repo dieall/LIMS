@@ -407,7 +407,22 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::post('/pengajuansolder/review-hasil/{id}', [PengajuanSolderController::class, 'reviewHasil'])->name('pengajuansolder.reviewHasil');
     Route::post('/pengajuansolder/tolak/{id}', [PengajuanSolderController::class, 'tolakReviewHasil'])->name('pengajuansolder.tolak');
     Route::post('/pengajuan-solder/approve/{id}', [PengajuanSolderController::class, 'approve'])->name('pengajuansolder.approve');
-
+    Route::prefix('pengajuansolder')->group(function () {
+        Route::post('/{id}/request-coa-approval', [PengajuanSolderController::class, 'requestCoaApproval'])
+            ->name('pengajuansolder.requestCoaApproval');
+        
+        Route::post('/{id}/approve-coa-foreman', [PengajuanSolderController::class, 'approveCoaForeman'])
+            ->name('pengajuansolder.approveCoaForeman');
+        
+        Route::post('/{id}/reject-coa-foreman', [PengajuanSolderController::class, 'rejectCoaForeman'])
+            ->name('pengajuansolder.rejectCoaForeman');
+        
+        Route::post('/{id}/approve-coa-supervisor', [PengajuanSolderController::class, 'approveCoaSupervisor'])
+            ->name('pengajuansolder.approveCoaSupervisor');
+        
+        Route::post('/{id}/reject-coa-supervisor', [PengajuanSolderController::class, 'rejectCoaSupervisor'])
+            ->name('pengajuansolder.rejectCoaSupervisor');
+    });
 });
 
 Route::controller(SnagcuController::class)->prefix('snagcu')->group(function () {

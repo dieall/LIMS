@@ -5,11 +5,11 @@
 <div class="panel-body">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i> Dashboard</a></li>
             <li class="breadcrumb-item active" aria-current="page">Data Detail Pengajuan Solder</li>
         </ol>
-        <hr>
     </nav>
+    <hr>
 </div>
 
 <div class="card shadow mb-4">
@@ -45,10 +45,6 @@
                     <tr>
                         <th>Jam Pengajuan</th>
                         <td>{{ $pengajuansolder->audit_trail ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Deskripsi</th>
-                        <td>{{ $pengajuansolder->deskripsi ?? '-' }}</td>
                     </tr>
                     <tr>
                         <th>Status</th>
