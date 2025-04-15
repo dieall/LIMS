@@ -83,6 +83,7 @@
                         <td>{{ $pengajuanchemical->orang ?? '-' }}</td>
                     </tr>
                     <tr>
+                        
                         <th>Status</th>
                         <td>
                             @if ($pengajuanchemical->status == 'Pengajuan')
@@ -104,67 +105,95 @@
 
                 <!-- Tabel Riwayat Status -->
                 <h5>Riwayat Status</h5>
-                <div class="table-responsive">
-                    <table class="table table-bordered mt-3">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Jam Masuk</th>
-                                <th>Status</th>
-                                <th>Alasan Penolakan</th>
-                                <th>Interval Waktu</th>
-                                <th>Nama</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $no = 1;
-                                $previousDate = null;
-                            @endphp
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>No</th>
+                <th>Jam Masuk</th>
+                <th>Status</th>
+                <th>Alasan Penolakan</th>
+                <th>Interval Waktu</th>
+                <th>Nama</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $no = 1;
+                $previousDate = null;
+                $lastStatusInHistory = null;
+                $hasCoaApprovedStatus = false;
+            @endphp
 
-                            @forelse($pengajuanchemical->statusHistory as $history)
-                                @php
-                                    $currentDate = \Carbon\Carbon::parse($history->changed_at);
-                                    $interval = '-';
+            @forelse($pengajuansolder->statusHistory as $history)
+                @php
+                    // Save the last status we find in history
+                    $lastStatusInHistory = $history->status;
+                    
+                    // Check if we have a CoA Approved status
+                    if ($history->status === 'CoA Approved') {
+                        $hasCoaApprovedStatus = true;
+                    }
+                    
+                    // Menghitung interval waktu antara status saat ini dan status sebelumnya
+                    $currentDate = \Carbon\Carbon::parse($history->changed_at);
+                    $interval = '-';
 
-                                    if ($previousDate) {
-                                        // Calculate interval in minutes
-                                        $interval = round($previousDate->diffInMinutes($currentDate)) . ' menit';
-                                    }
+                    if ($previousDate) {
+                        // Membulatkan interval waktu ke angka bulat dalam satuan menit
+                        $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit';
+                    }
 
-                                    // Store date for next iteration
-                                    $previousDate = $currentDate;
-                                @endphp
+                    // Menyimpan tanggal status sebelumnya untuk perhitungan interval selanjutnya
+                    $previousDate = $currentDate;
+                @endphp
 
-                                <tr>
-                                    <td>{{ $no++ }}</td>
-                                    <td>{{ $currentDate->format('Y-m-d H:i:s') }}</td>
-                                    <td>{{ $history->status }}</td>
-                                    <td>{{ $history->rejection_reason ?? '-' }}</td>
-                                    <td>{{ $interval }}</td>
-                                    <td>{{ ucwords($history->user->name ?? 'Tidak Diketahui') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center">Tidak ada riwayat status</td>
-                                </tr>
-                            @endforelse
+                <tr>
+                    <td>{{ $no++ }}</td>
+                    <td>{{ $currentDate->format('Y-m-d H:i:s') }}</td>
+                    <td>
+                        @if ($history->status === 'CoA Approved')
+                            <span class="badge bg-success">{{ $history->status }}</span>
+                        @else
+                            {{ $history->status }}
+                        @endif
+                    </td>
+                    <td>{{ $history->rejection_reason ?? '-' }}</td>
+                    <td>{{ $interval }}</td>
+                    <td>{{ ucwords($history->user_name ?? $history->user->name ?? 'Tidak Diketahui') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center">Tidak ada riwayat status</td>
+                </tr>
+            @endforelse
 
-                            <!-- Only add current status if it's not already in history -->
-                            @if(!$pengajuanchemical->statusHistory->contains('status', $pengajuanchemical->status))
-                                <tr>
-                                    <td>{{ $no }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($pengajuanchemical->jam_masuk)->format('Y-m-d H:i:s') }}</td>
-                                    <td>{{ $pengajuanchemical->status }}</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>{{ $pengajuanchemical->orang ?? 'Tidak Diketahui' }}</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-
+            <!-- Only add the current status if it's not already the last status in history -->
+            <!-- AND we don't have a CoA Approved status (this is the key fix) -->
+            @if($pengajuansolder->statusHistory->count() > 0 && $lastStatusInHistory !== $pengajuansolder->status && !$hasCoaApprovedStatus)
+                <tr>
+                    @php
+                        // Menghitung interval waktu dari status terakhir hingga status saat ini
+                        $lastDate = \Carbon\Carbon::parse($pengajuansolder->jam_masuk);
+                        $interval = $previousDate ? round($previousDate->diffInMinutes($lastDate), 0) . ' menit' : '-';
+                        
+                        // Get the last user who modified this record
+                        $lastUserName = $pengajuansolder->statusHistory->last() ? 
+                            ($pengajuansolder->statusHistory->last()->user_name ?? 
+                             $pengajuansolder->statusHistory->last()->user->name ?? 'Tidak Diketahui') : 
+                            'Tidak Diketahui';
+                    @endphp
+                    <td>{{ $no }}</td>
+                    <td>{{ $lastDate->format('Y-m-d H:i:s') }}</td>
+                    <td>{{ $pengajuansolder->status }}</td>
+                    <td>{{ $pengajuansolder->rejection_reason ?? '-' }}</td>
+                    <td>{{ $interval }}</td>
+                    <td>{{ ucwords($lastUserName) }}</td>
+                </tr>
+            @endif
+        </tbody>
+    </table>
+</div>
                 <!-- Form Penolakan Khusus Foreman -->
                 @if (Auth::user()->level === 'Foreman' && $pengajuanchemical->status === 'Review Hasil')
                     <form action="{{ route('pengajuanchemical.tolak', $pengajuanchemical->id) }}" method="POST">

@@ -555,7 +555,21 @@ Route::controller(PengajuanChemicalController::class)->prefix('pengajuanchemical
     Route::post('/pengajuanchemical/tolak/{id}', [PengajuanChemicalController::class, 'tolakReviewHasil'])->name('pengajuanchemical.tolak');
     Route::post('/pengajuan-chemical/approve/{id}', [PengajuanChemicalController::class, 'approve'])->name('pengajuanchemical.approve');
 
-
+// CoA Approval Routes
+Route::post('/{id}/request-coa-approval', 'requestCoaApproval')
+    ->name('pengajuanchemical.requestCoaApproval');
+    
+Route::post('/{id}/approve-coa-foreman', 'approveCoaForeman')
+    ->name('pengajuanchemical.approveCoaForeman');
+    
+Route::post('/{id}/reject-coa-foreman', 'rejectCoaForeman')
+    ->name('pengajuanchemical.rejectCoaForeman');
+    
+Route::post('/{id}/approve-coa-supervisor', 'approveCoaSupervisor')
+    ->name('pengajuanchemical.approveCoaSupervisor');
+    
+Route::post('/{id}/reject-coa-supervisor', 'rejectCoaSupervisor')
+    ->name('pengajuanchemical.rejectCoaSupervisor');
 
 
 

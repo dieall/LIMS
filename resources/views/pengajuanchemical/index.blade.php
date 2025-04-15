@@ -2,7 +2,7 @@
 
 @section('contents')
 <style>
-    /* Styling Alert */
+    /* Alert styling */
     .alert {
         padding: 10px;
         margin-bottom: 15px;
@@ -16,8 +16,14 @@
         color: #155724;
         border: 1px solid #c3e6cb;
     }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
 
-    /* Styling untuk pagination */
+    /* Enhanced pagination styling */
     .custom-pagination {
         display: flex;
         justify-content: center;
@@ -26,7 +32,7 @@
         gap: 8px;
     }
 
-    .custom-pagination .page-link {
+    .page-link {
         display: inline-block;
         padding: 8px 12px;
         color: #007bff;
@@ -37,48 +43,56 @@
         transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    .custom-pagination .page-link:hover {
+    .page-link:hover {
         background-color: #f1f1f1;
-        text-decoration: none;
+        color: #0056b3;
     }
 
-    .custom-pagination .active {
+    .page-link.active {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
     }
 
-    .custom-pagination .disabled {
+    .page-link.disabled {
         color: #6c757d;
         pointer-events: none;
     }
     
-    /* Table styles enhancement */
-    .table th {
-        background-color: #f8f9fa;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: rgba(0, 123, 255, 0.05);
-    }
-    
-    /* Badge enhancements */
+    /* Badge styling */
     .badge {
-        font-weight: 500;
         padding: 0.35em 0.65em;
+        font-weight: 500;
     }
     
-    /* Button group spacing */
+    /* Button spacing */
     .btn-group + .btn-group {
         margin-left: 5px;
     }
     
-    /* Dropdown menu shadow */
-    .dropdown-menu {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    /* Table hover effect */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    
+    /* Dropdown menu enhancement */
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+    }
+    
+    .dropdown-item i {
+        margin-right: 0.5rem;
+        width: 16px;
+        text-align: center;
+    }
+    
+    /* Divider for dropdown */
+    .dropdown-divider {
+        margin: 0.5rem 0;
     }
 </style>
-
 <div class="panel-body">
     <!-- Breadcrumb Navigation -->
     <nav aria-label="breadcrumb">
@@ -307,29 +321,284 @@
                                         @endif
                                     </ul>
                                 </div>
+                                @if (Auth::user()->level === 'Admin')
+    <div class="btn-group">
+        @if($rs->status === 'Approve')
+            <!-- Check if CoA is already approved by both Foreman and Supervisor -->
+            @php
+                $isFormanApproved = $rs->statusHistory()
+                    ->where('status', 'CoA Foreman')
+                    ->where('is_approved', true)
+                    ->exists();
+                    
+                $isSupervisorApproved = $rs->statusHistory()
+                    ->where('status', 'CoA Supervisor')
+                    ->where('is_approved', true)
+                    ->exists();
+                
+                $isCoaRejectedByForeman = $rs->statusHistory()
+                    ->where('status', 'CoA Rejected by Foreman')
+                    ->exists();
+                    
+                $isCoaRejectedBySupervisor = $rs->statusHistory()
+                    ->where('status', 'CoA Rejected by Supervisor')
+                    ->exists();
 
-                                @if (Auth::user()->level === 'Admin') 
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-certificate"></i> CoA
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <!-- Tombol CoA Lokal -->
-                                            <li>
-                                                <a href="{{ route('pengajuanchemical.lokal', $rs->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-map-marker-alt fa-fw me-1"></i> Lokal
-                                                </a>
-                                            </li>
-                                            
-                                            <!-- Tombol CoA Ekspor -->
-                                            <li>
-                                                <a href="{{ route('pengajuanchemical.expor', $rs->id) }}" class="dropdown-item">
-                                                    <i class="fas fa-paper-plane fa-fw me-1"></i> Ekspor
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                $isCoaFullyApproved = $isFormanApproved && $isSupervisorApproved;
+                
+                $pendingForeman = $rs->statusHistory()
+                    ->where('status', 'CoA Foreman')
+                    ->where('is_approved', null)
+                    ->exists();
+                    
+                $pendingSupervisor = $rs->statusHistory()
+                    ->where('status', 'CoA Supervisor')
+                    ->where('is_approved', null)
+                    ->exists();
+            @endphp
+            
+            @if($isCoaFullyApproved)
+                <!-- Show CoA buttons only when fully approved -->
+                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-certificate me-1"></i> CoA
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ route('pengajuanchemical.lokal', $rs->id) }}" class="dropdown-item">
+                            <i class="fas fa-map-marker-alt fa-fw me-1"></i> Lokal
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('pengajuanchemical.expor', $rs->id) }}" class="dropdown-item">
+                            <i class="fas fa-paper-plane fa-fw me-1"></i> Ekspor
+                        </a>
+                    </li>
+                </ul>
+            @elseif($isCoaRejectedByForeman || $isCoaRejectedBySupervisor)
+                <!-- Show rejection status and option to start over -->
+                <button type="button" class="btn btn-danger btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-times-circle me-1"></i> CoA Ditolak
+                </button>
+                <ul class="dropdown-menu">
+                    @if($isCoaRejectedByForeman)
+                        <li>
+                            <span class="dropdown-item text-danger">
+                                <i class="fas fa-times-circle fa-fw me-1"></i> Ditolak oleh Foreman
+                            </span>
+                        </li>
+                        <li>
+                            <a href="{{ route('pengajuanchemical.show', $rs->id) }}" class="dropdown-item text-secondary">
+                                <i class="fas fa-info-circle fa-fw me-1"></i> Lihat Detail
+                            </a>
+                        </li>
+                    @endif
+                    
+                    @if($isCoaRejectedBySupervisor)
+                        <li>
+                            <span class="dropdown-item text-danger">
+                                <i class="fas fa-times-circle fa-fw me-1"></i> Ditolak oleh Supervisor
+                            </span>
+                        </li>
+                        <li>
+                            <a href="{{ route('pengajuanchemical.show', $rs->id) }}" class="dropdown-item text-secondary">
+                                <i class="fas fa-info-circle fa-fw me-1"></i> Lihat Detail
+                            </a>
+                        </li>
+                    @endif
+                    
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{{ route('pengajuanchemical.requestCoaApproval', $rs->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sync fa-fw me-1"></i> Mulai Ulang Proses Approval
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            @else
+                <!-- Show CoA approval request button or status -->
+                <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-certificate me-1"></i> CoA Approval
+                </button>
+                <ul class="dropdown-menu">
+                    @if(!$pendingForeman && !$pendingSupervisor && !$isFormanApproved)
+                        <li>
+                            <form action="{{ route('pengajuanchemical.requestCoaApproval', $rs->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-paper-plane fa-fw me-1"></i> Request CoA Approval
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li>
+                            <span class="dropdown-item disabled">
+                                <i class="fas fa-hourglass-half fa-fw me-1"></i> Status Approval
+                            </span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <span class="dropdown-item text-muted">
+                                <i class="fas fa-user-check fa-fw me-1"></i> Foreman: 
+                                @if($pendingForeman)
+                                    <span class="text-warning">Menunggu</span>
+                                @elseif($isFormanApproved)
+                                    <span class="text-success">Approved</span>
+                                @else
+                                    <span class="text-danger">Ditolak</span>
                                 @endif
+                            </span>
+                        </li>
+                        <li>
+                            <span class="dropdown-item text-muted">
+                                <i class="fas fa-user-tie fa-fw me-1"></i> Supervisor: 
+                                @if(!$isFormanApproved || ($isFormanApproved && !$pendingSupervisor && !$isSupervisorApproved))
+                                    <span class="text-secondary">Menunggu Foreman</span>
+                                @elseif($pendingSupervisor)
+                                    <span class="text-warning">Menunggu</span>
+                                @elseif($isSupervisorApproved)
+                                    <span class="text-success">Approved</span>
+                                @else
+                                    <span class="text-danger">Ditolak</span>
+                                @endif
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            @endif
+        @else
+            <!-- Data belum di-Approve, tidak bisa mengakses CoA -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="fas fa-certificate me-1"></i> CoA
+            </button>
+        @endif
+    </div>
+@endif
+<!-- If user is Foreman, show CoA approval option -->
+<!-- If user is Foreman, show CoA approval option -->
+@if (Auth::user()->level === 'Foreman')
+    @php
+        $pendingForeman = $rs->statusHistory()
+            ->where('status', 'CoA Foreman')
+            ->where('is_approved', null)
+            ->exists();
+    @endphp
+    
+    @if($pendingForeman)
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-check-double me-1"></i> Approval CoA
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form action="{{ route('pengajuanchemical.approveCoaForeman', $rs->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-success">
+                            <i class="fas fa-check-circle fa-fw me-1"></i> Approve CoA
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $rs->id }}">
+                        <i class="fas fa-times-circle fa-fw me-1"></i> Tolak CoA
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+       
+       <!-- Rejection Modal - FIX: Sederhana dan lebih kecil -->
+       <div class="modal fade" id="rejectModal{{ $rs->id }}" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectModalLabel">Tolak CoA</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('pengajuanchemical.rejectCoaForeman', $rs->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejection_reason_foreman_{{ $rs->id }}" class="form-label">Alasan:</label>
+                                <textarea name="rejection_reason" id="rejection_reason_foreman_{{ $rs->id }}" class="form-control" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+@endif
+
+
+
+<!-- If user is Supervisor, show CoA approval option -->
+@if (Auth::user()->level === 'Supervisor')
+    @php
+        $pendingSupervisor = $rs->statusHistory()
+            ->where('status', 'CoA Supervisor')
+            ->where('is_approved', null)
+            ->exists();
+        
+        $foremanApproved = $rs->statusHistory()
+            ->where('status', 'CoA Foreman')
+            ->where('is_approved', true)
+            ->exists();
+    @endphp
+    
+    @if($pendingSupervisor && $foremanApproved)
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-check-double me-1"></i> Final Approval CoAS
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form action="{{ route('pengajuanchemical.approveCoaSupervisor', $rs->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-success">
+                            <i class="fas fa-check-circle"></i> Approve CoA
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#rejectSupervisorModal{{ $rs->id }}">
+                        <i class="fas fa-times-circle"></i> Tolak CoA
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Rejection Modal -->
+        <div class="modal fade" id="rejectSupervisorModal{{ $rs->id }}" tabindex="-1" aria-labelledby="rejectSupervisorModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectSupervisorModalLabel">Tolak CoA</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('pengajuanchemical.rejectCoaSupervisor', $rs->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="rejection_reason_supervisor_{{ $rs->id }}" class="form-label">Alasan:</label>
+                                <textarea name="rejection_reason" id="rejection_reason_supervisor_{{ $rs->id }}" class="form-control" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+@endif
                             </td>
                         </tr>
                     @empty

@@ -524,7 +524,200 @@ class PengajuanChemicalController extends Controller
         return redirect()->route('pengajuanchemical.show', $data->id)
             ->with('success', 'Status berhasil diubah menjadi Approve');
     }
-
+    
+    public function requestCoaApproval($id)
+    {
+        try {
+            $data = PengajuanChemical::findOrFail($id);
+            
+            // Ensure the data is in "Approve" status before starting CoA approval process
+            if ($data->status !== 'Approve') {
+                return redirect()->back()->with('error', 'Pengajuan harus sudah di-Approve sebelum meminta persetujuan CoA.');
+            }
+            
+            // Create CoA Review Foreman status history with shorter status name
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'CoA Foreman', // Use shorter status name
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'is_approved' => null, // null means pending
+                'interval' => '-',
+            ]);
+            
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'Permintaan persetujuan CoA telah dikirim ke Foreman.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal meminta persetujuan CoA: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Approve CoA by Foreman
+     */
+    public function approveCoaForeman($id)
+    {
+        try {
+            $data = PengajuanChemical::findOrFail($id);
+            
+            // Update the Foreman review status to approved
+            StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->where('status', 'CoA Foreman')
+                ->update([
+                    'is_approved' => true,
+                    'changed_at' => Carbon::now()
+                ]);
+            
+            // Create CoA Review Supervisor status history
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'CoA Supervisor', // Use shorter status name
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'is_approved' => null, // null means pending
+                'interval' => '-',
+            ]);
+            
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'CoA telah disetujui oleh Foreman dan menunggu persetujuan Supervisor.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyetujui CoA: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Reject CoA by Foreman with reason
+     */
+    public function rejectCoaForeman(Request $request, $id)
+    {
+        try {
+            $data = PengajuanChemical::findOrFail($id);
+            
+            // Validate rejection reason
+            $request->validate([
+                'rejection_reason' => 'required|string|max:255',
+            ]);
+            
+            // Update the Foreman review status to rejected with reason
+            StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->where('status', 'CoA Foreman')
+                ->update([
+                    'is_approved' => false,
+                    'rejection_reason' => $request->rejection_reason,
+                    'changed_at' => Carbon::now()
+                ]);
+            
+            // Create a new status history entry for the rejection
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'CoA Rejected by Foreman',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'is_approved' => false,
+                'rejection_reason' => $request->rejection_reason,
+                'interval' => '-',
+            ]);
+            
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'CoA telah ditolak oleh Foreman dengan alasan: ' . $request->rejection_reason);
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menolak CoA: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Approve CoA by Supervisor (Final approval)
+     */
+    public function approveCoaSupervisor($id)
+    {
+        try {
+            $data = PengajuanChemical::findOrFail($id);
+            
+            // Verify that Foreman has approved
+            $foremanApproved = StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->where('status', 'CoA Foreman')
+                ->where('is_approved', true)
+                ->exists();
+                
+            if (!$foremanApproved) {
+                return redirect()->back()
+                    ->with('error', 'CoA harus disetujui oleh Foreman terlebih dahulu.');
+            }
+            
+            // Update the Supervisor review status to approved
+            StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->where('status', 'CoA Supervisor')
+                ->update([
+                    'is_approved' => true,
+                    'changed_at' => Carbon::now()
+                ]);
+            
+            // Create CoA Approved status history (final approval)
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'CoA Approved',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'is_approved' => true,
+                'interval' => '-',
+            ]);
+            
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'CoA telah disetujui sepenuhnya dan siap untuk dicetak.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyetujui CoA: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Reject CoA by Supervisor with reason
+     */
+    public function rejectCoaSupervisor(Request $request, $id)
+    {
+        try {
+            $data = PengajuanChemical::findOrFail($id);
+            
+            // Validate rejection reason
+            $request->validate([
+                'rejection_reason' => 'required|string|max:255',
+            ]);
+            
+            // Update the Supervisor review status to rejected with reason
+            StatusHistory::where('pengajuan_chemical_id', $data->id)
+                ->where('status', 'CoA Supervisor')
+                ->update([
+                    'is_approved' => false,
+                    'rejection_reason' => $request->rejection_reason,
+                    'changed_at' => Carbon::now()
+                ]);
+            
+            // Create a new status history entry for the rejection
+            StatusHistory::create([
+                'pengajuan_chemical_id' => $data->id,
+                'status' => 'CoA Rejected by Supervisor',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'is_approved' => false,
+                'rejection_reason' => $request->rejection_reason,
+                'interval' => '-',
+            ]);
+            
+            return redirect()->route('pengajuanchemical.index')
+                ->with('success', 'CoA telah ditolak oleh Supervisor dengan alasan: ' . $request->rejection_reason);
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menolak CoA: ' . $e->getMessage());
+        }
+    }
 public function exportToExcel()
 {
     // Ambil semua data dari tabel

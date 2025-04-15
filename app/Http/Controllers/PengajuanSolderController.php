@@ -524,51 +524,45 @@ class PengajuanSolderController extends Controller
     
     public function approve($id)
     {
-        try {
-            $data = PengajuanSolder::findOrFail($id);
-        
-            // Cek apakah status ini sudah pernah disimpan di status_histories
-            $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
-                ->where('status', 'Approve')
-                ->first();
-        
-            if (!$existingHistory) {
-                // Simpan status Approve ke status_histories
-                $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
-                    ->orderBy('changed_at', 'desc')
-                    ->first();
-            
-                // Hitung interval waktu jika ada history sebelumnya
-                $interval = '-';
-                if ($previousHistory) {
-                    $previousChangedAt = Carbon::parse($previousHistory->changed_at);
-                    $currentChangedAt = Carbon::now();
-                    $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
-                }
-            
-                StatusHistory::create([
-                    'pengajuan_solder_id' => $data->id,
-                    'status' => 'Approve',
-                    'changed_at' => Carbon::now(),
-                    'user_id' => auth()->user()->id,
-                    'user_name' => ucwords(auth()->user()->name),
-                    'interval' => $interval,
-                ]);
-            }
-        
-            // Ubah status PengajuanSolder menjadi "Approve"
-            $data->status = 'Approve';
-            $data->jam_masuk = Carbon::now();
-            $data->save();
-        
-            return redirect()->route('pengajuansolder.show', $data->id)
-                ->with('success', 'Status berhasil diubah menjadi Approve');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menyetujui data: ' . $e->getMessage());
-        }
-    }
+        $data = PengajuanSolder::findOrFail($id);
     
+        // Cek apakah status ini sudah pernah disimpan di status_histories
+        $existingHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+            ->where('status', 'Approve')
+            ->first();
+    
+        if (!$existingHistory) {
+            // Simpan status Approve ke status_histories
+            $previousHistory = StatusHistory::where('pengajuan_solder_id', $data->id)
+                ->orderBy('changed_at', 'desc')
+                ->first();
+    
+            // Hitung interval waktu jika ada history sebelumnya
+            $interval = '-';
+            if ($previousHistory) {
+                $previousChangedAt = Carbon::parse($previousHistory->changed_at);
+                $currentChangedAt = Carbon::now();
+                $interval = $previousChangedAt->diffInMinutes($currentChangedAt) . ' menit';
+            }
+    
+            StatusHistory::create([
+                'pengajuan_solder_id' => $data->id,
+                'status' => 'Approve',
+                'changed_at' => Carbon::now(),
+                'user_id' => auth()->user()->id,
+                'user_name' => ucwords(auth()->user()->name),
+                'interval' => $interval,
+            ]);
+        }
+    
+        // Ubah status PengajuanSolder menjadi "Approve"
+        $data->status = 'Approve';
+        $data->jam_masuk = Carbon::now();
+        $data->save();
+    
+        return redirect()->route('pengajuansolder.show', $data->id)
+            ->with('success', 'Status berhasil diubah menjadi Approve');
+    }
     // NEW METHODS FOR COA APPROVAL WORKFLOW
     
     /**
