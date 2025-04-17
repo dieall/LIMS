@@ -125,7 +125,7 @@
                 $hasCoaApprovedStatus = false;
             @endphp
 
-            @forelse($pengajuansolder->statusHistory as $history)
+            @forelse($pengajuanchemical->statusHistory as $history)
                 @php
                     // Save the last status we find in history
                     $lastStatusInHistory = $history->status;
@@ -170,23 +170,23 @@
 
             <!-- Only add the current status if it's not already the last status in history -->
             <!-- AND we don't have a CoA Approved status (this is the key fix) -->
-            @if($pengajuansolder->statusHistory->count() > 0 && $lastStatusInHistory !== $pengajuansolder->status && !$hasCoaApprovedStatus)
+            @if($pengajuanchemical->statusHistory->count() > 0 && $lastStatusInHistory !== $pengajuanchemical->status && !$hasCoaApprovedStatus)
                 <tr>
                     @php
                         // Menghitung interval waktu dari status terakhir hingga status saat ini
-                        $lastDate = \Carbon\Carbon::parse($pengajuansolder->jam_masuk);
+                        $lastDate = \Carbon\Carbon::parse($pengajuanchemical->jam_masuk);
                         $interval = $previousDate ? round($previousDate->diffInMinutes($lastDate), 0) . ' menit' : '-';
                         
                         // Get the last user who modified this record
-                        $lastUserName = $pengajuansolder->statusHistory->last() ? 
-                            ($pengajuansolder->statusHistory->last()->user_name ?? 
-                             $pengajuansolder->statusHistory->last()->user->name ?? 'Tidak Diketahui') : 
+                        $lastUserName = $pengajuanchemical->statusHistory->last() ? 
+                            ($pengajuanchemical->statusHistory->last()->user_name ?? 
+                             $pengajuanchemical->statusHistory->last()->user->name ?? 'Tidak Diketahui') : 
                             'Tidak Diketahui';
                     @endphp
                     <td>{{ $no }}</td>
                     <td>{{ $lastDate->format('Y-m-d H:i:s') }}</td>
-                    <td>{{ $pengajuansolder->status }}</td>
-                    <td>{{ $pengajuansolder->rejection_reason ?? '-' }}</td>
+                    <td>{{ $pengajuanchemical->status }}</td>
+                    <td>{{ $pengajuanchemical->rejection_reason ?? '-' }}</td>
                     <td>{{ $interval }}</td>
                     <td>{{ ucwords($lastUserName) }}</td>
                 </tr>

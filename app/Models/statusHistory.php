@@ -13,6 +13,7 @@ class StatusHistory extends Model
     protected $fillable = [
         'pengajuan_solder_id',
         'pengajuan_chemical_id',
+        'pengajuan_rawmat_id',
         'status',
         'is_approved',
         'changed_at',
@@ -34,6 +35,12 @@ public function pengajuanSolder()
     public function pengajuanChemical()
     {
         return $this->belongsTo(PengajuanChemical::class, 'pengajuan_chemical_id');
+    }
+
+    // Relasi ke model PengajuanRawmat
+    public function pengajuanRawmat()
+    {
+        return $this->belongsTo(PengajuanRawmat::class, 'pengajuan_rawmat_id');
     }
 
     // Relasi ke model User

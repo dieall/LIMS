@@ -718,6 +718,7 @@ class PengajuanChemicalController extends Controller
                 ->with('error', 'Gagal menolak CoA: ' . $e->getMessage());
         }
     }
+    
 public function exportToExcel()
 {
     // Ambil semua data dari tabel

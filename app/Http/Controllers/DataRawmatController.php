@@ -7,77 +7,77 @@ use App\Models\DataRawmat;
 
 class DataRawmatController extends Controller
 {
-
     public function index(Request $request)
     {
-        // Ambil parameter filter dan page size
-        $filter = $request->get('filter', 'all');
-        $pageSize = $request->get('page_size', 10); // Default page size 10
-    
-        // Query dasar
+        $pageSize = $request->get('page_size', 50);
+
         $query = DataRawmat::query();
-    
-        // Terapkan filter jika ada
-        if ($filter !== 'all') {
-            $query->where('supplier', $filter);
-        }
-    
-        // Pagination dengan page size
+
         $datarawmat = $query->orderBy('created_at', 'ASC')->paginate($pageSize);
-    
-        // Kirim data ke view
-        return view('datarawmat.index', compact('datarawmat'));
+
+        return view('datarawmat.index', compact('datarawmat', 'pageSize'));
     }
-    
-    
 
     public function create()
     {
-        // Ambil semua data kategori dari database menggunakan Eloquent
-        $datarawmat = DataRawmat::all();
-        
-        // Kirim data datarawmat ke view
-        return view('datarawmat.create', compact('datarawmat'));
+        $fieldGroups = [
+            'Basic Information' => ['nama', 'nama_rawmat'],
+            'Chemical Properties' => ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'],
+            'Physical Properties' => ['purity', 'purity_tmac', 'appreance', 'sg', 'visual', 'color'],
+            'Additional Properties' => ['fe_amo', 'si_amo', 'sh', 'acid', 'ri', 'free', 'ph', 'fe', 'si', 'sulfur', 'water', 'acidity', 'lodine','densi','clarity','apha']
+        ];
+
+        return view('datarawmat.create', compact('fieldGroups'));
     }
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:100',
+        ]);
+
         DataRawmat::create($request->all());
- 
+
         return redirect()->route('datarawmat')->with('success', 'Data Rawmat added successfully');
     }
 
     public function show($id)
     {
         $dataRawmat = DataRawmat::findOrFail($id);
-        return view('datarawmat.show', compact('dataRawmat'));
+
+        $fieldGroups = [
+            'Basic Information' => ['nama', 'nama_rawmat'],
+            'Chemical Properties' => ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'],
+            'Physical Properties' => ['purity', 'purity_tmac', 'appreance', 'sg', 'visual', 'color'],
+            'Additional Properties' => ['fe_amo', 'si_amo', 'sh', 'acid', 'ri', 'free', 'ph', 'fe', 'si', 'sulfur', 'water', 'acidity', 'lodine','densi','clarity','apha']
+        ];
+
+        return view('datarawmat.show', compact('dataRawmat', 'fieldGroups'));
     }
-    
+
     public function edit($id)
     {
         $dataRawmat = DataRawmat::findOrFail($id);
-        
-        // Kolom yang harus ditampilkan berdasarkan nilai yang ada
-        $fields = [
-            'nama', 'supplier'
+
+        $fieldGroups = [
+            'Basic Information' => ['nama', 'nama_rawmat'],
+            'Chemical Properties' => ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'],
+            'Physical Properties' => ['purity', 'purity_tmac', 'appreance', 'sg', 'visual', 'color'],
+            'Additional Properties' => ['fe_amo', 'si_amo', 'sh', 'acid', 'ri', 'free', 'ph', 'fe', 'si', 'sulfur', 'water', 'acidity', 'lodine','densi','clarity','apha']
         ];
 
-        return view('datarawmat.edit', compact('dataRawmat', 'fields'));
+        return view('datarawmat.edit', compact('dataRawmat', 'fieldGroups'));
     }
 
-    // Proses untuk update data
     public function update(Request $request, $id)
     {
         $dataRawmat = DataRawmat::findOrFail($id);
 
-        // Validasi data yang terisi
         $validatedData = $request->validate([
             'nama' => 'required|string|max:100',
-            'supplier' => 'required|string|max:100',
         ]);
 
-        // Update data dengan nilai yang baru
-        $dataRawmat->update($validatedData);
+        $dataRawmat->update($request->all());
 
         return redirect()->route('datarawmat')->with('success', 'Data updated successfully!');
     }
@@ -86,7 +86,6 @@ class DataRawmatController extends Controller
     {
         $dataRawmat = DataRawmat::findOrFail($id);
 
-        // Hapus data
         $dataRawmat->delete();
 
         return redirect()->route('datarawmat')->with('success', 'Data deleted successfully!');

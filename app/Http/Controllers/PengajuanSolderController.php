@@ -81,8 +81,10 @@ class PengajuanSolderController extends Controller
 
         $tipesolder = DataSolder::select('tipe_solder')->distinct()->get();
     
+    
         return view('pengajuansolder.createe', compact('categorysolder', 'datasolder1', 'datasolder2', 'datasolder3', 'datasolder4','tipesolder','solders','pengajuansolder'));
     }
+    
         
     public function store(Request $request)
     {
@@ -186,49 +188,44 @@ class PengajuanSolderController extends Controller
 
     public function update(Request $request, string $id)
     {
-        try {
-            // Find the solder record to update
-            $pengajuansolder = PengajuanSolder::findOrFail($id);
-            
-            // Set basic fields with null/default handling
-            $pengajuansolder->nama = $request->input('nama', $pengajuansolder->nama);
-            $pengajuansolder->tgl = $request->input('tgl', $pengajuansolder->tgl);
-            $pengajuansolder->tipe_solder = $request->input('tipe_solder', $pengajuansolder->tipe_solder); 
-            $pengajuansolder->batch = $request->input('batch', $pengajuansolder->batch);
-            $pengajuansolder->audit_trail = $request->input('audit_trail', $pengajuansolder->audit_trail);
-            $pengajuansolder->jam_masuk = $request->input('jam_masuk', $pengajuansolder->jam_masuk);
-            $pengajuansolder->id_category = $request->input('id_category', $pengajuansolder->id_category);
-            $pengajuansolder->deskripsi = $request->input('deskripsi', $pengajuansolder->deskripsi);
-            $pengajuansolder->status = $request->input('status', $pengajuansolder->status);
-            
-            // Process chemical fields and their status fields
-            $chemicalFields = ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'fe', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'];
-            
-            foreach ($chemicalFields as $field) {
-                // Update element value
-                if ($request->has($field)) {
-                    $pengajuansolder->$field = $request->input($field);
-                }
-                
-                // Update element status (Passed or Not Passed)
-                $statusField = $field . '_status';
-                if ($request->has($statusField)) {
-                    $pengajuansolder->$statusField = $request->input($statusField);
-                }
+        // Find the solder record to update
+        $pengajuansolder = PengajuanSolder::findOrFail($id);
+        
+        // Set basic fields with null/default handling
+        $pengajuansolder->nama = $request->input('nama', $pengajuansolder->nama);
+        $pengajuansolder->tgl = $request->input('tgl', $pengajuansolder->tgl);
+        $pengajuansolder->tipe_solder = $request->input('tipe_solder', $pengajuansolder->tipe_solder); 
+        $pengajuansolder->batch = $request->input('batch', $pengajuansolder->batch);
+        $pengajuansolder->audit_trail = $request->input('audit_trail', $pengajuansolder->audit_trail);
+        $pengajuansolder->jam_masuk = $request->input('jam_masuk', $pengajuansolder->jam_masuk);
+        $pengajuansolder->id_category = $request->input('id_category', $pengajuansolder->id_category);
+        $pengajuansolder->status = $request->input('status', $pengajuansolder->status);
+        
+        // Process chemical fields and their status fields
+        $chemicalFields = ['sn', 'ag', 'cu', 'pb', 'sb', 'zn', 'fe', 'as', 'ni', 'bi', 'cd', 'ai', 'pe', 'ga'];
+        
+        foreach ($chemicalFields as $field) {
+            // Update element value
+            if ($request->has($field)) {
+                $pengajuansolder->$field = $request->input($field);
             }
             
-            // Save all changes
-            $pengajuansolder->save();
-            
-            // Stay on the same page with a success message
-            return redirect()->route('pengajuansolder.createe', $pengajuansolder->id)
-                ->with('success', 'Data berhasil disimpan dengan status validasi');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage())
-                ->withInput();
+            // Update element status (Passed or Not Passed)
+            $statusField = $field . '_status';
+            if ($request->has($statusField)) {
+                $pengajuansolder->$statusField = $request->input($statusField);
+            }
         }
+        
+        // Save all changes
+        $pengajuansolder->save();
+        
+        // Stay on the same page with a success message
+        return redirect()->route('pengajuansolder.createe', $pengajuansolder->id)
+            ->with('success', 'Data berhasil disimpan dengan status validasi');
     }
+    
+    
     
     
     public function destroy(string $id)

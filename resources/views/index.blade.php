@@ -49,7 +49,7 @@
                         <p class="m-0"><i class="fa fa-envelope-open me-2"></i>selfira.arum@timahindustri.com</p>
                     </div>
                     <div class="py-2">
-                        <p class="m-0"><i class="fa fa-phone-alt me-2"></i>+62 12345678</p>
+                        <p class="m-0"><i class="fa fa-phone-alt me-2"></i>+62 813-3703-3688</p>
                     </div>
                 </div>
             </div>
@@ -316,7 +316,7 @@
                                     Kota Cilegon, Provinsi Banten - Indonesia
                                     Kode Pos: 42436</p>
                     <p class="mb-2"><i class="bi bi-envelope-open text-primary me-2"></i>selfira.arum@timahindustri.com</p>
-                    <p class="mb-0"><i class="bi bi-telephone text-primary me-2"></i>+62 12345678</p>
+                    <p class="mb-0"><i class="bi bi-telephone text-primary me-2"></i>+62 813-3703-3688</p>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h3 class="text-white mb-4">Follow Us</h3>
@@ -337,7 +337,7 @@
                     <p class="mb-md-0">&copy; <a class="text-white border-bottom" href="#">LIMS</a>. PT Timah Industri</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-0">Designed by <a class="text-white border-bottom" href="https://www.instagram.com/diieal/?locale=gb&hl=am-et">diieal</a></p>
+                    <p class="mb-0">Designed by <a class="text-white border-bottom" href="#">Laboratorium</a></p>
                 </div>
             </div>
         </div>

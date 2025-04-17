@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User; // Pastikan Anda mengimpor model User
 use App\Models\Tinstab;
-use App\Models\Dmt;
+
 use App\Models\Tinchem;
 use App\Models\PengajuanSolder;
 use App\Models\PengajuanChemical;
@@ -60,10 +60,7 @@ class DashboardController extends Controller
             'MT-630' => ['total' => $mt630Count],
             'MT-620' => ['total' => $mt620Count],
         ];
-    
-        $chartData = Dmt::selectRaw('id, COUNT(*) as total')
-            ->groupBy('id')
-            ->pluck('total', 'id');
+   
     
         $tinchem = Tinchem::orderBy('created_at', 'ASC')->get();
     
@@ -171,6 +168,11 @@ class DashboardController extends Controller
         }, range(1, 12));
 
         $today = Carbon::today();
+
+        // Count raw materials with status up to "Analisa Selesai" only
+        $jumlahRawmatProses = PengajuanRawmat::whereDate('created_at', Carbon::today())
+        ->whereIn('status', ['Pengajuan', 'Proses Analisa'])
+        ->count();
 
         // Query untuk data PengajuanSolder dengan status tertentu
         $pengajuanSolder = PengajuanSolder::whereDate('created_at', $today)
@@ -436,13 +438,13 @@ class DashboardController extends Controller
             'jumlahPegawai',
             'dataCounts',
             'tinstab',
-            'chartData',
             'labels',
             'data',
             'jumlahApprovedHariIni',
             'jumlahApprovedChemicalHariIni',
             'jumlahRawmatHariIni',
             'totalMonthlyData',
+            'jumlahRawmatProses',
             'pengajuanSolder',
             'pengajuanChemical',
             'tbsMonthlyData', 

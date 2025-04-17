@@ -10,14 +10,49 @@ class DataRawmat extends Model
     use HasFactory;
 
     protected $table = 'tbr_rawmat';
-
-    // Jika kolom primary key berbeda, tentukan di sini
-    protected $primaryKey = 'id_rawmat'; // Nama kolom primary key
-
-        
+    protected $primaryKey = 'id';
+    
+    // Add all the columns from your schema to the fillable array
     protected $fillable = [
         'nama',
-        'supplier',
+        'nama_rawmat',
+        'sn',
+        'purity',
+        'purity_tmac',
+        'appreance',
+        'sg',
+        'fe_amo',
+        'si_amo',
+        'sh',
+        'acid',
+        'ri',
+        'free',
+        'ph',
+        'fe',
+        'si',
+        'sulfur',
+        'visual',
+        'water',
+        'color',
+        'acidity',
+        'lodine',
+        'ag',
+        'cu',
+        'pb',
+        'sb',
+        'zn',
+        'as',
+        'ni',
+        'bi',
+        'cd',
+        'ai',
+        'pe',
+        'ga',
+        'densi',
+        'clarity',
+        'apha'
     ];
 
+    // Define created_at and updated_at handling
+    public $timestamps = true;
 }

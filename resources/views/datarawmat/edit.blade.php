@@ -7,7 +7,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Edit Data Rawmat</h6>
             </div>
             <div class="card-body">
-                <form action="{{ route('datarawmat.update', $dataRawmat->id_rawmat) }}" method="POST">
+                <form action="{{ route('datarawmat.update', $dataRawmat->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 

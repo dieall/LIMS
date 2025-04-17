@@ -39,8 +39,8 @@
                 <thead class="bg-light text-dark">
                     <tr>
                         <th class="text-center">No</th>
+                        <th>Kategori Rawmat</th>
                         <th>Nama Rawmat</th>
-                        <th>Supplier</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -49,18 +49,18 @@
                         @foreach($datarawmat as $index => $rs)
                             <tr>
                                 <td class="text-center align-middle">{{ $index + 1 + (($datarawmat->currentPage() - 1) * $datarawmat->perPage()) }}</td>
+                                <td class="align-middle">{{ $rs->nama_rawmat }}</td>
                                 <td class="align-middle">{{ $rs->nama }}</td>
-                                <td class="align-middle">{{ $rs->supplier }}</td>
                                 <td class="text-center align-middle">
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fas fa-cogs"></i> Actions
                                         </button>
                                         <ul class="dropdown-menu">
-                                            <li><a href="{{ route('datarawmat.show', $rs->id_rawmat) }}" class="dropdown-item"><i class="fas fa-eye"></i> Detail</a></li>
-                                            <li><a href="{{ route('datarawmat.edit', $rs->id_rawmat) }}" class="dropdown-item"><i class="fas fa-pencil-alt"></i> Edit</a></li>
+                                            <li><a href="{{ route('datarawmat.show', $rs->id) }}" class="dropdown-item"><i class="fas fa-eye"></i> Detail</a></li>
+                                            <li><a href="{{ route('datarawmat.edit', $rs->id) }}" class="dropdown-item"><i class="fas fa-pencil-alt"></i> Edit</a></li>
                                             <li>
-                                                <form action="{{ route('datarawmat.destroy', $rs->id_rawmat) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this data?')" style="display: inline;">
+                                                <form action="{{ route('datarawmat.destroy', $rs->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this data?')" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash-alt"></i> Delete</button>

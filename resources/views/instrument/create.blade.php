@@ -1,209 +1,237 @@
 @extends('layouts.app')
 
 @section('contents')
+<style>
+    /* Form styling */
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Required field indicator */
+    .required::after {
+        content: " *";
+        color: #e74a3b;
+    }
+    
+    /* Table styling */
+    .table th {
+        background-color: #f8f9fa;
+    }
+    
+    /* Radio button group styling */
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+    }
+    
+    .radio-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .radio-item input[type="radio"] {
+        margin-right: 0.5rem;
+    }
+    
+    /* Error message styling */
+    .error-text {
+        color: #e74a3b;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
 <div class="panel-body">
+    <!-- Breadcrumb Navigation -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
             <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('instruments') }}"><i class="fas fa-tools"></i> Kondisi Instrument</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-info-circle"></i> Detail Data Instrument</li>
+            <li class="breadcrumb-item"><a href="{{ route('instruments') }}"><i class="fas fa-tools"></i> Data Kondisi Instrumen</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-plus"></i> Tambah Instrumen</li>
         </ol>
+        <hr>
     </nav>
 </div>
 
+@if(Session::has('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i> {{ Session::get('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+@if(Session::has('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ Session::get('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i> Terdapat kesalahan dalam form:
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-tools me-2"></i> Detail Data Instrument
+    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-gradient-primary text-white">
+        <h6 class="m-0 font-weight-bold">
+            <i class="fas fa-plus-circle me-2"></i> Tambah Instrumen Baru
         </h6>
-        <span class="badge bg-info">{{ \Carbon\Carbon::parse($instrument->tgl)->locale('id')->isoFormat('D MMMM YYYY') }}</span>
     </div>
 
     <div class="card-body">
-        <!-- Basic Information Card -->
-        <div class="card mb-4 border-left-info">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="d-flex mb-2">
-                            <div class="text-info" style="width: 30px;"><i class="fas fa-calendar-day fa-fw"></i></div>
-                            <div style="width: 150px;"><strong>Tanggal</strong></div>
-                            <div>: {{ \Carbon\Carbon::parse($instrument->tgl)->locale('id')->isoFormat('D MMMM YYYY') }}</div>
-                        </div>
-                        
-                        <div class="d-flex mb-2">
-                            <div class="text-info" style="width: 30px;"><i class="fas fa-user-clock fa-fw"></i></div>
-                            <div style="width: 150px;"><strong>Shift</strong></div>
-                            <div>: {{ $instrument->shift }}</div>
-                        </div>
+        <form action="{{ route('instrument.store') }}" method="POST">
+            @csrf
+
+            <div class="row mb-4">
+                <!-- Kolom Kiri 1 -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label for="shift" class="form-label required">Shift</label>
+                        <select name="shift" class="form-select @error('shift') is-invalid @enderror" id="shift" required>
+                            <option value="Pagi" {{ old('shift', $shift) == 'Pagi' ? 'selected' : '' }}>Pagi</option>
+                            <option value="Siang" {{ old('shift', $shift) == 'Siang' ? 'selected' : '' }}>Siang</option>
+                            <option value="Malam" {{ old('shift', $shift) == 'Malam' ? 'selected' : '' }}>Malam</option>
+                        </select>
+                        @error('shift')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    
-                    <div class="col-md-6">
-                        <div class="d-flex mb-2">
-                            <div class="text-info" style="width: 30px;"><i class="fas fa-clock fa-fw"></i></div>
-                            <div style="width: 150px;"><strong>Jam</strong></div>
-                            <div>: {{ \Carbon\Carbon::parse($instrument->jam)->format('H:i') }}</div>
-                        </div>
-                        
-                        <div class="d-flex mb-2">
-                            <div class="text-info" style="width: 30px;"><i class="fas fa-user fa-fw"></i></div>
-                            <div style="width: 150px;"><strong>Operator</strong></div>
-                            <div>: {{ $instrument->nama }}</div>
-                        </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label for="tgl" class="form-label required">Tanggal</label>
+                        <input type="date" name="tgl" class="form-control @error('tgl') is-invalid @enderror" id="tgl" value="{{ old('tgl', date('Y-m-d')) }}" required>
+                        @error('tgl')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Instrument Condition Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 35%;">Nama Instrument</th>
-                        <th style="width: 30%;">Kondisi</th>
-                        <th style="width: 30%;">Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        try {
-                            // Decode JSON fields with error handling
-                            $nama_instrument = json_decode($instrument->nama_instrument, true);
-                            $kondisi = json_decode($instrument->kondisi, true);
-                            $keterangan = json_decode($instrument->keterangan, true);
-                            
-                            // Ensure we have arrays
-                            $nama_instrument = is_array($nama_instrument) ? $nama_instrument : [];
-                            $kondisi = is_array($kondisi) ? $kondisi : [];
-                            $keterangan = is_array($keterangan) ? $keterangan : [];
-                            
-                            // Create a combined array for sorting
-                            $combined = [];
-                            foreach ($nama_instrument as $i => $name) {
-                                // Handle case where name might be an array
-                                $displayName = is_array($name) ? implode(', ', $name) : $name;
-                                
-                                $combined[] = [
-                                    'nama' => $displayName,
-                                    'kondisi' => isset($kondisi[$i]) ? $kondisi[$i] : '-',
-                                    'keterangan' => isset($keterangan[$i]) ? $keterangan[$i] : '-'
-                                ];
-                            }
-                            
-                            // Sort by instrument name - account for if displayNames are arrays
-                            usort($combined, function($a, $b) {
-                                $nameA = is_array($a['nama']) ? implode(', ', $a['nama']) : $a['nama'];
-                                $nameB = is_array($b['nama']) ? implode(', ', $b['nama']) : $b['nama'];
-                                return strcmp($nameA, $nameB);
-                            });
-                        } catch (\Exception $e) {
-                            // Handle any errors during JSON decoding
-                            $combined = [];
-                        }
-                    @endphp
-                    
-                    @forelse($combined as $index => $item)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ is_array($item['nama']) ? implode(', ', $item['nama']) : $item['nama'] }}</td>
-                            <td>
-                                @php
-                                    $kondisiValue = $item['kondisi'];
-                                    // Handle kondisi if it's an array
-                                    if(is_array($kondisiValue)) {
-                                        $kondisiText = implode(', ', $kondisiValue);
-                                    } else {
-                                        $kondisiText = $kondisiValue;
-                                    }
-                                @endphp
-                                
-                                @if(is_string($kondisiText) && strtolower($kondisiText) == 'baik')
-                                    <span class="badge bg-success">Baik</span>
-                                @elseif(is_string($kondisiText) && strtolower($kondisiText) == 'rusak')
-                                    <span class="badge bg-danger">Rusak</span>
-                                @else
-                                    {{ $kondisiText }}
-                                @endif
-                            </td>
-                            <td>{{ is_array($item['keterangan']) ? implode(', ', $item['keterangan']) : $item['keterangan'] }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center">Tidak ada data instrument yang tersedia</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            <div class="row mb-4">
+                <!-- Kolom Kiri 2 -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label for="jam" class="form-label required">Jam</label>
+                        <input type="time" name="jam" class="form-control @error('jam') is-invalid @enderror" id="jam" value="{{ old('jam', date('H:i')) }}" required>
+                        @error('jam')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
 
-        <!-- Additional Info or Actions -->
-        <div class="mt-4">
-            <!-- Show created/updated timestamps if needed -->
-            @if($instrument->created_at)
-                <p class="text-muted small mb-1">
-                    <i class="fas fa-history"></i> Dibuat: {{ $instrument->created_at->format('d M Y H:i') }}
-                    @if($instrument->updated_at && $instrument->updated_at->ne($instrument->created_at))
-                        | Diperbarui: {{ $instrument->updated_at->format('d M Y H:i') }}
-                    @endif
-                </p>
-            @endif
-            
-            <div class="d-flex gap-2">
-                <a href="{{ route('instruments') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Kembali
-                </a>
-                
-                @if(auth()->user()->level === 'Admin' || auth()->user()->name === $instrument->nama)
-                    <a href="{{ route('instrument.edit', $instrument->id) }}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Edit
-                    </a>
-                    <form action="{{ route('instrument.destroy', $instrument->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> Hapus
-                        </button>
-                    </form>
-                @endif
+                <div class="col-md-6 mb-3">
+                    <div class="form-group">
+                        <label for="user_id" class="form-label required">Nama</label>
+                        <select name="user_id" class="form-select @error('user_id') is-invalid @enderror" id="user_id" required>
+                            <option value="">Pilih Nama</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" 
+                                    {{ old('user_id', auth()->user()->id) == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('user_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-light text-dark">
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 40%;">Nama Instrumen</th>
+                            <th style="width: 20%;">Kondisi</th>
+                            <th style="width: 35%;">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($instruments as $index => $instrument)
+                            <tr>
+                                <td class="text-center">{{ $index + 1 }}</td>
+                                <td>
+                                    <!-- Store instrument ID and name as hidden fields -->
+                                    <input type="hidden" name="nama_instrument[{{ $index }}]" value="{{ $instrument->nama_instrument }}">
+                                    <span>{{ $instrument->nama_instrument }}</span>
+                                </td>
+                                <td>
+                                    <div class="radio-group">
+                                        <label class="radio-item">
+                                            <input type="radio" name="kondisi[{{ $index }}]" value="Baik" 
+                                                {{ old('kondisi.'.$index) == 'Baik' ? 'checked' : 'checked' }} required> 
+                                            Baik
+                                        </label>
+                                        <label class="radio-item">
+                                            <input type="radio" name="kondisi[{{ $index }}]" value="Rusak" 
+                                                {{ old('kondisi.'.$index) == 'Rusak' ? 'checked' : '' }}> 
+                                            Rusak
+                                        </label>
+                                    </div>
+                                    @error('kondisi.'.$index)
+                                        <div class="error-text">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <textarea name="keterangan[{{ $index }}]" class="form-control @error('keterangan.'.$index) is-invalid @enderror" rows="1" 
+                                        placeholder="Keterangan (wajib diisi jika kondisi rusak)">{{ old('keterangan.'.$index, '') }}</textarea>
+                                    <div class="form-text">Wajib diisi jika kondisi rusak</div>
+                                    @error('keterangan.'.$index)
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>  
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ route('instruments') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Simpan Instrumen
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<style>
-    /* Style for badges */
-    .badge {
-        font-size: 0.85rem;
-        font-weight: 500;
-        padding: 0.35em 0.65em;
-    }
-    .bg-info {
-        background-color: #0dcaf0 !important;
-    }
-    .bg-success {
-        background-color: #198754 !important;
-        color: white;
-    }
-    .bg-danger {
-        background-color: #dc3545 !important;
-        color: white;
-    }
-    
-    /* Card enhancements */
-    .border-left-info {
-        border-left: 4px solid #0dcaf0 !important;
-    }
-    
-    /* Table styles */
-    .table-hover tbody tr:hover {
-        background-color: rgba(13, 202, 240, 0.05);
-    }
-    
-    /* Gap utility for browsers that don't support it */
-    .gap-2 {
-        gap: 0.5rem;
-    }
-</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide keterangan field based on kondisi selection
+    document.querySelectorAll('input[type="radio"][name^="kondisi"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            let index = this.name.match(/\d+/)[0];
+            let textarea = document.querySelector(`textarea[name="keterangan[${index}]"]`);
+            
+            if (this.value === 'Rusak') {
+                textarea.required = true;
+                textarea.nextElementSibling.innerHTML = '<strong>Wajib diisi karena kondisi rusak</strong>';
+            } else {
+                textarea.required = false;
+                textarea.nextElementSibling.innerHTML = 'Wajib diisi jika kondisi rusak';
+            }
+        });
+    });
+});
+</script>
 @endsection

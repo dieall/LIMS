@@ -47,11 +47,19 @@ class DataIntervalController extends Controller
             // Fetch the user
             $user = User::findOrFail($user_id);
             
-            // Get status history for the selected month
-            $statusHistories = StatusHistory::where('user_id', $user_id)
+            // Get status history for the selected month (semua status)
+            $allStatusHistories = StatusHistory::where('user_id', $user_id)
                 ->whereMonth('changed_at', $selectedMonth)
                 ->orderBy('changed_at', 'asc')
                 ->get();
+            
+            // Hitung interval antara Proses Analisa dan Analisa Selesai
+            $this->calculateIntervals($allStatusHistories);
+            
+            // Filter untuk menampilkan hanya status selain Proses Analisa
+            $statusHistories = $allStatusHistories->filter(function($data) {
+                return $data->status !== 'Proses Analisa';
+            });
             
             // Filter for solder and chemical data
             $solderData = $statusHistories->filter(function($data) {
@@ -63,7 +71,7 @@ class DataIntervalController extends Controller
             });
             
             // Calculate total interval time
-            list($hours, $minutes) = $this->calculateTotalInterval($statusHistories);
+            list($hours, $minutes) = $this->calculateTotalIntervalFromCompleted($statusHistories);
             
 // Calculate average intervals by category
 $solderCount = $solderData->count();
@@ -75,9 +83,9 @@ $avgSolderMinutes = 0;
 if ($solderCount > 0) {
     $solderMinutes = 0;
     foreach ($solderData as $data) {
-        $solderMinutes += floatval($data->interval);
+        $solderMinutes += is_numeric($data->interval) ? floatval($data->interval) : 0;
     }
-    $avgSolderMinutes = round($solderCount > 0 ? $solderMinutes / $solderCount : 0);
+    $avgSolderMinutes = round($solderMinutes / $solderCount);
 }
 
 // Calculate average minutes per chemical sample
@@ -85,9 +93,9 @@ $avgChemicalMinutes = 0;
 if ($chemicalCount > 0) {
     $chemicalMinutes = 0;
     foreach ($chemicalData as $data) {
-        $chemicalMinutes += floatval($data->interval);
+        $chemicalMinutes += is_numeric($data->interval) ? floatval($data->interval) : 0;
     }
-    $avgChemicalMinutes = round($chemicalCount > 0 ? $chemicalMinutes / $chemicalCount : 0);
+    $avgChemicalMinutes = round($chemicalMinutes / $chemicalCount);
 }
 
 // Calculate overall average minutes per sample
@@ -116,40 +124,52 @@ return view('datainterval.show', compact(
     }
     
     /**
-     * Calculate total interval between 'Proses Analisa' and 'Analisa Selesai' statuses.
+     * Calculate intervals between 'Proses Analisa' and 'Analisa Selesai' statuses.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $statusHistories
+     */
+    private function calculateIntervals(Collection $statusHistories)
+    {
+        // Group process and completion pairs
+        $analysisPairs = [];
+        $currentStart = null;
+        
+        foreach ($statusHistories as $history) {
+            if ($history->status === 'Proses Analisa') {
+                $currentStart = $history;
+            } elseif (in_array($history->status, ['Analisa Selesai', 'Selesai Analisa']) && $currentStart) {
+                $startTime = Carbon::parse($currentStart->changed_at);
+                $endTime = Carbon::parse($history->changed_at);
+                $interval = $startTime->diffInMinutes($endTime);
+                
+                // Assign interval to the 'Analisa Selesai' record
+                $history->interval = $interval;
+                
+                $currentStart = null;
+            }
+        }
+    }
+    
+    /**
+     * Calculate total interval from completed analysis records.
      *
      * @param \Illuminate\Database\Eloquent\Collection $statusHistories
      * @return array [hours, minutes]
      */
-    private function calculateTotalInterval(Collection $statusHistories)
+    private function calculateTotalIntervalFromCompleted(Collection $statusHistories)
     {
         $totalMinutes = 0;
-        $analysisPairs = [];
-        $currentStart = null;
         
-        // Group process and completion pairs
+        // Sum up intervals from all completed analysis records
         foreach ($statusHistories as $history) {
-            if ($history->status === 'Proses Analisa') {
-                $currentStart = $history;
-            } elseif ($history->status === 'Analisa Selesai' && $currentStart) {
-                $analysisPairs[] = [
-                    'start' => $currentStart,
-                    'end' => $history
-                ];
-                $currentStart = null;
+            if (in_array($history->status, ['Analisa Selesai', 'Selesai Analisa']) && is_numeric($history->interval)) {
+                $totalMinutes += floatval($history->interval);
             }
-        }
-        
-        // Calculate total minutes
-        foreach ($analysisPairs as $pair) {
-            $startTime = Carbon::parse($pair['start']->changed_at);
-            $endTime = Carbon::parse($pair['end']->changed_at);
-            $totalMinutes += $startTime->diffInMinutes($endTime);
         }
         
         // Convert to hours and minutes
         $hours = floor($totalMinutes / 60);
-        $minutes = $totalMinutes % 60;
+        $minutes = round($totalMinutes % 60);
         
         return [$hours, $minutes];
     }
@@ -234,5 +254,44 @@ return view('datainterval.show', compact(
         $datainterval->delete();
   
         return redirect()->route('datainterval')->with('success', 'Data interval berhasil dihapus');
+    }
+
+    /**
+     * Calculate total interval between 'Proses Analisa' and 'Analisa Selesai' statuses.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $statusHistories
+     * @return array [hours, minutes]
+     */
+    private function calculateTotalInterval(Collection $statusHistories)
+    {
+        $totalMinutes = 0;
+        $analysisPairs = [];
+        $currentStart = null;
+        
+        // Group process and completion pairs
+        foreach ($statusHistories as $history) {
+            if ($history->status === 'Proses Analisa') {
+                $currentStart = $history;
+            } elseif ($history->status === 'Analisa Selesai' && $currentStart) {
+                $analysisPairs[] = [
+                    'start' => $currentStart,
+                    'end' => $history
+                ];
+                $currentStart = null;
+            }
+        }
+        
+        // Calculate total minutes
+        foreach ($analysisPairs as $pair) {
+            $startTime = Carbon::parse($pair['start']->changed_at);
+            $endTime = Carbon::parse($pair['end']->changed_at);
+            $totalMinutes += $startTime->diffInMinutes($endTime);
+        }
+        
+        // Convert to hours and minutes
+        $hours = floor($totalMinutes / 60);
+        $minutes = round($totalMinutes % 60);
+        
+        return [$hours, $minutes];
     }
 }

@@ -407,6 +407,8 @@ Route::controller(PengajuanSolderController::class)->prefix('pengajuansolder')->
     Route::post('/pengajuansolder/review-hasil/{id}', [PengajuanSolderController::class, 'reviewHasil'])->name('pengajuansolder.reviewHasil');
     Route::post('/pengajuansolder/tolak/{id}', [PengajuanSolderController::class, 'tolakReviewHasil'])->name('pengajuansolder.tolak');
     Route::post('/pengajuan-solder/approve/{id}', [PengajuanSolderController::class, 'approve'])->name('pengajuansolder.approve');
+
+    
     Route::prefix('pengajuansolder')->group(function () {
         Route::post('/{id}/request-coa-approval', [PengajuanSolderController::class, 'requestCoaApproval'])
             ->name('pengajuansolder.requestCoaApproval');
@@ -486,10 +488,10 @@ Route::controller(DataRawmatController::class)->prefix('datarawmat')->group(func
     Route::get('', 'index')->name('datarawmat');
     Route::get('create', 'create')->name('datarawmat.create');
     Route::post('store', 'store')->name('datarawmat.store');
-    Route::get('show/{id_rawmat}', 'show')->name('datarawmat.show');
-    Route::get('edit/{id_rawmat}', 'edit')->name('datarawmat.edit');
-    Route::put('edit/{id_rawmat}', 'update')->name('datarawmat.update');
-    Route::delete('destroy/{id_rawmat}', 'destroy')->name('datarawmat.destroy');
+    Route::get('show/{id}', 'show')->name('datarawmat.show');
+    Route::get('edit/{id}', 'edit')->name('datarawmat.edit');
+    Route::put('edit/{id}', 'update')->name('datarawmat.update');
+    Route::delete('destroy/{id}', 'destroy')->name('datarawmat.destroy');
 
 
 
@@ -512,6 +514,7 @@ Route::controller(PengajuanRawmatController::class)->prefix('pengajuanrawmat')->
     Route::get('/pengajuanrawmat', [PengajuanRawmatController::class, 'index'])->name('pengajuanrawmat.index');
     Route::get('', 'index')->name('pengajuanrawmat');
     Route::get('create', 'create')->name('pengajuanrawmat.create');
+    Route::get('createe/{id}', 'createe')->name('pengajuanrawmat.createe');
     Route::post('store', 'store')->name('pengajuanrawmat.store');
     Route::get('show/{id}', 'show')->name('pengajuanrawmat.show');
     Route::get('edit/{id}', 'edit')->name('pengajuanrawmat.edit');
@@ -520,6 +523,13 @@ Route::controller(PengajuanRawmatController::class)->prefix('pengajuanrawmat')->
 
     Route::get('/pengajuanrawmat/{id}/print', [PengajuanRawmatController::class, 'print'])->name('pengajuanrawmat.print');  
 
+    Route::get('/get-names/{kategori}', [PengajuanRawmatController::class, 'getNamesByCategory']);
+    Route::post('/pengajuanrawmat/pengajuan/{id}', [PengajuanRawmatController::class, 'pengajuan'])->name('pengajuanrawmat.pengajuan');
+    Route::post('/pengajuanrawmat/proses-analisa/{id}', [PengajuanRawmatController::class, 'prosesAnalisa'])->name('pengajuanrawmat.proses-analisa');
+    Route::post('/pengajuan-rawmat/analisa-selesai/{id}', [PengajuanRawmatController::class, 'analisaSelesai'])->name('pengajuanrawmat.analisaSelesai');
+    Route::post('/pengajuanrawmat/review-hasil/{id}', [PengajuanRawmatController::class, 'reviewHasil'])->name('pengajuanrawmat.reviewHasil');
+    Route::post('/pengajuanrawmat/tolak/{id}', [PengajuanRawmatController::class, 'tolakReviewHasil'])->name('pengajuanrawmat.tolak');
+    Route::post('/pengajuan-rawmat/approve/{id}', [PengajuanRawmatController::class, 'approve'])->name('pengajuanrawmat.approve');
 
 
 });

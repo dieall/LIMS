@@ -2,258 +2,379 @@
 
 @section('contents')
 <style>
-    /* Card styling */
-    .card {
-        border-radius: 0.5rem;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    /* Validation status styles */
+    .validation-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .validation-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
     }
     
-    .card-header {
-        background-color: #f8f9fc;
-        border-bottom: 1px solid #e3e6f0;
-        padding: 1rem 1.25rem;
+    /* Badge styles */
+    .badge {
+        padding: 0.4em 0.6em;
+        font-size: 0.875em;
     }
     
-    /* Table styling */
-    .table-detail th {
-        background-color: #f8f9fc;
-        vertical-align: middle;
-    }
+    /* Bootstrap 4 badges */
+    .bg-primary { background-color: #007bff !important; color: white; }
+    .bg-success { background-color: #28a745 !important; color: white; }
+    .bg-info { background-color: #17a2b8 !important; color: white; }
+    .bg-warning { background-color: #ffc107 !important; color: #212529; }
+    .bg-secondary { background-color: #6c757d !important; color: white; }
     
-    .table-detail td {
-        vertical-align: middle;
-    }
-    
-    /* Section styling */
-    .section-header {
-        border-bottom: 1px solid #e3e6f0;
+    /* Progress bar */
+    .progress {
+        height: 25px;
         margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
     }
-    
-    /* Info box styling */
-    .info-box {
-        background-color: #f8f9fc;
-        border-radius: 0.35rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .info-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #4e73df;
-        margin-bottom: 0.25rem;
-    }
-    
-    .info-value {
-        font-size: 1.1rem;
+    .progress-bar {
+        font-size: 0.9rem;
         font-weight: 500;
     }
     
-    /* Button styling */
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-    }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        .info-row {
-            flex-direction: column;
-        }
-        
-        .info-col {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-    }
-    
-    /* Result status indicators */
-    .status-passed {
-        color: #1cc88a;
-        font-weight: 600;
-    }
-    
-    .status-failed {
-        color: #e74a3b;
-        font-weight: 600;
-    }
-    
-    /* Print-friendly styles */
-    @media print {
-        .breadcrumb, .btn-action {
-            display: none;
-        }
-        
-        .card {
-            box-shadow: none;
-            border: 1px solid #ddd;
-        }
-        
-        body {
-            padding: 1cm;
-        }
-    }
+    /* Utility classes for spacing */
+    .mr-1 { margin-right: 0.25rem !important; }
+    .mr-2 { margin-right: 0.5rem !important; }
+    .mt-2 { margin-top: 0.5rem !important; }
+    .mt-3 { margin-top: 1rem !important; }
+    .mb-4 { margin-bottom: 1.5rem !important; }
 </style>
 
-<div class="panel-body mb-4">
+<div class="panel-body">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light rounded">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}"><i class="fas fa-home me-1"></i> Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('pengajuanrawmat.index') }}"><i class="fas fa-boxes me-1"></i> Pengajuan Raw Material</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><i class="fas fa-file-alt me-1"></i> Detail Pengajuan</li>
+            <li class="breadcrumb-item"><a href="{{ url('/') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('pengajuanrawmat.index') }}">Data Raw Material</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Detail Raw Material</li>
         </ol>
+        <hr>
     </nav>
 </div>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-info-circle me-2"></i> Detail Pengajuan Raw Material
-        </h6>
-        <div>
-            <a href="{{ route('pengajuanrawmat.print', $pengajuanrawmat->id) }}" class="btn btn-sm btn-outline-primary btn-action" target="_blank">
-                <i class="fas fa-print"></i> Print
-            </a>
-        </div>
+        <h6 class="m-0 font-weight-bold">Detail Data Raw Material | {{ $pengajuanrawmat->nama }}</h6>
+        <span class="badge {{ getStatusBadgeClass($pengajuanrawmat->status) }}">{{ $pengajuanrawmat->status }}</span>
     </div>
 
     <div class="card-body">
-        <!-- Summary information section -->
-        <div class="row mb-4 info-row">
-            <div class="col-md-4 mb-3 info-col">
-                <div class="info-box">
-                    <div class="info-title"><i class="fas fa-tag me-1"></i> Nama Raw Material</div>
-                    <div class="info-value">{{ $pengajuanrawmat->nama }}</div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3 info-col">
-                <div class="info-box">
-                    <div class="info-title"><i class="fas fa-building me-1"></i> Supplier</div>
-                    <div class="info-value">{{ $pengajuanrawmat->supplier }}</div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3 info-col">
-                <div class="info-box">
-                    <div class="info-title"><i class="fas fa-calendar-alt me-1"></i> Tanggal</div>
-                    <div class="info-value">{{ \Carbon\Carbon::parse($pengajuanrawmat->tgl)->format('d F Y') }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Details table section -->
-        <h6 class="text-primary font-weight-bold section-header">
-            <i class="fas fa-clipboard-list me-2"></i> Detail Spesifikasi & Hasil
-        </h6>
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-detail">
-                <thead>
+        <div class="row">
+            <!-- Column 1: Basic Information & Status History -->
+            <div class="col-md-6">
+                <table class="table table-bordered">
                     <tr>
-                        <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 30%;">Spesifikasi</th>
-                        <th style="width: 15%;">Satuan</th>
-                        <th style="width: 25%;">COA</th>
-                        <th style="width: 25%;">Result</th>
+                        <th>Tanggal</th>
+                        <td>{{ \Carbon\Carbon::parse($pengajuanrawmat->tgl)->format('d F Y') ?? '-' }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @php
-                        try {
-                            $spesifikasi = json_decode($pengajuanrawmat['spesifikasi'], true) ?? [];
-                            $satuan = json_decode($pengajuanrawmat['satuan'], true) ?? [];
-                            $coa = json_decode($pengajuanrawmat['coa'], true) ?? [];
-                            $result = json_decode($pengajuanrawmat['result'], true) ?? [];
-                            
-                            // Find maximum row length
-                            $maxLength = max(count($spesifikasi), count($satuan), count($coa), count($result));
-                        } catch (\Exception $e) {
-                            $spesifikasi = $satuan = $coa = $result = [];
-                            $maxLength = 0;
-                        }
-                    @endphp
+                    <tr>
+                        <th>Kategori</th>
+                        <td>{{ $pengajuanrawmat->nama_rawmat ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nama Sampel</th>
+                        <td>{{ $pengajuanrawmat->nama ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Batch</th>
+                        <td>{{ $pengajuanrawmat->batch ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Supplier</th>
+                        <td>{{ $pengajuanrawmat->supplier ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>No. Mobil/Container</th>
+                        <td>{{ $pengajuanrawmat->no_mobil ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Deskripsi</th>
+                        <td>{{ $pengajuanrawmat->desc ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            @if ($pengajuanrawmat->status == 'Pengajuan')
+                                <span class="badge bg-primary">{{ $pengajuanrawmat->status }}</span>
+                            @elseif ($pengajuanrawmat->status == 'Proses Analisa')
+                                <span class="badge bg-info">{{ $pengajuanrawmat->status }}</span>
+                            @elseif ($pengajuanrawmat->status == 'Selesai Analisa' || $pengajuanrawmat->status == 'Analisa Selesai')
+                                <span class="badge bg-secondary">{{ $pengajuanrawmat->status }}</span>
+                            @elseif ($pengajuanrawmat->status == 'Review Hasil')
+                                <span class="badge bg-warning">{{ $pengajuanrawmat->status }}</span>
+                            @elseif ($pengajuanrawmat->status == 'Approve')
+                                <span class="badge bg-success">{{ $pengajuanrawmat->status }}</span>
+                            @else
+                                {{ $pengajuanrawmat->status ?? '-' }}
+                            @endif
+                        </td>
+                    </tr>
+                </table>
 
-                    @if($maxLength > 0)
-                        @for ($i = 0; $i < $maxLength; $i++)
+                <!-- Tabel Riwayat Status -->
+                <h5>Riwayat Status</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
                             <tr>
-                                <td class="text-center">{{ $i + 1 }}</td>
-                                <td>{{ $spesifikasi[$i] ?? '-' }}</td>
-                                <td>{{ $satuan[$i] ?? '-' }}</td>
-                                <td>{{ $coa[$i] ?? '-' }}</td>
-                                <td>
-                                    @php
-                                        $resultValue = $result[$i] ?? '-';
-                                        $coaValue = $coa[$i] ?? '-';
-                                        $passed = !empty($resultValue) && !empty($coaValue) && 
-                                                  (strtolower($resultValue) == strtolower($coaValue) || 
-                                                   strpos(strtolower($coaValue), strtolower($resultValue)) !== false);
-                                    @endphp
-                                    <span class="{{ $passed ? 'status-passed' : 'status-failed' }}">
-                                        {{ $resultValue }}
-                                        @if($passed)
-                                            <i class="fas fa-check-circle ms-1"></i>
-                                        @else
-                                            <i class="fas fa-times-circle ms-1"></i>
-                                        @endif
-                                    </span>
-                                </td>
+                                <th>No</th>
+                                <th>Jam Masuk</th>
+                                <th>Status</th>
+                                <th>Alasan Penolakan</th>
+                                <th>Interval Waktu</th>
+                                <th>Nama</th>
                             </tr>
-                        @endfor
-                    @else
-                        <tr>
-                            <td colspan="5" class="text-center py-3">
-                                <i class="fas fa-exclamation-circle text-warning me-1"></i>
-                                Tidak ada data detail yang tersedia
-                            </td>
-                        </tr>
-                    @endif
-                </tbody>
-            </table>
-        </div>
+                        </thead>
+                        <tbody>
+                            @php
+                                $no = 1;
+                                $previousDate = null;
+                                $lastStatusInHistory = null;
+                                $hasCoaApprovedStatus = false;
+                            @endphp
 
-        <!-- Meta information section -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="alert alert-light">
-                    <small class="text-muted">
-                        <i class="fas fa-clock me-1"></i> Dibuat: {{ $pengajuanrawmat->created_at->format('d F Y H:i') }}
-                        @if($pengajuanrawmat->created_at != $pengajuanrawmat->updated_at)
-                            <span class="mx-2">|</span>
-                            <i class="fas fa-edit me-1"></i> Diperbarui: {{ $pengajuanrawmat->updated_at->format('d F Y H:i') }}
-                        @endif
-                    </small>
+                            @forelse($pengajuanrawmat->statusHistory as $history)
+                                @php
+                                    // Save the last status we find in history
+                                    $lastStatusInHistory = $history->status;
+                                    
+                                    // Check if we have a CoA Approved status
+                                    if ($history->status === 'CoA Approved') {
+                                        $hasCoaApprovedStatus = true;
+                                    }
+                                    
+                                    // Menghitung interval waktu antara status saat ini dan status sebelumnya
+                                    $currentDate = \Carbon\Carbon::parse($history->changed_at);
+                                    $interval = '-';
+
+                                    if ($previousDate) {
+                                        // Membulatkan interval waktu ke angka bulat dalam satuan menit
+                                        $interval = round($previousDate->diffInMinutes($currentDate), 0) . ' menit';
+                                    }
+
+                                    // Menyimpan tanggal status sebelumnya untuk perhitungan interval selanjutnya
+                                    $previousDate = $currentDate;
+                                @endphp
+
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $currentDate->format('Y-m-d H:i:s') }}</td>
+                                    <td>
+                                        @if ($history->status === 'CoA Approved')
+                                            <span class="badge bg-success">{{ $history->status }}</span>
+                                        @else
+                                            {{ $history->status }}
+                                        @endif
+                                    </td>
+                                    <td>{{ $history->rejection_reason ?? '-' }}</td>
+                                    <td>{{ $interval }}</td>
+                                    <td>{{ ucwords($history->user_name ?? $history->user->name ?? 'Tidak Diketahui') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center">Tidak ada riwayat status</td>
+                                </tr>
+                            @endforelse
+
+                            <!-- Only add the current status if it's not already the last status in history -->
+                            <!-- AND we don't have a CoA Approved status -->
+                            @if($pengajuanrawmat->statusHistory->count() > 0 && $lastStatusInHistory !== $pengajuanrawmat->status && !$hasCoaApprovedStatus)
+                                <tr>
+                                    @php
+                                        // Menghitung interval waktu dari status terakhir hingga status saat ini
+                                        $lastDate = \Carbon\Carbon::parse($pengajuanrawmat->jam_masuk);
+                                        $interval = $previousDate ? round($previousDate->diffInMinutes($lastDate), 0) . ' menit' : '-';
+                                        
+                                        // Get the last user who modified this record
+                                        $lastUserName = $pengajuanrawmat->statusHistory->last() ? 
+                                            ($pengajuanrawmat->statusHistory->last()->user_name ?? 
+                                             $pengajuanrawmat->statusHistory->last()->user->name ?? 'Tidak Diketahui') : 
+                                            'Tidak Diketahui';
+                                    @endphp
+                                    <td>{{ $no }}</td>
+                                    <td>{{ $lastDate->format('Y-m-d H:i:s') }}</td>
+                                    <td>{{ $pengajuanrawmat->status }}</td>
+                                    <td>{{ $pengajuanrawmat->rejection_reason ?? '-' }}</td>
+                                    <td>{{ $interval }}</td>
+                                    <td>{{ ucwords($lastUserName) }}</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
+                
+                <!-- Form Penolakan for Foreman -->
+                @if (Auth::user()->level === 'Foreman' && $pengajuanrawmat->status === 'Review Hasil')
+                    <form action="{{ route('pengajuanrawmat.tolak', $pengajuanrawmat->id) }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="rejection_reason">Alasan Penolakan</label>
+                            <textarea id="rejection_reason" name="rejection_reason" class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger mt-2">Tolak</button>
+                    </form>
+                @endif
+            </div>
+
+            <!-- Column 2: Raw Material Properties with Status -->
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $excludedFields = [
+                                'id', 'nama_rawmat', 'nama', 'tgl', 'batch', 'desc', 'status',
+                                'created_at', 'updated_at', 'jam_masuk', 'supplier', 'no_mobil',
+                                'coa', 'user_id'
+                            ];
+                            
+                            $displayNames = [
+                                'sn' => 'Tin (Sn)',
+                                'purity' => 'Purity',
+                                'purity_tmac' => 'Purity TMAC',
+                                'appreance' => 'Appearance',
+                                'sg' => 'Specific Gravity',
+                                'fe_amo' => 'Fe Amount',
+                                'si_amo' => 'Si Amount',
+                                'sh' => 'SH',
+                                'acid' => 'Acid Value',
+                                'ri' => 'Refractive Index',
+                                'free' => 'Free Content',
+                                'ph' => 'pH Value',
+                                'fe' => 'Iron (Fe)',
+                                'si' => 'Silicon (Si)',
+                                'sulfur' => 'Sulfur Content',
+                                'visual' => 'Visual',
+                                'water' => 'Water Content',
+                                'color' => 'Color',
+                                'acidity' => 'Acidity',
+                                'lodine' => 'Iodine Value',
+                                'ag' => 'Silver (Ag)',
+                                'cu' => 'Copper (Cu)',
+                                'pb' => 'Lead (Pb)',
+                                'sb' => 'Antimony (Sb)',
+                                'zn' => 'Zinc (Zn)',
+                                'as' => 'Arsenic (As)',
+                                'ni' => 'Nickel (Ni)',
+                                'bi' => 'Bismuth (Bi)',
+                                'cd' => 'Cadmium (Cd)',
+                                'ai' => 'Aluminum (Al)',
+                                'pe' => 'Petroleum',
+                                'ga' => 'Gallium (Ga)',
+                                'densi' => 'Density',
+                                'clarity' => 'Clarity',
+                                'apha' => 'APHA Color'
+                            ];
+                            
+                            // Count for status summary
+                            $passedCount = 0;
+                            $notPassedCount = 0;
+                            $notTestedCount = 0;
+                            $totalFields = 0;
+                        @endphp
+                        
+                        @foreach ($pengajuanrawmat->getAttributes() as $key => $value)
+                            @if (!empty($value) && !in_array($key, $excludedFields) && !str_ends_with($key, '_status'))
+                                @php
+                                    $totalFields++;
+                                    $statusKey = $key . '_status';
+                                    $status = $pengajuanrawmat->$statusKey ?? null;
+                                    
+                                    if ($status === 'Passed') {
+                                        $passedCount++;
+                                    } elseif ($status === 'Not Passed') {
+                                        $notPassedCount++;
+                                    } else {
+                                        $notTestedCount++;
+                                    }
+                                @endphp
+                                
+                                <tr>
+                                    <td>{{ $displayNames[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}</td>
+                                    <td>{{ $value }}</td>
+                                    <td>{!! getStatusBadge($status) !!}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                        
+                        @if($totalFields == 0)
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data parameter yang tersedia</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+
+              
             </div>
         </div>
         
-        <!-- Action buttons -->
-        <div class="d-flex mt-3 gap-2">
-            <a href="{{ route('pengajuanrawmat.index') }}" class="btn btn-secondary btn-action">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <a href="{{ route('pengajuanrawmat.edit', $pengajuanrawmat->id) }}" class="btn btn-primary btn-action">
-                <i class="fas fa-edit"></i> Edit
-            </a>
+        <!-- Tombol Kembali - outside the row but inside card-body -->
+        <div class="mt-3">
+            <a href="{{ route('pengajuanrawmat.index') }}" class="btn btn-secondary">Kembali</a>
+            @if (Auth::user()->level === 'Admin' || Auth::user()->level === 'Supervisor')
+                <a href="{{ route('pengajuanrawmat.edit', $pengajuanrawmat->id) }}" class="btn btn-primary ml-2">Edit</a>
+            @endif
+            @if ($pengajuanrawmat->status === 'Approve')
+                <a href="{{ route('pengajuanrawmat.print', $pengajuanrawmat->id) }}" class="btn btn-success ml-2">
+                    <i class="fas fa-print mr-1"></i> Print
+                </a>
+            @endif
         </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Print functionality
-        document.querySelectorAll('.btn-print').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.print();
-            });
-        });
-    });
-</script>
+@php
+// Helper function for generating status badges in the status column
+function getStatusBadge($status) {
+    if($status == 'Passed') {
+        return '<span class="validation-success"><i class="fas fa-check-circle mr-1"></i> Passed</span>';
+    } elseif($status == 'Not Passed') {
+        return '<span class="validation-error"><i class="fas fa-times-circle mr-1"></i> Not Passed</span>';
+    } else {
+        return '<span class="text-secondary"><i class="fas fa-minus-circle mr-1"></i> Not Tested</span>';
+    }
+}
+
+// Helper function for status badge classes in the header
+function getStatusBadgeClass($status) {
+    switch ($status) {
+        case 'Pengajuan':
+            return 'bg-primary';
+        case 'Proses Analisa':
+            return 'bg-info';
+        case 'Selesai Analisa':
+        case 'Analisa Selesai':
+            return 'bg-secondary';
+        case 'Review Hasil':
+            return 'bg-warning';
+        case 'Approve':
+            return 'bg-success';
+        default:
+            return 'bg-secondary';
+    }
+}
+@endphp
+
 @endsection

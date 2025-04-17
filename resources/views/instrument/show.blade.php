@@ -155,7 +155,18 @@
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
                 
-
+                @if(request()->user()->level === 'Admin' || request()->user()->name === $instrument->nama)
+                    <a href="{{ route('instrument.edit', $instrument->id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <form action="{{ route('instrument.destroy', $instrument->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

@@ -151,13 +151,13 @@
                 </div>
             </div>
             <!-- Jumlah Data -->
-            <h1 class="mt-1 mb-3">{{ $jumlahRawmatHariIni }}</h1>
+            <h1 class="mt-1 mb-3">{{ $jumlahRawmatProses }}</h1>
             <!-- Deskripsi Tambahan -->
             <div class="mb-0">
                 <span class="text-warning">
                     <i class="mdi mdi-plus-circle"></i>
                 </span>
-                <span class="text-muted">Jumlah data raw material yang masuk hari ini.</span>
+                <span class="text-muted">Jumlah Data Raw Material Yang Belum Selesai Proses.</span>
             </div>
         </div>
     </div>
@@ -660,39 +660,7 @@
 
 <!-- Fetch Pegawai Count -->
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Data dari controller
-        const chartData = @json($chartData);
-        const labels = Object.keys(chartData); // Ambil ID dari chartData sebagai label
-        const data = Object.values(chartData); // Ambil total count sebagai data
 
-        // Pie chart dengan data dinamis
-        new Chart(document.getElementById("dmtChartPie"), {
-            type: "pie",
-            data: {
-                labels: labels, // ID sebagai label
-                datasets: [{
-                    label: 'Distribusi DMT',
-                    data: data, // Total count sebagai data
-                    backgroundColor: [
-                        window.theme.primary,
-                        window.theme.warning,
-                        window.theme.danger,
-                        "#dee2e6"
-                    ],
-                    borderColor: "transparent"
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                legend: {
-                    display: true
-                }
-            }
-        });
-    });
-</script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     // Pie chart configuration

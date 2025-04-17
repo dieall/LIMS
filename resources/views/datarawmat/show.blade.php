@@ -1,50 +1,48 @@
 @extends('layouts.app')
 
 @section('contents')
-<div class="panel-body">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb bg-light rounded">
-            <li class="breadcrumb-item">
-                <a href="{{ url('dashboard') }}">Dashboard</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="#">Data Rawmat</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                Detail Data Raw Material
-            </li>
-        </ol>
-        <hr>
-    </nav>
-</div>
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold">Detail Data Pegawai</h6>
-
-    </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>Nama:</strong>
-                            <p class="form-control-plaintext">{{ $dataRawmat->nama }}</p>
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Raw Material Details</h4>
+            <div>
+                <a href="{{ route('datarawmat') }}" class="btn btn-secondary">Back</a>
+                <a href="{{ route('datarawmat.edit', $dataRawmat->id) }}" class="btn btn-warning">Edit</a>
+            </div>
+        </div>
+        <div class="card-body">
+            @foreach($fieldGroups as $groupName => $fields)
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h5>{{ $groupName }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach($fields as $field)
+                                @if(!is_null($dataRawmat->$field))
+                                <div class="col-md-4 mb-3">
+                                    <p><strong>{{ ucwords(str_replace('_', ' ', $field)) }}: </strong>{{ $dataRawmat->$field }}</p>
+                                </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>Supplier:</strong>
-                            <p class="form-control-plaintext">{{ $dataRawmat->supplier }}</p>
-                        </div>
-                    </div>
-
-  
                 </div>
-
-                <div class="d-flex justify-content-between">
-                    <a href="{{ route('datarawmat') }}" class="btn btn-secondary">Back</a>
-    
+            @endforeach
+            
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5>System Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <p><strong>Created At: </strong>{{ $dataRawmat->created_at->format('Y-m-d H:i:s') }}</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <p><strong>Updated At: </strong>{{ $dataRawmat->updated_at ? $dataRawmat->updated_at->format('Y-m-d H:i:s') : '-' }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

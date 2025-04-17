@@ -40,61 +40,60 @@ class InstrumentController extends Controller
     }
 
     // Display the specified instrument
-     // Display the specified instrument
-     public function show($id)
-     {
-         try {
-             // Find instrument by ID - no need to load user relation anymore
-             $instrument = Instrument::findOrFail($id);
-         
-             // Decode JSON fields with error handling
-             try {
-                 $nama_instrument = json_decode($instrument->nama_instrument, true);
-                 $kondisi = json_decode($instrument->kondisi, true);
-                 $keterangan = json_decode($instrument->keterangan, true);
-                 
-                 // Ensure we have arrays
-                 $nama_instrument = is_array($nama_instrument) ? $nama_instrument : [];
-                 $kondisi = is_array($kondisi) ? $kondisi : [];
-                 $keterangan = is_array($keterangan) ? $keterangan : [];
-             } catch (\Exception $e) {
-                 // Handle JSON parsing errors
-                 return redirect()->route('instruments')
-                     ->with('error', 'Data instrumen tidak valid: ' . $e->getMessage());
-             }
-         
-             // Determine maximum length of arrays
-             $maxLength = max(count($nama_instrument), count($kondisi), count($keterangan));
-             
-             // If no data is available
-             if ($maxLength === 0) {
-                 return redirect()->route('instruments')
-                     ->with('error', 'Data instrumen kosong atau tidak valid.');
-             }
-         
-             // Return view with instrument data
-             return view('instrument.show', compact(
-                 'instrument', 
-                 'nama_instrument', 
-                 'kondisi', 
-                 'keterangan', 
-                 'maxLength'
-             ));
-         } catch (\Exception $e) {
-             return redirect()->route('instruments')
-                 ->with('error', 'Instrumen tidak ditemukan: ' . $e->getMessage());
-         }
-     }
+    public function show($id)
+    {
+        try {
+            // Find instrument by ID
+            $instrument = Instrument::with('user')->findOrFail($id);
+        
+            // Decode JSON fields with error handling
+            try {
+                $nama_instrument = json_decode($instrument->nama_instrument, true);
+                $kondisi = json_decode($instrument->kondisi, true);
+                $keterangan = json_decode($instrument->keterangan, true);
+                
+                // Ensure we have arrays
+                $nama_instrument = is_array($nama_instrument) ? $nama_instrument : [];
+                $kondisi = is_array($kondisi) ? $kondisi : [];
+                $keterangan = is_array($keterangan) ? $keterangan : [];
+            } catch (\Exception $e) {
+                // Handle JSON parsing errors
+                return redirect()->route('instruments')
+                    ->with('error', 'Data instrumen tidak valid: ' . $e->getMessage());
+            }
+        
+            // Determine maximum length of arrays
+            $maxLength = max(count($nama_instrument), count($kondisi), count($keterangan));
+            
+            // If no data is available
+            if ($maxLength === 0) {
+                return redirect()->route('instruments')
+                    ->with('error', 'Data instrumen kosong atau tidak valid.');
+            }
+        
+            // Return view with instrument data
+            return view('instrument.show', compact(
+                'instrument', 
+                'nama_instrument', 
+                'kondisi', 
+                'keterangan', 
+                'maxLength'
+            ));
+        } catch (\Exception $e) {
+            return redirect()->route('instruments')
+                ->with('error', 'Instrumen tidak ditemukan: ' . $e->getMessage());
+        }
+    }
+
     // Show the form for creating a new instrument
     public function create()
     {
         $instruments = InstrumentData::orderBy('nama_instrument')->get();
-        // We no longer need to get users since we're using a text input
+        $users = User::where('level', 'Operator Lab')->get();
         $shift = $this->getShift(); // Automatic shift detection
     
-        return view('instrument.create', compact('instruments', 'shift'));
+        return view('instrument.create', compact('users', 'instruments', 'shift'));
     }
-
     
     // Determine shift based on current time
     private function getShift()
@@ -111,61 +110,60 @@ class InstrumentController extends Controller
     }
 
     // Store a newly created instrument in storage
-       // Store a newly created instrument in storage
-       public function store(Request $request)
-       {
-           // Validate input data
-           $validated = $request->validate([
-               'nama_instrument' => 'required|array',
-               'kondisi' => 'required|array',
-               'keterangan' => 'nullable|array',
-               'nama' => 'required|string|max:100', // Changed to string validation instead of exists:users,id
-               'shift' => 'required|string|in:Pagi,Siang,Malam',
-               'tgl' => 'required|date_format:Y-m-d',
-               'jam' => 'required|date_format:H:i',
-           ]);
-           
-           // Custom validation for keterangan fields when kondisi is "Rusak"
-           foreach ($validated['kondisi'] as $index => $condition) {
-               if ($condition === 'Rusak' && empty($validated['keterangan'][$index])) {
-                   return redirect()->back()
-                       ->withInput()
-                       ->withErrors(['keterangan.'.$index => 'Keterangan harus diisi jika kondisi Rusak']);
-               }
-           }
-       
-           try {
-               // Create new Instrument instance
-               $instrument = new Instrument();
-               
-               // Set instrument data
-               $instrument->nama = $validated['nama'];
-               $instrument->nama_instrument = json_encode(array_values($validated['nama_instrument']));
-               $instrument->kondisi = json_encode(array_values($validated['kondisi']));
-               
-               // Handle keterangan - ensure it's an array even if some are empty
-               $keterangan = [];
-               foreach ($validated['nama_instrument'] as $index => $name) {
-                   $keterangan[] = $validated['keterangan'][$index] ?? '';
-               }
-               $instrument->keterangan = json_encode($keterangan);
-               
-               // Set additional data
-               $instrument->shift = $validated['shift'];
-               $instrument->tgl = $validated['tgl'];
-               $instrument->jam = $validated['jam'];
-               
-               // Save to database
-               $instrument->save();
-               
-               return redirect()->route('instruments')
-                   ->with('success', 'Data kondisi instrument berhasil ditambahkan!');
-           } catch (\Exception $e) {
-               return redirect()->back()
-                   ->with('error', 'Gagal menyimpan data: ' . $e->getMessage())
-                   ->withInput();
-           }
-       }
+    public function store(Request $request)
+    {
+        // Validate input data
+        $validated = $request->validate([
+            'nama_instrument' => 'required|array',
+            'kondisi' => 'required|array',
+            'keterangan' => 'nullable|array',
+            'user_id' => 'required|exists:users,id',
+            'shift' => 'required|string|in:Pagi,Siang,Malam',
+            'tgl' => 'required|date_format:Y-m-d',
+            'jam' => 'required|date_format:H:i',
+        ]);
+        
+        // Custom validation for keterangan fields when kondisi is "Rusak"
+        foreach ($validated['kondisi'] as $index => $condition) {
+            if ($condition === 'Rusak' && empty($validated['keterangan'][$index])) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['keterangan.'.$index => 'Keterangan harus diisi jika kondisi Rusak']);
+            }
+        }
+    
+        try {
+            // Create new Instrument instance
+            $instrument = new Instrument();
+            
+            // Set instrument data
+            $instrument->user_id = $validated['user_id'];
+            $instrument->nama_instrument = json_encode(array_values($validated['nama_instrument']));
+            $instrument->kondisi = json_encode(array_values($validated['kondisi']));
+            
+            // Handle keterangan - ensure it's an array even if some are empty
+            $keterangan = [];
+            foreach ($validated['nama_instrument'] as $index => $name) {
+                $keterangan[] = $validated['keterangan'][$index] ?? '';
+            }
+            $instrument->keterangan = json_encode($keterangan);
+            
+            // Set additional data
+            $instrument->shift = $validated['shift'];
+            $instrument->tgl = $validated['tgl'];
+            $instrument->jam = $validated['jam'];
+            
+            // Save to database
+            $instrument->save();
+            
+            return redirect()->route('instruments')
+                ->with('success', 'Data kondisi instrument berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
     
     // Show the form for editing the specified instrument
     public function edit($id)
@@ -202,7 +200,7 @@ class InstrumentController extends Controller
             'nama_instrument' => 'required|array',
             'kondisi' => 'required|array',
             'keterangan' => 'nullable|array',
-            'nama' => 'required|string',
+            'user_id' => 'required|exists:users,id',
             'shift' => 'required|string|in:Pagi,Siang,Malam',
             'tgl' => 'required|date_format:Y-m-d',
             'jam' => 'required|date_format:H:i',
@@ -212,7 +210,7 @@ class InstrumentController extends Controller
             $instrument = Instrument::findOrFail($id);
             
             // Update instrument data
-            $instrument->nama = $validated['nama'];
+            $instrument->user_id = $validated['user_id'];
             $instrument->nama_instrument = json_encode($validated['nama_instrument']);
             $instrument->kondisi = json_encode($validated['kondisi']);
             $instrument->keterangan = json_encode($validated['keterangan'] ?? []);
@@ -238,8 +236,7 @@ class InstrumentController extends Controller
             $instrument = Instrument::findOrFail($id);
             
             // Check if user has permission to delete
-            // Since 'nama' is now just a string and not a user ID, we can only check admin level
-            if (auth()->user()->level !== 'Admin') {
+            if (auth()->user()->level !== 'Admin' && auth()->id() !== $instrument->user_id) {
                 return redirect()->back()
                     ->with('error', 'Anda tidak memiliki izin untuk menghapus data ini.');
             }
@@ -253,5 +250,4 @@ class InstrumentController extends Controller
                 ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
-    
 }
